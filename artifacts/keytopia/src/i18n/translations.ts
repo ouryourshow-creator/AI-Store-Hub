@@ -51,6 +51,8 @@ export const translations = {
     cartEmptySub: 'يبدو أنك لم تضف أي شيء بعد.',
     total: 'الإجمالي',
     proceedToOrder: 'المتابعة للطلب',
+    priceUpdated: 'تم تحديث بعض الأسعار لتعكس الأسعار الحالية.',
+    checkingPrices: 'جارٍ التحقق من الأسعار...',
 
     // Checkout
     completeOrder: 'إتمام الطلب',
@@ -169,6 +171,8 @@ export const translations = {
     cartEmptySub: "Looks like you haven't added anything yet.",
     total: 'Total',
     proceedToOrder: 'Proceed to Order',
+    priceUpdated: 'Some prices have been updated to reflect current rates.',
+    checkingPrices: 'Checking prices...',
 
     // Checkout
     completeOrder: 'Complete Order',

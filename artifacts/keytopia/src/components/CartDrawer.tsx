@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Minus, Trash2 } from 'lucide-react';
+import { X, Plus, Minus, Trash2, RefreshCw } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useLang } from '../contexts/LanguageContext';
 import { useState, useEffect } from 'react';
@@ -11,7 +11,16 @@ interface CartDrawerProps {
 }
 
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
-  const { items, updateQuantity, removeItem, cartTotal } = useCart();
+  const {
+    items,
+    updateQuantity,
+    removeItem,
+    cartTotal,
+    revalidateCart,
+    isRevalidating,
+    priceChangedCount,
+    clearPriceChangedCount,
+  } = useCart();
   const { t, dir } = useLang();
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
@@ -23,6 +32,14 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     if (isOpen) document.body.style.overflow = 'hidden';
     else document.body.style.overflow = 'unset';
     return () => { document.body.style.overflow = 'unset'; };
+  }, [isOpen]);
+
+  // Revalidate prices each time the drawer opens.
+  useEffect(() => {
+    if (!isOpen) return;
+    if (items.length === 0) return;
+    revalidateCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   return (
@@ -47,7 +64,12 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               dir={dir}
             >
               <div className="flex items-center justify-between px-6 py-5 border-b border-black/[0.03]">
-                <h2 className="text-xl font-display font-bold">{t('yourCart')}</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-xl font-display font-bold">{t('yourCart')}</h2>
+                  {isRevalidating && (
+                    <RefreshCw className="w-3.5 h-3.5 text-muted-foreground animate-spin" />
+                  )}
+                </div>
                 <button
                   onClick={onClose}
                   className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
@@ -55,6 +77,29 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   <X className="w-5 h-5" />
                 </button>
               </div>
+
+              {/* Price-changed notice */}
+              <AnimatePresence>
+                {priceChangedCount > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex items-center justify-between gap-2 px-6 py-3 bg-amber-50 border-b border-amber-100 text-amber-800 text-xs">
+                      <span>{t('priceUpdated')}</span>
+                      <button
+                        onClick={clearPriceChangedCount}
+                        className="flex-shrink-0 text-amber-600 hover:text-amber-800 transition-colors"
+                        aria-label="Dismiss"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
                 {items.length === 0 ? (
@@ -120,9 +165,17 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
 
                   <button
                     onClick={() => setIsCheckoutOpen(true)}
-                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 px-4 rounded-[20px] transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-2"
+                    disabled={isRevalidating}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 px-4 rounded-[20px] transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
                   >
-                    {t('proceedToOrder')}
+                    {isRevalidating ? (
+                      <>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        {t('checkingPrices')}
+                      </>
+                    ) : (
+                      t('proceedToOrder')
+                    )}
                   </button>
                 </div>
               )}
