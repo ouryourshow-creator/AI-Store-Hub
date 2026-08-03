@@ -55,8 +55,6 @@ export const createProductBodyPriceMin = 0;
 export const createProductBodySalePriceMin = 0;
 
 
-
-
 export const CreateProductBody = zod.object({
   "name": zod.string().min(1),
   "category": zod.string().optional(),
@@ -144,8 +142,6 @@ export const updateProductBodyPriceMin = 0;
 export const updateProductBodySalePriceMin = 0;
 
 
-
-
 export const UpdateProductBody = zod.object({
   "name": zod.string().min(1).optional(),
   "category": zod.string().optional(),
@@ -205,12 +201,9 @@ export const DeleteProductResponse = zod.void()
  */
 
 
-
-
-
 export const RequestUploadUrlBody = zod.object({
   "name": zod.string().min(1),
-  "size": zod.number().min(1),
+  "size": zod.number().int().min(1),
   "contentType": zod.string().min(1)
 })
 
@@ -228,5 +221,3 @@ export const GetStorageObjectParams = zod.object({
 })
 
 export const GetStorageObjectResponse = zod.unknown()
-
-

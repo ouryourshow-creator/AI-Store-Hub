@@ -133,6 +133,32 @@ export class ObjectStorageService {
     });
   }
 
+  /**
+   * Mint a presigned PUT URL that writes into the first PUBLIC_OBJECT_SEARCH_PATHS
+   * directory so the file can be served unauthenticated via /storage/public-objects/*.
+   * Returns { uploadURL, servingPath } where servingPath is the relative path to
+   * pass to searchPublicObject (e.g. "uploads/<uuid>").
+   */
+  async getPublicUploadURL(subdir = 'uploads'): Promise<{ uploadURL: string; servingPath: string }> {
+    const searchPaths = this.getPublicObjectSearchPaths();
+    const publicBase = searchPaths[0];
+
+    const objectId = randomUUID();
+    const servingPath = `${subdir}/${objectId}`;
+    const fullPath = `${publicBase}/${servingPath}`;
+
+    const { bucketName, objectName } = parseObjectPath(fullPath);
+
+    const uploadURL = await signObjectURL({
+      bucketName,
+      objectName,
+      method: 'PUT',
+      ttlSec: 900,
+    });
+
+    return { uploadURL, servingPath };
+  }
+
   async getObjectEntityFile(objectPath: string): Promise<File> {
     if (!objectPath.startsWith('/objects/')) {
       throw new ObjectNotFoundError();
@@ -267,6 +293,6 @@ async function signObjectURL({
     );
   }
 
-  const { signed_url: signedURL } = await response.json();
-  return signedURL;
+  const body = await response.json() as { signed_url: string };
+  return body.signed_url;
 }

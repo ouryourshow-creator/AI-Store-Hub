@@ -1,5 +1,6 @@
 import { Router, type IRouter } from "express";
-import { getAuth, clerkClient } from "@clerk/express";
+import { getAuth } from "@clerk/express";
+import { isAdminUser } from "../lib/adminAuth";
 
 const router: IRouter = Router();
 
@@ -13,23 +14,16 @@ router.get("/admin/me", async (req, res): Promise<void> => {
     return;
   }
 
-  const adminEmails = (process.env.ADMIN_EMAILS || "")
-    .split(",")
-    .map((e: string) => e.trim())
-    .filter(Boolean);
-
-  // No whitelist configured — any authenticated user is admin (initial setup mode)
-  if (adminEmails.length === 0) {
-    res.json({ isAdmin: true });
-    return;
-  }
-
   try {
-    const user = await clerkClient.users.getUser(auth.userId);
-    const userEmails = user.emailAddresses.map((e: { emailAddress: string }) => e.emailAddress);
-    const isAdmin = userEmails.some((email: string) => adminEmails.includes(email));
+    const result = await isAdminUser(auth.userId);
 
-    if (isAdmin) {
+    if (result === null) {
+      // ADMIN_EMAILS not configured — deny access.
+      res.status(403).json({ isAdmin: false, error: "ADMIN_EMAILS not configured" });
+      return;
+    }
+
+    if (result) {
       res.json({ isAdmin: true });
     } else {
       res.status(403).json({ isAdmin: false, error: "Not authorized as admin" });

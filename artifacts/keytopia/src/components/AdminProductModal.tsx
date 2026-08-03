@@ -148,9 +148,11 @@ function ImageUploader({
       const { uploadURL, objectPath } = await meta.json() as { uploadURL: string; objectPath: string };
 
       // Step 2 — upload directly to GCS
-      await fetch(uploadURL, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      const putRes = await fetch(uploadURL, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+      if (!putRes.ok) throw new Error(`Upload failed (${putRes.status})`);
 
-      // Step 3 — store serving path
+      // Step 3 — store serving path (objectPath is already /public-objects/... so
+      // unauthenticated storefront visitors can load product images)
       onChange(`/api/storage${objectPath}`);
     } catch (e) {
       setErr('Upload failed. Please try again.');

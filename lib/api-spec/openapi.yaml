@@ -298,7 +298,7 @@ components:
           type: string
           minLength: 1
         size:
-          type: number
+          type: integer
           minimum: 1
         contentType:
           type: string

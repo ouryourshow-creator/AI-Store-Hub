@@ -1,5 +1,6 @@
 import { type Request, type Response, type NextFunction } from "express";
-import { getAuth, clerkClient } from "@clerk/express";
+import { getAuth } from "@clerk/express";
+import { isAdminUser } from "../lib/adminAuth";
 
 export async function requireAdmin(
   req: Request,
@@ -13,23 +14,17 @@ export async function requireAdmin(
     return;
   }
 
-  const adminEmails = (process.env.ADMIN_EMAILS || "")
-    .split(",")
-    .map((e: string) => e.trim())
-    .filter(Boolean);
-
-  // No whitelist configured — any authenticated user is admin (initial setup mode)
-  if (adminEmails.length === 0) {
-    next();
-    return;
-  }
-
   try {
-    const user = await clerkClient.users.getUser(auth.userId);
-    const userEmails = user.emailAddresses.map((e: { emailAddress: string }) => e.emailAddress);
-    const isAdmin = userEmails.some((email: string) => adminEmails.includes(email));
+    const result = await isAdminUser(auth.userId);
 
-    if (!isAdmin) {
+    if (result === null) {
+      // ADMIN_EMAILS not configured — deny access.
+      // Set ADMIN_EMAILS (comma-separated) in the environment to grant admin access.
+      res.status(403).json({ error: "Forbidden: ADMIN_EMAILS not configured" });
+      return;
+    }
+
+    if (!result) {
       res.status(403).json({ error: "Forbidden" });
       return;
     }
