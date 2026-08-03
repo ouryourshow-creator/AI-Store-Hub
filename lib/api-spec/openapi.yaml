@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: products
+    description: Product catalog operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,111 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List all products
+      description: Returns all products in the catalog
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create a product
+      description: Add a new product to the catalog (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "400":
+          description: Invalid input
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get a product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Product found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Product not found
+
+    put:
+      operationId: updateProduct
+      tags: [products]
+      summary: Update a product
+      description: Update an existing product (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "400":
+          description: Invalid input
+        "404":
+          description: Product not found
+
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete a product
+      description: Remove a product from the catalog (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Product deleted
+        "404":
+          description: Product not found
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +141,64 @@ components:
       required:
         - status
 
+    Product:
+      type: object
+      required:
+        - id
+        - name
+        - price
+        - duration
+        - createdAt
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        price:
+          type: number
+        duration:
+          type: string
+        coverImageUrl:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    ProductInput:
+      type: object
+      required:
+        - name
+        - price
+        - duration
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        price:
+          type: number
+          minimum: 0
+        duration:
+          type: string
+          minLength: 1
+        coverImageUrl:
+          type: string
+
+    ProductUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: string
+        price:
+          type: number
+          minimum: 0
+        duration:
+          type: string
+          minLength: 1
+        coverImageUrl:
+          type: string
