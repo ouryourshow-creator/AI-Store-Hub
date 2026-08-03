@@ -154,13 +154,41 @@ components:
           type: number
         name:
           type: string
-        description:
+        category:
+          type: ["string", "null"]
+        brand:
+          type: ["string", "null"]
+        coverImageUrl:
           type: ["string", "null"]
         price:
           type: number
+        salePrice:
+          type: ["number", "null"]
         duration:
           type: string
-        coverImageUrl:
+        deliveryTime:
+          type: ["string", "null"]
+        activationType:
+          type: ["string", "null"]
+        onCustomerAccount:
+          type: ["boolean", "null"]
+        invitationLink:
+          type: ["string", "null"]
+        licenseKey:
+          type: ["string", "null"]
+        sharedAccount:
+          type: ["boolean", "null"]
+        description:
+          type: ["string", "null"]
+        features:
+          type: ["array", "null"]
+          items:
+            type: string
+        customerInfoRequired:
+          type: ["array", "null"]
+          items:
+            type: string
+        afterPurchaseInstructions:
           type: ["string", "null"]
         createdAt:
           type: string
@@ -175,15 +203,44 @@ components:
         name:
           type: string
           minLength: 1
-        description:
+        category:
+          type: string
+        brand:
+          type: string
+        coverImageUrl:
           type: string
         price:
+          type: number
+          minimum: 0
+        salePrice:
           type: number
           minimum: 0
         duration:
           type: string
           minLength: 1
-        coverImageUrl:
+        deliveryTime:
+          type: string
+        activationType:
+          type: string
+        onCustomerAccount:
+          type: boolean
+        invitationLink:
+          type: string
+        licenseKey:
+          type: string
+        sharedAccount:
+          type: boolean
+        description:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        customerInfoRequired:
+          type: array
+          items:
+            type: string
+        afterPurchaseInstructions:
           type: string
 
     ProductUpdate:
@@ -192,13 +249,42 @@ components:
         name:
           type: string
           minLength: 1
-        description:
+        category:
+          type: string
+        brand:
+          type: string
+        coverImageUrl:
           type: string
         price:
+          type: number
+          minimum: 0
+        salePrice:
           type: number
           minimum: 0
         duration:
           type: string
           minLength: 1
-        coverImageUrl:
+        deliveryTime:
+          type: string
+        activationType:
+          type: string
+        onCustomerAccount:
+          type: boolean
+        invitationLink:
+          type: string
+        licenseKey:
+          type: string
+        sharedAccount:
+          type: boolean
+        description:
+          type: string
+        features:
+          type: array
+          items:
+            type: string
+        customerInfoRequired:
+          type: array
+          items:
+            type: string
+        afterPurchaseInstructions:
           type: string

@@ -24,10 +24,22 @@ export const HealthCheckResponse = zod.object({
 export const ListProductsResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "description": zod.string().nullish(),
-  "price": zod.number(),
-  "duration": zod.string(),
+  "category": zod.string().nullish(),
+  "brand": zod.string().nullish(),
   "coverImageUrl": zod.string().nullish(),
+  "price": zod.number(),
+  "salePrice": zod.number().nullish(),
+  "duration": zod.string(),
+  "deliveryTime": zod.string().nullish(),
+  "activationType": zod.string().nullish(),
+  "onCustomerAccount": zod.boolean().nullish(),
+  "invitationLink": zod.string().nullish(),
+  "licenseKey": zod.string().nullish(),
+  "sharedAccount": zod.boolean().nullish(),
+  "description": zod.string().nullish(),
+  "features": zod.array(zod.string()).nullish(),
+  "customerInfoRequired": zod.array(zod.string()).nullish(),
+  "afterPurchaseInstructions": zod.string().nullish(),
   "createdAt": zod.string()
 })
 export const ListProductsResponse = zod.array(ListProductsResponseItem)
@@ -40,24 +52,50 @@ export const ListProductsResponse = zod.array(ListProductsResponseItem)
 
 export const createProductBodyPriceMin = 0;
 
+export const createProductBodySalePriceMin = 0;
+
 
 
 
 export const CreateProductBody = zod.object({
   "name": zod.string().min(1),
-  "description": zod.string().optional(),
+  "category": zod.string().optional(),
+  "brand": zod.string().optional(),
+  "coverImageUrl": zod.string().optional(),
   "price": zod.number().min(createProductBodyPriceMin),
+  "salePrice": zod.number().min(createProductBodySalePriceMin).optional(),
   "duration": zod.string().min(1),
-  "coverImageUrl": zod.string().optional()
+  "deliveryTime": zod.string().optional(),
+  "activationType": zod.string().optional(),
+  "onCustomerAccount": zod.boolean().optional(),
+  "invitationLink": zod.string().optional(),
+  "licenseKey": zod.string().optional(),
+  "sharedAccount": zod.boolean().optional(),
+  "description": zod.string().optional(),
+  "features": zod.array(zod.string()).optional(),
+  "customerInfoRequired": zod.array(zod.string()).optional(),
+  "afterPurchaseInstructions": zod.string().optional()
 })
 
 export const CreateProductResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "description": zod.string().nullish(),
-  "price": zod.number(),
-  "duration": zod.string(),
+  "category": zod.string().nullish(),
+  "brand": zod.string().nullish(),
   "coverImageUrl": zod.string().nullish(),
+  "price": zod.number(),
+  "salePrice": zod.number().nullish(),
+  "duration": zod.string(),
+  "deliveryTime": zod.string().nullish(),
+  "activationType": zod.string().nullish(),
+  "onCustomerAccount": zod.boolean().nullish(),
+  "invitationLink": zod.string().nullish(),
+  "licenseKey": zod.string().nullish(),
+  "sharedAccount": zod.boolean().nullish(),
+  "description": zod.string().nullish(),
+  "features": zod.array(zod.string()).nullish(),
+  "customerInfoRequired": zod.array(zod.string()).nullish(),
+  "afterPurchaseInstructions": zod.string().nullish(),
   "createdAt": zod.string()
 })
 
@@ -72,10 +110,22 @@ export const GetProductParams = zod.object({
 export const GetProductResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "description": zod.string().nullish(),
-  "price": zod.number(),
-  "duration": zod.string(),
+  "category": zod.string().nullish(),
+  "brand": zod.string().nullish(),
   "coverImageUrl": zod.string().nullish(),
+  "price": zod.number(),
+  "salePrice": zod.number().nullish(),
+  "duration": zod.string(),
+  "deliveryTime": zod.string().nullish(),
+  "activationType": zod.string().nullish(),
+  "onCustomerAccount": zod.boolean().nullish(),
+  "invitationLink": zod.string().nullish(),
+  "licenseKey": zod.string().nullish(),
+  "sharedAccount": zod.boolean().nullish(),
+  "description": zod.string().nullish(),
+  "features": zod.array(zod.string()).nullish(),
+  "customerInfoRequired": zod.array(zod.string()).nullish(),
+  "afterPurchaseInstructions": zod.string().nullish(),
   "createdAt": zod.string()
 })
 
@@ -91,24 +141,50 @@ export const UpdateProductParams = zod.object({
 
 export const updateProductBodyPriceMin = 0;
 
+export const updateProductBodySalePriceMin = 0;
+
 
 
 
 export const UpdateProductBody = zod.object({
   "name": zod.string().min(1).optional(),
-  "description": zod.string().optional(),
+  "category": zod.string().optional(),
+  "brand": zod.string().optional(),
+  "coverImageUrl": zod.string().optional(),
   "price": zod.number().min(updateProductBodyPriceMin).optional(),
+  "salePrice": zod.number().min(updateProductBodySalePriceMin).optional(),
   "duration": zod.string().min(1).optional(),
-  "coverImageUrl": zod.string().optional()
+  "deliveryTime": zod.string().optional(),
+  "activationType": zod.string().optional(),
+  "onCustomerAccount": zod.boolean().optional(),
+  "invitationLink": zod.string().optional(),
+  "licenseKey": zod.string().optional(),
+  "sharedAccount": zod.boolean().optional(),
+  "description": zod.string().optional(),
+  "features": zod.array(zod.string()).optional(),
+  "customerInfoRequired": zod.array(zod.string()).optional(),
+  "afterPurchaseInstructions": zod.string().optional()
 })
 
 export const UpdateProductResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
-  "description": zod.string().nullish(),
-  "price": zod.number(),
-  "duration": zod.string(),
+  "category": zod.string().nullish(),
+  "brand": zod.string().nullish(),
   "coverImageUrl": zod.string().nullish(),
+  "price": zod.number(),
+  "salePrice": zod.number().nullish(),
+  "duration": zod.string(),
+  "deliveryTime": zod.string().nullish(),
+  "activationType": zod.string().nullish(),
+  "onCustomerAccount": zod.boolean().nullish(),
+  "invitationLink": zod.string().nullish(),
+  "licenseKey": zod.string().nullish(),
+  "sharedAccount": zod.boolean().nullish(),
+  "description": zod.string().nullish(),
+  "features": zod.array(zod.string()).nullish(),
+  "customerInfoRequired": zod.array(zod.string()).nullish(),
+  "afterPurchaseInstructions": zod.string().nullish(),
   "createdAt": zod.string()
 })
 

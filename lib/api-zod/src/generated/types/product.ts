@@ -10,10 +10,34 @@ export interface Product {
   id: number;
   name: string;
   /** @nullable */
-  description?: string | null;
-  price: number;
-  duration: string;
+  category?: string | null;
+  /** @nullable */
+  brand?: string | null;
   /** @nullable */
   coverImageUrl?: string | null;
+  price: number;
+  /** @nullable */
+  salePrice?: number | null;
+  duration: string;
+  /** @nullable */
+  deliveryTime?: string | null;
+  /** @nullable */
+  activationType?: string | null;
+  /** @nullable */
+  onCustomerAccount?: boolean | null;
+  /** @nullable */
+  invitationLink?: string | null;
+  /** @nullable */
+  licenseKey?: string | null;
+  /** @nullable */
+  sharedAccount?: boolean | null;
+  /** @nullable */
+  description?: string | null;
+  /** @nullable */
+  features?: string[] | null;
+  /** @nullable */
+  customerInfoRequired?: string[] | null;
+  /** @nullable */
+  afterPurchaseInstructions?: string | null;
   createdAt: string;
 }

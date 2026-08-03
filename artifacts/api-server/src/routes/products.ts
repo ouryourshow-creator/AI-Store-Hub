@@ -16,6 +16,16 @@ import { requireAdmin } from "../middlewares/requireAdmin";
 
 const router: IRouter = Router();
 
+/** Map a raw DB row to the shape the API returns */
+function mapProduct(p: typeof productsTable.$inferSelect) {
+  return {
+    ...p,
+    price: Number(p.price),
+    salePrice: p.salePrice != null ? Number(p.salePrice) : null,
+    createdAt: p.createdAt.toISOString(),
+  };
+}
+
 // GET /products — public
 router.get("/products", async (req, res): Promise<void> => {
   const products = await db
@@ -23,13 +33,7 @@ router.get("/products", async (req, res): Promise<void> => {
     .from(productsTable)
     .orderBy(productsTable.createdAt);
 
-  const mapped = products.map((p) => ({
-    ...p,
-    price: Number(p.price),
-    createdAt: p.createdAt.toISOString(),
-  }));
-
-  res.json(ListProductsResponse.parse(mapped));
+  res.json(ListProductsResponse.parse(products.map(mapProduct)));
 });
 
 // POST /products — admin only
@@ -41,25 +45,31 @@ router.post("/products", requireAdmin, async (req, res): Promise<void> => {
     return;
   }
 
-  const { name, description, price, duration, coverImageUrl } = parsed.data;
+  const d = parsed.data;
   const [product] = await db
     .insert(productsTable)
     .values({
-      name,
-      description: description ?? null,
-      price: String(price),
-      duration,
-      coverImageUrl: coverImageUrl ?? null,
+      name: d.name,
+      category: d.category ?? null,
+      brand: d.brand ?? null,
+      coverImageUrl: d.coverImageUrl ?? null,
+      price: String(d.price),
+      salePrice: d.salePrice != null ? String(d.salePrice) : null,
+      duration: d.duration,
+      deliveryTime: d.deliveryTime ?? null,
+      activationType: d.activationType ?? null,
+      onCustomerAccount: d.onCustomerAccount ?? false,
+      invitationLink: d.invitationLink ?? null,
+      licenseKey: d.licenseKey ?? null,
+      sharedAccount: d.sharedAccount ?? false,
+      description: d.description ?? null,
+      features: d.features ?? null,
+      customerInfoRequired: d.customerInfoRequired ?? null,
+      afterPurchaseInstructions: d.afterPurchaseInstructions ?? null,
     })
     .returning();
 
-  res.status(201).json(
-    CreateProductResponse.parse({
-      ...product,
-      price: Number(product.price),
-      createdAt: product.createdAt.toISOString(),
-    })
-  );
+  res.status(201).json(CreateProductResponse.parse(mapProduct(product)));
 });
 
 // GET /products/:id — public
@@ -80,13 +90,7 @@ router.get("/products/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  res.json(
-    GetProductResponse.parse({
-      ...product,
-      price: Number(product.price),
-      createdAt: product.createdAt.toISOString(),
-    })
-  );
+  res.json(GetProductResponse.parse(mapProduct(product)));
 });
 
 // PUT /products/:id — admin only
@@ -103,12 +107,26 @@ router.put("/products/:id", requireAdmin, async (req, res): Promise<void> => {
     return;
   }
 
+  const d = parsed.data;
   const updateData: Record<string, unknown> = {};
-  if (parsed.data.name !== undefined) updateData.name = parsed.data.name;
-  if (parsed.data.description !== undefined) updateData.description = parsed.data.description;
-  if (parsed.data.price !== undefined) updateData.price = String(parsed.data.price);
-  if (parsed.data.duration !== undefined) updateData.duration = parsed.data.duration;
-  if (parsed.data.coverImageUrl !== undefined) updateData.coverImageUrl = parsed.data.coverImageUrl;
+
+  if (d.name !== undefined) updateData.name = d.name;
+  if (d.category !== undefined) updateData.category = d.category;
+  if (d.brand !== undefined) updateData.brand = d.brand;
+  if (d.coverImageUrl !== undefined) updateData.coverImageUrl = d.coverImageUrl;
+  if (d.price !== undefined) updateData.price = String(d.price);
+  if (d.salePrice !== undefined) updateData.salePrice = d.salePrice != null ? String(d.salePrice) : null;
+  if (d.duration !== undefined) updateData.duration = d.duration;
+  if (d.deliveryTime !== undefined) updateData.deliveryTime = d.deliveryTime;
+  if (d.activationType !== undefined) updateData.activationType = d.activationType;
+  if (d.onCustomerAccount !== undefined) updateData.onCustomerAccount = d.onCustomerAccount;
+  if (d.invitationLink !== undefined) updateData.invitationLink = d.invitationLink;
+  if (d.licenseKey !== undefined) updateData.licenseKey = d.licenseKey;
+  if (d.sharedAccount !== undefined) updateData.sharedAccount = d.sharedAccount;
+  if (d.description !== undefined) updateData.description = d.description;
+  if (d.features !== undefined) updateData.features = d.features;
+  if (d.customerInfoRequired !== undefined) updateData.customerInfoRequired = d.customerInfoRequired;
+  if (d.afterPurchaseInstructions !== undefined) updateData.afterPurchaseInstructions = d.afterPurchaseInstructions;
 
   const [product] = await db
     .update(productsTable)
@@ -121,13 +139,7 @@ router.put("/products/:id", requireAdmin, async (req, res): Promise<void> => {
     return;
   }
 
-  res.json(
-    UpdateProductResponse.parse({
-      ...product,
-      price: Number(product.price),
-      createdAt: product.createdAt.toISOString(),
-    })
-  );
+  res.json(UpdateProductResponse.parse(mapProduct(product)));
 });
 
 // DELETE /products/:id — admin only

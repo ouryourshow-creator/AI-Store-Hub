@@ -9,10 +9,23 @@
 export interface ProductInput {
   /** @minLength 1 */
   name: string;
-  description?: string;
+  category?: string;
+  brand?: string;
+  coverImageUrl?: string;
   /** @minimum 0 */
   price: number;
+  /** @minimum 0 */
+  salePrice?: number;
   /** @minLength 1 */
   duration: string;
-  coverImageUrl?: string;
+  deliveryTime?: string;
+  activationType?: string;
+  onCustomerAccount?: boolean;
+  invitationLink?: string;
+  licenseKey?: string;
+  sharedAccount?: boolean;
+  description?: string;
+  features?: string[];
+  customerInfoRequired?: string[];
+  afterPurchaseInstructions?: string;
 }
