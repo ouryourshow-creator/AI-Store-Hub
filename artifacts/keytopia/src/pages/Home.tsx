@@ -35,7 +35,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl md:text-6xl font-display font-bold text-white mb-6 tracking-tight max-w-3xl whitespace-pre-line"
+            className={`text-4xl md:text-6xl font-display font-bold text-white mb-6 max-w-3xl whitespace-pre-line ${lang === 'en' ? 'tracking-tight' : 'leading-relaxed'}`}
           >
             {t('heroTitle')}
           </motion.h1>
