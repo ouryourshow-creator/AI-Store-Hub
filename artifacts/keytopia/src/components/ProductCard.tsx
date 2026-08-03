@@ -3,6 +3,7 @@ import { useCart } from '../contexts/CartContext';
 import { useLang } from '../contexts/LanguageContext';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+import { Link } from 'wouter';
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
@@ -16,22 +17,24 @@ export default function ProductCard({ product }: { product: Product }) {
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="bg-card rounded-[20px] overflow-hidden border border-black/[0.06] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
-        {product.coverImageUrl ? (
-          <img
-            src={product.coverImageUrl}
-            alt={product.name}
-            className="w-full h-full object-cover"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-secondary to-primary opacity-90 flex items-center justify-center">
-            <span className="text-white/30 font-display font-bold text-4xl">{product.name.charAt(0)}</span>
+      <Link href={`/products/${product.id}`} className="block">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
+          {product.coverImageUrl ? (
+            <img
+              src={product.coverImageUrl}
+              alt={product.name}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-secondary to-primary opacity-90 flex items-center justify-center">
+              <span className="text-white/30 font-display font-bold text-4xl">{product.name.charAt(0)}</span>
+            </div>
+          )}
+          <div className="absolute top-4 end-4 bg-accent/20 backdrop-blur-md text-secondary font-semibold text-xs px-3 py-1 rounded-full border border-accent/30">
+            {product.duration}
           </div>
-        )}
-        <div className="absolute top-4 end-4 bg-accent/20 backdrop-blur-md text-secondary font-semibold text-xs px-3 py-1 rounded-full border border-accent/30">
-          {product.duration}
         </div>
-      </div>
+      </Link>
 
       <div className="p-6 flex flex-col flex-1">
         <div className="mb-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-[#1CC88A] bg-[#1CC88A]/10 w-fit">
@@ -39,7 +42,9 @@ export default function ProductCard({ product }: { product: Product }) {
           {t('instantActivation')}
         </div>
 
-        <h3 className="text-xl font-display font-semibold mt-2 mb-1 text-foreground">{product.name}</h3>
+        <Link href={`/products/${product.id}`}>
+          <h3 className="text-xl font-display font-semibold mt-2 mb-1 text-foreground hover:text-primary transition-colors">{product.name}</h3>
+        </Link>
 
         {product.description && (
           <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{product.description}</p>

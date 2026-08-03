@@ -4,6 +4,7 @@ import { useCart } from '../contexts/CartContext';
 import { useLang } from '../contexts/LanguageContext';
 import { useState } from 'react';
 import CartDrawer from './CartDrawer';
+
 // Logo is served from the public/ folder
 const logoImg = `${import.meta.env.BASE_URL}logo.png`;
 
@@ -53,7 +54,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
       <footer className="py-12 text-center text-sm text-muted-foreground border-t border-black/[0.03] mt-auto">
         <p>&copy; {new Date().getFullYear()} Keytopia. {t('allRightsReserved')}</p>
-        <div className="mt-4 flex justify-center gap-4">
+        <div className="mt-4 flex justify-center gap-6">
+          <Link href="/policy" className="hover:text-foreground transition-colors">{t('policyLink')}</Link>
           <Link href="/admin" className="hover:text-foreground transition-colors">{t('adminLogin')}</Link>
         </div>
       </footer>

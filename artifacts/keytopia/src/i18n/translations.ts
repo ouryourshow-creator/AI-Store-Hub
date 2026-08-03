@@ -25,9 +25,24 @@ export const translations = {
     noProductsTitle: 'لا توجد منتجات',
     noProductsBody: 'لم نجد أي نتائج مطابقة لـ',
 
-    // Product Card
+    // Product Card / shared
     price: 'السعر',
     addToCart: 'أضف إلى السلة',
+    viewDetails: 'عرض التفاصيل',
+
+    // Product Page
+    backToStore: 'العودة إلى المتجر',
+    subscriptionDuration: 'مدة الاشتراك',
+    whatsIncluded: 'ما يتضمنه المنتج',
+    warranty: 'الضمان',
+    warrantyDetail: 'نضمن عمل الاشتراك طوال مدته. في حال واجهت أي مشكلة، تواصل معنا عبر واتساب وسنحلها فوراً.',
+    activationTime: 'وقت التفعيل',
+    activationTimeDetail: 'فوري — خلال دقائق من تأكيد الطلب',
+    support: 'الدعم',
+    supportDetail: 'دعم على مدار الساعة عبر واتساب',
+    productNotFound: 'المنتج غير موجود',
+    productNotFoundSub: 'لم نتمكن من إيجاد هذا المنتج.',
+    productLoading: 'جارٍ تحميل المنتج...',
 
     // Cart
     yourCart: 'سلتك',
@@ -52,6 +67,19 @@ export const translations = {
     waWhatsApp: 'واتساب',
     waOrder: 'الطلب',
     waTotal: 'الإجمالي',
+
+    // Policy page
+    policyLink: 'سياسة الاسترداد والضمان',
+    policyTitle: 'سياسة الاسترداد والضمان',
+    policySubtitle: 'نسعى دائماً لضمان رضاك الكامل عن منتجاتنا الرقمية.',
+    refundPolicyTitle: 'سياسة الاسترداد',
+    refundPolicyContent: 'نظراً لطبيعة المنتجات الرقمية، لا يمكن استرداد الاشتراكات بعد تفعيلها وتسليم بيانات الدخول. ومع ذلك، نلتزم بحل أي مشكلة تقنية تواجهها خلال مدة الاشتراك بالكامل.\n\nفي حال عدم تفعيل الاشتراك خلال 24 ساعة من تأكيد الدفع، يحق لك الحصول على استرداد كامل أو استبدال بمنتج آخر من اختيارك.',
+    warrantyTitle: 'سياسة الضمان',
+    warrantyContent: 'نضمن عمل جميع اشتراكاتنا طوال المدة المحددة عند الشراء. إذا توقف الاشتراك عن العمل لأسباب تتعلق بنا (وليس بسبب انتهاك شروط الاستخدام)، سنقوم بتجديده أو استبداله مجاناً.\n\n• الضمان يشمل: توقف الاشتراك بشكل مفاجئ، تغيير بيانات الدخول بدون إذن منك، عدم عمل الميزات المعلنة.\n• الضمان لا يشمل: انتهاك شروط استخدام المنتج، المشاركة مع أطراف أخرى دون إذن مسبق.',
+    howToClaimTitle: 'كيفية تقديم طلب الضمان أو الاسترداد',
+    howToClaimContent: 'تواصل معنا مباشرةً عبر واتساب مع ذكر اسمك ورقم طلبك ووصف المشكلة. سيقوم فريقنا بالرد والحل خلال ساعات قليلة.',
+    contactViaWhatsApp: 'تواصل معنا عبر واتساب',
+    lastUpdated: 'آخر تحديث',
 
     // Admin
     adminAccess: 'لوحة الإدارة',
@@ -96,9 +124,24 @@ export const translations = {
     noProductsTitle: 'No products found',
     noProductsBody: "We couldn't find anything matching",
 
-    // Product Card
+    // Product Card / shared
     price: 'Price',
     addToCart: 'Add to Cart',
+    viewDetails: 'View Details',
+
+    // Product Page
+    backToStore: 'Back to Store',
+    subscriptionDuration: 'Subscription Duration',
+    whatsIncluded: "What's Included",
+    warranty: 'Warranty',
+    warrantyDetail: 'We guarantee the subscription will work for its full duration. If you run into any issue, contact us on WhatsApp and we\'ll fix it immediately.',
+    activationTime: 'Activation Time',
+    activationTimeDetail: 'Instant — within minutes of order confirmation',
+    support: 'Support',
+    supportDetail: '24/7 support via WhatsApp',
+    productNotFound: 'Product not found',
+    productNotFoundSub: "We couldn't find this product.",
+    productLoading: 'Loading product...',
 
     // Cart
     yourCart: 'Your Cart',
@@ -123,6 +166,19 @@ export const translations = {
     waWhatsApp: 'WhatsApp',
     waOrder: 'Order',
     waTotal: 'Total',
+
+    // Policy page
+    policyLink: 'Refund & Warranty Policy',
+    policyTitle: 'Refund & Warranty Policy',
+    policySubtitle: 'We are committed to your complete satisfaction with every purchase.',
+    refundPolicyTitle: 'Refund Policy',
+    refundPolicyContent: 'Due to the nature of digital products, subscriptions cannot be refunded after activation and delivery of login credentials. However, we commit to resolving any technical issue you encounter for the full duration of your subscription.\n\nIf your subscription has not been activated within 24 hours of confirmed payment, you are entitled to a full refund or an exchange for another product of your choice.',
+    warrantyTitle: 'Warranty Policy',
+    warrantyContent: 'We guarantee all subscriptions will work for their stated duration. If a subscription stops working for reasons attributable to us (not due to a violation of terms of use), we will renew or replace it at no cost.\n\n• Covered: sudden subscription stoppage, unauthorized credential changes, advertised features not working.\n• Not covered: violation of the product\'s terms of service, sharing access with third parties without prior permission.',
+    howToClaimTitle: 'How to Submit a Warranty or Refund Request',
+    howToClaimContent: 'Contact us directly on WhatsApp with your name, order number, and a description of the issue. Our team will respond and resolve it within a few hours.',
+    contactViaWhatsApp: 'Contact Us on WhatsApp',
+    lastUpdated: 'Last updated',
 
     // Admin
     adminAccess: 'Admin Access',

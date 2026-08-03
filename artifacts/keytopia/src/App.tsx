@@ -4,6 +4,8 @@ import { CartProvider } from './contexts/CartContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import Home from './pages/Home';
 import Admin from './pages/Admin';
+import ProductPage from './pages/ProductPage';
+import PolicyPage from './pages/PolicyPage';
 import NotFound from './pages/not-found';
 import { Toaster } from 'sonner';
 
@@ -17,6 +19,8 @@ export default function App() {
           <WouterRouter base={import.meta.env.BASE_URL?.replace(/\/$/, '') || ''}>
             <Switch>
               <Route path="/" component={Home} />
+              <Route path="/products/:id" component={ProductPage} />
+              <Route path="/policy" component={PolicyPage} />
               <Route path="/admin" component={Admin} />
               <Route component={NotFound} />
             </Switch>
