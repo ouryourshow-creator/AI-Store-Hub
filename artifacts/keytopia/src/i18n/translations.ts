@@ -40,6 +40,7 @@ export const translations = {
     activationTimeDetail: 'فوري — خلال دقائق من تأكيد الطلب',
     support: 'الدعم',
     supportDetail: 'دعم على مدار الساعة عبر واتساب',
+    customerInfoRequiredLabel: 'معلومات مطلوبة منك',
     productNotFound: 'المنتج غير موجود',
     productNotFoundSub: 'لم نتمكن من إيجاد هذا المنتج.',
     productLoading: 'جارٍ تحميل المنتج...',
@@ -100,6 +101,23 @@ export const translations = {
     logOut: 'تسجيل الخروج',
     noDescription: 'لا يوجد وصف',
     from: 'من',
+    // Promo codes (admin)
+    promoCodes: 'أكواد الخصم',
+    managePromoCodes: 'إنشاء وإدارة أكواد الخصم.',
+    addPromoCode: 'إضافة كود',
+    promoCodeLabel: 'الكود',
+    discountPercent: 'نسبة الخصم %',
+    applicableProducts: 'المنتجات المشمولة',
+    allProducts: 'جميع المنتجات',
+    noPromoCodes: 'لا توجد أكواد خصم بعد.',
+    // Checkout promo
+    promoCode: 'كود الخصم',
+    promoCodePlaceholder: 'أدخل الكود',
+    applyPromo: 'تطبيق',
+    promoApplied: 'تم تطبيق الخصم',
+    promoInvalid: 'الكود غير صحيح أو لا ينطبق على منتجات سلتك',
+    discount: 'الخصم',
+    waDiscount: 'الخصم',
   },
   en: {
     // Layout / Header
@@ -140,6 +158,7 @@ export const translations = {
     activationTimeDetail: 'Instant — within minutes of order confirmation',
     support: 'Support',
     supportDetail: '24/7 support via WhatsApp',
+    customerInfoRequiredLabel: 'Required from you',
     productNotFound: 'Product not found',
     productNotFoundSub: "We couldn't find this product.",
     productLoading: 'Loading product...',
@@ -200,6 +219,23 @@ export const translations = {
     logOut: 'Log Out',
     noDescription: 'No description',
     from: 'from',
+    // Promo codes (admin)
+    promoCodes: 'Promo Codes',
+    managePromoCodes: 'Create and manage discount codes.',
+    addPromoCode: 'Add Code',
+    promoCodeLabel: 'Code',
+    discountPercent: 'Discount %',
+    applicableProducts: 'Applicable Products',
+    allProducts: 'All products',
+    noPromoCodes: 'No promo codes yet.',
+    // Checkout promo
+    promoCode: 'Promo Code',
+    promoCodePlaceholder: 'Enter code',
+    applyPromo: 'Apply',
+    promoApplied: 'Discount applied',
+    promoInvalid: 'Invalid code or not applicable to your cart',
+    discount: 'Discount',
+    waDiscount: 'Discount',
   },
 } satisfies Record<Lang, Record<string, string>>;
 

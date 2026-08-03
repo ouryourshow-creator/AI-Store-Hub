@@ -49,6 +49,8 @@ export interface Product {
   /** @nullable */
   features?: string[] | null;
   /** @nullable */
+  warrantyDuration?: string | null;
+  /** @nullable */
   customerInfoRequired?: string[] | null;
   /** @nullable */
   afterPurchaseInstructions?: string | null;
@@ -76,6 +78,7 @@ export interface ProductInput {
   sharedAccount?: boolean;
   description?: string;
   features?: string[];
+  warrantyDuration?: string;
   customerInfoRequired?: string[];
   afterPurchaseInstructions?: string;
 }
@@ -115,7 +118,44 @@ export interface ProductUpdate {
   sharedAccount?: boolean;
   description?: string;
   features?: string[];
+  warrantyDuration?: string;
   customerInfoRequired?: string[];
   afterPurchaseInstructions?: string;
+}
+
+export interface PromoCode {
+  id: number;
+  code: string;
+  /**
+     * @minimum 1
+     * @maximum 100
+     */
+  percentage: number;
+  /** @nullable */
+  applicableProductIds?: number[] | null;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface PromoCodeInput {
+  /** @minLength 1 */
+  code: string;
+  /**
+     * @minimum 1
+     * @maximum 100
+     */
+  percentage: number;
+  applicableProductIds?: number[];
+}
+
+export interface ValidatePromoCodeRequest {
+  code: string;
+  productIds: number[];
+}
+
+export interface ValidatePromoCodeResponse {
+  valid: boolean;
+  percentage?: number;
+  code?: string;
 }
 

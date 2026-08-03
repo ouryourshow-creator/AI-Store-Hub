@@ -4,9 +4,17 @@ import { useGetProduct, getGetProductQueryKey } from '@workspace/api-client-reac
 import { useCart } from '../contexts/CartContext';
 import { useLang } from '../contexts/LanguageContext';
 import Layout from '../components/Layout';
-import { ArrowRight, ArrowLeft, ShieldCheck, Zap, Clock, MessageCircle } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ShieldCheck, Zap, Clock, MessageCircle, CheckCircle2, Tag, Info } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
+
+const CUSTOMER_INFO_LABELS: Record<string, { ar: string; en: string }> = {
+  email:       { ar: 'البريد الإلكتروني', en: 'Email' },
+  password:    { ar: 'كلمة المرور', en: 'Password' },
+  username:    { ar: 'اسم المستخدم', en: 'Username' },
+  inviteEmail: { ar: 'بريد الدعوة', en: 'Invite Email' },
+  notes:       { ar: 'ملاحظات', en: 'Notes' },
+};
 
 export default function ProductPage() {
   const params = useParams<{ id: string }>();
@@ -45,22 +53,40 @@ export default function ProductPage() {
     );
   }
 
+  const pricingOptions = product.pricingOptions && product.pricingOptions.length > 0
+    ? product.pricingOptions
+    : [{ duration: product.duration, price: product.price, salePrice: product.salePrice }];
+  const selectedOption = pricingOptions[selectedOptionIdx] ?? pricingOptions[0];
+
   const handleAddToCart = () => {
     const effectivePrice = selectedOption.salePrice ?? selectedOption.price;
     addItem(product, selectedOption.duration, effectivePrice);
     toast.success(t('addToCart'), { description: product.name, duration: 2000 });
   };
 
-  const pricingOptions = product.pricingOptions && product.pricingOptions.length > 0
-    ? product.pricingOptions
-    : [{ duration: product.duration, price: product.price, salePrice: product.salePrice }];
-  const selectedOption = pricingOptions[selectedOptionIdx] ?? pricingOptions[0];
-
-  const features = [
-    { icon: Zap, label: t('activationTime'), value: t('activationTimeDetail') },
-    { icon: ShieldCheck, label: t('warranty'), value: t('warrantyDetail') },
-    { icon: Clock, label: t('subscriptionDuration'), value: selectedOption.duration },
-    { icon: MessageCircle, label: t('support'), value: t('supportDetail') },
+  const infoCards = [
+    {
+      icon: Zap,
+      label: t('activationTime'),
+      value: product.deliveryTime ?? t('activationTimeDetail'),
+    },
+    {
+      icon: ShieldCheck,
+      label: t('warranty'),
+      value: product.warrantyDuration
+        ? (dir === 'rtl' ? `ضمان لمدة ${product.warrantyDuration}` : `${product.warrantyDuration} warranty`)
+        : t('warrantyDetail'),
+    },
+    {
+      icon: Clock,
+      label: t('subscriptionDuration'),
+      value: selectedOption.duration,
+    },
+    {
+      icon: MessageCircle,
+      label: t('support'),
+      value: t('supportDetail'),
+    },
   ];
 
   return (
@@ -97,21 +123,35 @@ export default function ProductPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.08 }}
-            className="flex flex-col gap-6"
+            className="flex flex-col gap-5"
           >
-            {/* Badges */}
+            {/* Badges row */}
             <div className="flex flex-wrap items-center gap-2">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-[#1CC88A] bg-[#1CC88A]/10 border border-[#1CC88A]/20">
                 <span className="w-1.5 h-1.5 rounded-full bg-[#1CC88A] animate-pulse" />
                 {t('instantActivation')}
               </span>
+              {product.category && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-primary bg-primary/10 border border-primary/20">
+                  <Tag className="w-3 h-3" />
+                  {product.category}
+                </span>
+              )}
+              {product.activationType && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-muted-foreground bg-muted border border-black/[0.06]">
+                  {product.activationType}
+                </span>
+              )}
             </div>
 
-            {/* Name */}
+            {/* Name + brand */}
             <div>
               <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground leading-snug">
                 {product.name}
               </h1>
+              {product.brand && (
+                <p className="mt-1 text-sm text-muted-foreground font-medium">{product.brand}</p>
+              )}
             </div>
 
             {/* Description */}
@@ -121,7 +161,24 @@ export default function ProductPage() {
               </p>
             )}
 
-            {/* Price + CTA */}
+            {/* Features checklist */}
+            {product.features && product.features.length > 0 && (
+              <div className="bg-muted/50 rounded-[16px] border border-black/[0.05] p-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+                  {t('whatsIncluded')}
+                </p>
+                <ul className="flex flex-col gap-2">
+                  {product.features.map((feat, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-foreground">
+                      <CheckCircle2 className="w-4 h-4 text-[#1CC88A] mt-0.5 flex-shrink-0" />
+                      <span>{feat}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Price + CTA card */}
             <div className="bg-card rounded-[20px] border border-black/[0.06] p-6 flex flex-col gap-4 shadow-sm">
               {/* Duration selector */}
               {pricingOptions.length > 1 && (
@@ -183,17 +240,39 @@ export default function ProductPage() {
                 {t('contactViaWhatsApp')}
               </a>
             </div>
+
+            {/* Customer info required */}
+            {product.customerInfoRequired && product.customerInfoRequired.length > 0 && (
+              <div className="flex items-start gap-2.5 bg-amber-50 border border-amber-200 rounded-[14px] p-4">
+                <Info className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-wider text-amber-700 mb-1.5">
+                    {t('customerInfoRequiredLabel')}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {product.customerInfoRequired.map((key) => {
+                      const label = CUSTOMER_INFO_LABELS[key];
+                      return (
+                        <span key={key} className="px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                          {label ? (lang === 'ar' ? label.ar : label.en) : key}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
           </motion.div>
         </div>
 
-        {/* Features grid */}
+        {/* Info cards grid */}
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.18 }}
           className="mt-12 grid grid-cols-1 sm:grid-cols-2 gap-4"
         >
-          {features.map(({ icon: Icon, label, value }) => (
+          {infoCards.map(({ icon: Icon, label, value }) => (
             <div key={label} className="bg-card rounded-[20px] border border-black/[0.06] p-6 flex gap-4 shadow-sm">
               <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
                 <Icon className="w-5 h-5" />

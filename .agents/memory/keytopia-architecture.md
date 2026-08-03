@@ -49,6 +49,22 @@ description: Key decisions and constraints for the Keytopia digital subscription
 
 ### Zod version note
 - Workspace uses Zod v3. Use `z.number()` not `z.number().int()` for IDs (zod.int() is v4 only).
+- `artifacts/api-server` does NOT have `zod` as a direct dependency — do not import it in API route files. Use plain JS validation instead.
+
+### DB migrations (new tables)
+- `drizzle-kit push --force` fails on new tables with no-TTY error. Use a direct SQL migration script run via the tsx binary at `/home/runner/workspace/node_modules/.pnpm/tsx@4.23.1/node_modules/tsx/dist/cli.mjs`.
+- Orval codegen binary: `/home/runner/workspace/node_modules/.pnpm/node_modules/.bin/orval --config orval.config.ts` from `lib/api-spec/`.
+
+### Promo codes
+- `promo_codes` table in DB; routes in `artifacts/api-server/src/routes/promoCodes.ts`.
+- Admin creates codes with percentage + optional product ID list (null = all products).
+- Validation endpoint `POST /promo-codes/validate` is public; checks active flag + product scope.
+- Admin UI: tab-based layout in `Admin.tsx` (Products | Promo Codes tabs).
+- Checkout: promo code input in `CheckoutModal.tsx`; discount reflected in total + WhatsApp message.
+
+### Warranty duration
+- `warrantyDuration` text field on products; set in admin modal Description section.
+- Shown in the Warranty info card on the product page (replaces the static fallback text when set).
 
 ### Tailwind / Clerk CSS
 - Tailwind v4 (`@tailwindcss/vite` plugin).

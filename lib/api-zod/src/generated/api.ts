@@ -47,6 +47,7 @@ export const ListProductsResponseItem = zod.object({
   "sharedAccount": zod.boolean().nullish(),
   "description": zod.string().nullish(),
   "features": zod.array(zod.string()).nullish(),
+  "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
   "createdAt": zod.string()
@@ -89,6 +90,7 @@ export const CreateProductBody = zod.object({
   "sharedAccount": zod.boolean().optional(),
   "description": zod.string().optional(),
   "features": zod.array(zod.string()).optional(),
+  "warrantyDuration": zod.string().optional(),
   "customerInfoRequired": zod.array(zod.string()).optional(),
   "afterPurchaseInstructions": zod.string().optional()
 })
@@ -119,6 +121,7 @@ export const CreateProductResponse = zod.object({
   "sharedAccount": zod.boolean().nullish(),
   "description": zod.string().nullish(),
   "features": zod.array(zod.string()).nullish(),
+  "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
   "createdAt": zod.string()
@@ -158,6 +161,7 @@ export const GetProductResponse = zod.object({
   "sharedAccount": zod.boolean().nullish(),
   "description": zod.string().nullish(),
   "features": zod.array(zod.string()).nullish(),
+  "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
   "createdAt": zod.string()
@@ -203,6 +207,7 @@ export const UpdateProductBody = zod.object({
   "sharedAccount": zod.boolean().optional(),
   "description": zod.string().optional(),
   "features": zod.array(zod.string()).optional(),
+  "warrantyDuration": zod.string().optional(),
   "customerInfoRequired": zod.array(zod.string()).optional(),
   "afterPurchaseInstructions": zod.string().optional()
 })
@@ -233,6 +238,7 @@ export const UpdateProductResponse = zod.object({
   "sharedAccount": zod.boolean().nullish(),
   "description": zod.string().nullish(),
   "features": zod.array(zod.string()).nullish(),
+  "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
   "createdAt": zod.string()
@@ -248,6 +254,77 @@ export const DeleteProductParams = zod.object({
 })
 
 export const DeleteProductResponse = zod.void()
+
+
+/**
+ * @summary List all promo codes (admin only)
+ */
+export const listPromoCodesResponsePercentageMax = 100;
+
+
+
+export const ListPromoCodesResponseItem = zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "percentage": zod.number().min(1).max(listPromoCodesResponsePercentageMax),
+  "applicableProductIds": zod.array(zod.number()).nullish(),
+  "active": zod.boolean(),
+  "createdAt": zod.string()
+})
+export const ListPromoCodesResponse = zod.array(ListPromoCodesResponseItem)
+
+
+/**
+ * @summary Create a promo code (admin only)
+ */
+
+export const createPromoCodeBodyPercentageMax = 100;
+
+
+
+export const CreatePromoCodeBody = zod.object({
+  "code": zod.string().min(1),
+  "percentage": zod.number().min(1).max(createPromoCodeBodyPercentageMax),
+  "applicableProductIds": zod.array(zod.number()).optional()
+})
+
+export const createPromoCodeResponsePercentageMax = 100;
+
+
+
+export const CreatePromoCodeResponse = zod.object({
+  "id": zod.number(),
+  "code": zod.string(),
+  "percentage": zod.number().min(1).max(createPromoCodeResponsePercentageMax),
+  "applicableProductIds": zod.array(zod.number()).nullish(),
+  "active": zod.boolean(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a promo code (admin only)
+ */
+export const DeletePromoCodeParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeletePromoCodeResponse = zod.void()
+
+
+/**
+ * @summary Validate a promo code against cart products
+ */
+export const ValidatePromoCodeBody = zod.object({
+  "code": zod.string(),
+  "productIds": zod.array(zod.number())
+})
+
+export const ValidatePromoCodeResponse = zod.object({
+  "valid": zod.boolean(),
+  "percentage": zod.number().optional(),
+  "code": zod.string().optional()
+})
 
 
 /**

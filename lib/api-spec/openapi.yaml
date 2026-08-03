@@ -133,6 +133,76 @@ paths:
         "404":
           description: Product not found
 
+  /admin/promo-codes:
+    get:
+      operationId: listPromoCodes
+      tags: [products]
+      summary: List all promo codes (admin only)
+      responses:
+        "200":
+          description: List of promo codes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PromoCode"
+    post:
+      operationId: createPromoCode
+      tags: [products]
+      summary: Create a promo code (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PromoCodeInput"
+      responses:
+        "201":
+          description: Promo code created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PromoCode"
+        "400":
+          description: Invalid input
+
+  /admin/promo-codes/{id}:
+    delete:
+      operationId: deletePromoCode
+      tags: [products]
+      summary: Delete a promo code (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /promo-codes/validate:
+    post:
+      operationId: validatePromoCode
+      tags: [products]
+      summary: Validate a promo code against cart products
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ValidatePromoCodeRequest"
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ValidatePromoCodeResponse"
+
   /storage/uploads/request-url:
     post:
       tags: [Storage]
@@ -247,6 +317,8 @@ components:
           type: ["array", "null"]
           items:
             type: string
+        warrantyDuration:
+          type: ["string", "null"]
         customerInfoRequired:
           type: ["array", "null"]
           items:
@@ -303,6 +375,8 @@ components:
           type: array
           items:
             type: string
+        warrantyDuration:
+          type: string
         customerInfoRequired:
           type: array
           items:
@@ -375,9 +449,70 @@ components:
           type: array
           items:
             type: string
+        warrantyDuration:
+          type: string
         customerInfoRequired:
           type: array
           items:
             type: string
         afterPurchaseInstructions:
+          type: string
+
+    PromoCode:
+      type: object
+      required: [id, code, percentage, active, createdAt]
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+        percentage:
+          type: number
+          minimum: 1
+          maximum: 100
+        applicableProductIds:
+          type: ["array", "null"]
+          items:
+            type: number
+        active:
+          type: boolean
+        createdAt:
+          type: string
+
+    PromoCodeInput:
+      type: object
+      required: [code, percentage]
+      properties:
+        code:
+          type: string
+          minLength: 1
+        percentage:
+          type: number
+          minimum: 1
+          maximum: 100
+        applicableProductIds:
+          type: array
+          items:
+            type: number
+
+    ValidatePromoCodeRequest:
+      type: object
+      required: [code, productIds]
+      properties:
+        code:
+          type: string
+        productIds:
+          type: array
+          items:
+            type: number
+
+    ValidatePromoCodeResponse:
+      type: object
+      required: [valid]
+      properties:
+        valid:
+          type: boolean
+        percentage:
+          type: number
+        code:
           type: string

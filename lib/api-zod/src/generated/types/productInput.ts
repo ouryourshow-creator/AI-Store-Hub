@@ -28,6 +28,7 @@ export interface ProductInput {
   sharedAccount?: boolean;
   description?: string;
   features?: string[];
+  warrantyDuration?: string;
   customerInfoRequired?: string[];
   afterPurchaseInstructions?: string;
 }

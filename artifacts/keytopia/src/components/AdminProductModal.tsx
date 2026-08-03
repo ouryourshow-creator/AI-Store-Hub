@@ -66,7 +66,7 @@ type FormData = {
   pricingOptions: PricingRow[];
   deliveryTime: string; activationType: string;
   onCustomerAccount: boolean; invitationLink: string; licenseKey: string; sharedAccount: boolean;
-  description: string; featuresText: string;
+  description: string; featuresText: string; warrantyDuration: string;
   customerInfoRequired: string[];
   afterPurchaseInstructions: string;
 };
@@ -78,7 +78,7 @@ const EMPTY: FormData = {
   pricingOptions: [{ ...EMPTY_PRICING }],
   deliveryTime: '', activationType: '',
   onCustomerAccount: false, invitationLink: '', licenseKey: '', sharedAccount: false,
-  description: '', featuresText: '',
+  description: '', featuresText: '', warrantyDuration: '',
   customerInfoRequired: [],
   afterPurchaseInstructions: '',
 };
@@ -107,6 +107,7 @@ function productToForm(p: Product): FormData {
     sharedAccount: p.sharedAccount ?? false,
     description: p.description ?? '',
     featuresText: (p.features ?? []).join('\n'),
+    warrantyDuration: p.warrantyDuration ?? '',
     customerInfoRequired: p.customerInfoRequired ?? [],
     afterPurchaseInstructions: p.afterPurchaseInstructions ?? '',
   };
@@ -140,6 +141,7 @@ function formToInput(f: FormData): ProductInput {
     features: f.featuresText
       ? f.featuresText.split('\n').map(s => s.trim()).filter(Boolean)
       : undefined,
+    warrantyDuration: f.warrantyDuration || undefined,
     customerInfoRequired: f.customerInfoRequired.length ? f.customerInfoRequired : undefined,
     afterPurchaseInstructions: f.afterPurchaseInstructions || undefined,
   };
@@ -402,6 +404,9 @@ export default function AdminProductModal({ isOpen, onClose, product }: Props) {
                       </Field>
                       <Field label="Features" hint="One feature per line">
                         <textarea rows={5} placeholder={"Access to GPT-4o\nImage generation\nAdvanced reasoning"} value={form.featuresText} onChange={e => set({ featuresText: e.target.value })} className={`${inputCls} resize-none font-mono text-xs`} />
+                      </Field>
+                      <Field label="Warranty Duration" hint="e.g. 30 days, 3 months, Lifetime">
+                        <input type="text" placeholder="30 days" value={form.warrantyDuration} onChange={e => set({ warrantyDuration: e.target.value })} className={inputCls} />
                       </Field>
                     </div>
                   )}

@@ -88,6 +88,7 @@ router.post("/products", requireAdmin, async (req, res): Promise<void> => {
       sharedAccount: d.sharedAccount ?? false,
       description: d.description ?? null,
       features: d.features ?? null,
+      warrantyDuration: d.warrantyDuration ?? null,
       customerInfoRequired: d.customerInfoRequired ?? null,
       afterPurchaseInstructions: d.afterPurchaseInstructions ?? null,
     })
@@ -157,6 +158,7 @@ router.put("/products/:id", requireAdmin, async (req, res): Promise<void> => {
   if (d.sharedAccount !== undefined) updateData.sharedAccount = d.sharedAccount;
   if (d.description !== undefined) updateData.description = d.description;
   if (d.features !== undefined) updateData.features = d.features;
+  if (d.warrantyDuration !== undefined) updateData.warrantyDuration = d.warrantyDuration;
   if (d.customerInfoRequired !== undefined) updateData.customerInfoRequired = d.customerInfoRequired;
   if (d.afterPurchaseInstructions !== undefined) updateData.afterPurchaseInstructions = d.afterPurchaseInstructions;
 

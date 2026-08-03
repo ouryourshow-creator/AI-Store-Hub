@@ -32,6 +32,7 @@ export const productsTable = pgTable("products", {
   // Description
   description: text("description"),
   features: text("features").array(),
+  warrantyDuration: text("warranty_duration"),
   // Customer info
   customerInfoRequired: text("customer_info_required").array(),
   // Post-purchase

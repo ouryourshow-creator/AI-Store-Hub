@@ -39,6 +39,8 @@ export interface Product {
   /** @nullable */
   features?: string[] | null;
   /** @nullable */
+  warrantyDuration?: string | null;
+  /** @nullable */
   customerInfoRequired?: string[] | null;
   /** @nullable */
   afterPurchaseInstructions?: string | null;
