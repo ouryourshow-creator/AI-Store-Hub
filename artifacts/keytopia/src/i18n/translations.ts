@@ -54,15 +54,43 @@ export const translations = {
     priceUpdated: 'تم تحديث بعض الأسعار لتعكس الأسعار الحالية.',
     checkingPrices: 'جارٍ التحقق من الأسعار...',
 
-    // Checkout
+    // Checkout — step labels & navigation
     completeOrder: 'إتمام الطلب',
+    next: 'التالي',
+    back: 'رجوع',
+    optional: 'اختياري',
+
+    // Checkout — step 1 (contact info)
     fullName: 'الاسم الكامل',
     fullNamePlaceholder: 'محمد أحمد',
+    emailAddress: 'البريد الإلكتروني',
+    emailPlaceholder: 'example@email.com',
+    phoneNumber: 'رقم الهاتف',
+    phonePlaceholder: '+2010...',
     whatsappNumber: 'رقم الواتساب',
     whatsappPlaceholder: '+201...',
     items: 'المنتجات',
     sendViaWhatsApp: 'إرسال الطلب عبر واتساب',
     whatsappNote: 'سيتم تحويلك إلى واتساب لتأكيد الطلب وإتمام الدفع.',
+
+    // Checkout — step 2 (payment method)
+    choosePaymentMethod: 'اختر طريقة الدفع المناسبة لك',
+    instapayDesc: 'ادفع مباشرةً عبر رابط Instapay',
+    vodafoneDesc: 'أرسل المبلغ عبر فودافون كاش',
+    bankTransfer: 'تحويل بنكي',
+    bankDesc: 'تحويل إلى حساب HSBC Egypt',
+    otherMethods: 'طرق دفع أخرى (من خارج مصر)',
+    otherMethodsDesc: 'تحويل دولي أو طرق أخرى — تواصل معنا',
+
+    // Checkout — step 3 (payment proof)
+    paymentProofInstructions: 'أكمل الدفع أدناه ثم أرسل لنا صورة الإيصال عبر واتساب لتأكيد طلبك.',
+    instapayClickLink: 'انقر على الرابط للدفع الفوري عبر Instapay:',
+    payViaInstapay: 'الدفع عبر Instapay',
+    sendToNumber: 'أرسل المبلغ إلى هذا الرقم:',
+    accountNumber: 'رقم الحساب',
+    afterPayment: 'بعد إتمام الدفع',
+    sendProofExplain: 'أرسل لنا صورة إيصال الدفع عبر واتساب لنؤكد طلبك ونبدأ التفعيل.',
+    sendProofViaWhatsApp: 'إرسال إيصال الدفع عبر واتساب',
 
     // WhatsApp message
     waOrderFrom: 'طلب جديد من كيتوبيا',
@@ -174,15 +202,43 @@ export const translations = {
     priceUpdated: 'Some prices have been updated to reflect current rates.',
     checkingPrices: 'Checking prices...',
 
-    // Checkout
+    // Checkout — step labels & navigation
     completeOrder: 'Complete Order',
+    next: 'Next',
+    back: 'Back',
+    optional: 'optional',
+
+    // Checkout — step 1 (contact info)
     fullName: 'Full Name',
     fullNamePlaceholder: 'John Doe',
+    emailAddress: 'Email Address',
+    emailPlaceholder: 'example@email.com',
+    phoneNumber: 'Phone Number',
+    phonePlaceholder: '+2010...',
     whatsappNumber: 'WhatsApp Number',
     whatsappPlaceholder: '+2010...',
     items: 'Items',
     sendViaWhatsApp: 'Send Order via WhatsApp',
     whatsappNote: 'You will be redirected to WhatsApp to confirm and finalize your payment.',
+
+    // Checkout — step 2 (payment method)
+    choosePaymentMethod: 'Choose a payment method that works for you',
+    instapayDesc: 'Pay instantly via Instapay link',
+    vodafoneDesc: 'Send via Vodafone Cash',
+    bankTransfer: 'Bank Transfer',
+    bankDesc: 'Transfer to HSBC Egypt account',
+    otherMethods: 'Other Methods (outside Egypt)',
+    otherMethodsDesc: 'International transfer or other — chat with us',
+
+    // Checkout — step 3 (payment proof)
+    paymentProofInstructions: 'Complete the payment below, then send us a screenshot of the receipt on WhatsApp to confirm your order.',
+    instapayClickLink: 'Click the link to pay instantly via Instapay:',
+    payViaInstapay: 'Pay via Instapay',
+    sendToNumber: 'Send the amount to this number:',
+    accountNumber: 'Account Number',
+    afterPayment: 'After completing payment',
+    sendProofExplain: 'Send us a screenshot of your payment receipt via WhatsApp so we can confirm your order and begin activation.',
+    sendProofViaWhatsApp: 'Send Payment Proof via WhatsApp',
 
     // WhatsApp message
     waOrderFrom: 'New Order from Keytopia',
