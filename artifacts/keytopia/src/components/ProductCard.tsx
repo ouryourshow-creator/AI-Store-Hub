@@ -2,6 +2,7 @@ import { Product } from '@workspace/api-client-react';
 import { useCart } from '../contexts/CartContext';
 import { useLang } from '../contexts/LanguageContext';
 import { motion } from 'framer-motion';
+import { toast } from 'sonner';
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
@@ -54,7 +55,13 @@ export default function ProductCard({ product }: { product: Product }) {
         </div>
 
         <button
-          onClick={() => addItem(product)}
+          onClick={() => {
+            addItem(product);
+            toast.success(t('addToCart'), {
+              description: product.name,
+              duration: 2000,
+            });
+          }}
           className="mt-5 w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-3.5 px-4 rounded-full transition-all active:scale-[0.98] shadow-sm hover:shadow active:shadow-none"
         >
           {t('addToCart')}
