@@ -19,12 +19,18 @@ description: Key decisions and constraints for the Keytopia digital subscription
 - Arabic fonts: Alexandria (display), IBM Plex Sans Arabic (body) — activated via `[dir="rtl"]` CSS selector in `index.css`.
 - All translation strings in `artifacts/keytopia/src/i18n/translations.ts`.
 
-### Admin auth
-- PIN stored as `ADMIN_PIN` secret (not env var).
-- Session-based: `POST /api/admin/login` sets `req.session.isAdmin = true`.
-- Sessions stored in Postgres (`user_sessions` table via `connect-pg-simple`, auto-created).
-- Login rate-limited: 5 failed attempts per 15 min per IP via `express-rate-limit`.
-- All catalog mutations (POST/PUT/DELETE /api/products) require `requireAdmin` middleware.
+### Admin auth (Clerk)
+- Auth is Replit-managed Clerk (provisioned via `setupClerkWhitelabelAuth()`).
+- `clerkMiddleware` from `@clerk/express` is mounted in `app.ts` after body parsers, before routes.
+- Clerk proxy middleware (`clerkProxyMiddleware`) mounted before body parsers at `/api/__clerk`.
+- `requireAdmin` in `artifacts/api-server/src/middlewares/requireAdmin.ts` uses `getAuth(req)` + Clerk user lookup to enforce the `ADMIN_EMAILS` whitelist.
+- `ADMIN_EMAILS` env var: comma-separated list of allowed admin emails. If empty, any authenticated user is admin (initial setup mode).
+- `clerkClient` from `@clerk/express` is a direct object (not a function) — use `clerkClient.users.getUser(userId)` directly.
+- Frontend: `App.tsx` wraps everything in `<ClerkProvider>` with `publishableKeyFromHost` from `@clerk/react/internal`.
+- Sign-in page at `/sign-in/*?` — uses `forceRedirectUrl` (NOT `afterSignInUrl`) on `<SignIn>` component to send admin to `/admin` post-login.
+- Admin page uses `useUser()` + `useClerk()` hooks; redirects to `/sign-in` if unauthenticated.
+- PIN-based login (`ADMIN_PIN`, `POST /admin/login`, `POST /admin/logout`, `req.session.isAdmin`) fully removed.
+- Session middleware kept in `app.ts` (legacy, harmless).
 
 ### DB migration
 - `artifacts/api-server` dev script runs `pnpm --filter @workspace/db push-force` before build.
@@ -43,3 +49,8 @@ description: Key decisions and constraints for the Keytopia digital subscription
 
 ### Zod version note
 - Workspace uses Zod v3. Use `z.number()` not `z.number().int()` for IDs (zod.int() is v4 only).
+
+### Tailwind / Clerk CSS
+- Tailwind v4 (`@tailwindcss/vite` plugin).
+- `vite.config.ts` uses `tailwindcss({ optimize: false })` — required to prevent Clerk theme CSS from breaking in prod builds.
+- `index.css` declares `@layer theme, base, clerk, components, utilities;` BEFORE `@import 'tailwindcss'` and includes `@import '@clerk/themes/shadcn.css'`.

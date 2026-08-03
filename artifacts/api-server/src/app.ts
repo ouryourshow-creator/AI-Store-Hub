@@ -3,6 +3,13 @@ import cors from "cors";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import pinoHttp from "pino-http";
+import { clerkMiddleware } from "@clerk/express";
+import { publishableKeyFromHost } from "@clerk/shared/keys";
+import {
+  CLERK_PROXY_PATH,
+  clerkProxyMiddleware,
+  getClerkProxyHost,
+} from "./middlewares/clerkProxyMiddleware";
 import router from "./routes";
 import { logger } from "./lib/logger";
 import { pool } from "@workspace/db";
@@ -34,7 +41,12 @@ app.use(
   }),
 );
 
+// Clerk proxy MUST come before body parsers (streams raw bytes)
+app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
+
 // Restrict CORS to the known frontend origins.
+// CORS_ORIGIN env var can be a comma-separated list for production.
+// Falls back to the Replit dev domain when available, or localhost.
 function buildAllowedOrigins(): string[] | RegExp {
   if (process.env.CORS_ORIGIN) {
     return process.env.CORS_ORIGIN.split(",").map((o) => o.trim());
@@ -42,6 +54,7 @@ function buildAllowedOrigins(): string[] | RegExp {
   if (process.env.REPLIT_DEV_DOMAIN) {
     return [
       `https://${process.env.REPLIT_DEV_DOMAIN}`,
+      // Also allow the exact proxy origin in local dev
       "http://localhost:80",
       "http://127.0.0.1:80",
     ];
@@ -96,6 +109,16 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Clerk auth middleware — after body parsers, before routes
+app.use(
+  clerkMiddleware((req) => ({
+    publishableKey: publishableKeyFromHost(
+      getClerkProxyHost(req) ?? "",
+      process.env.CLERK_PUBLISHABLE_KEY,
+    ),
+  })),
+);
 
 app.use("/api", router);
 
