@@ -11,6 +11,9 @@ const PgSession = connectPgSimple(session);
 
 const app: Express = express();
 
+// Required so express-rate-limit can read X-Forwarded-For correctly behind Replit's proxy.
+app.set("trust proxy", 1);
+
 app.use(
   pinoHttp({
     logger,
@@ -32,8 +35,6 @@ app.use(
 );
 
 // Restrict CORS to the known frontend origins.
-// CORS_ORIGIN env var can be a comma-separated list for production.
-// Falls back to the Replit dev domain when available, or localhost.
 function buildAllowedOrigins(): string[] | RegExp {
   if (process.env.CORS_ORIGIN) {
     return process.env.CORS_ORIGIN.split(",").map((o) => o.trim());
@@ -41,7 +42,6 @@ function buildAllowedOrigins(): string[] | RegExp {
   if (process.env.REPLIT_DEV_DOMAIN) {
     return [
       `https://${process.env.REPLIT_DEV_DOMAIN}`,
-      // Also allow the exact proxy origin in local dev
       "http://localhost:80",
       "http://127.0.0.1:80",
     ];
@@ -60,12 +60,27 @@ if (!process.env.SESSION_SECRET) {
   throw new Error("SESSION_SECRET environment variable is required");
 }
 
+// connect-pg-simple's createTableIfMissing reads a SQL file from the package
+// directory which is unavailable after esbuild bundling. We create the table
+// ourselves with a raw query and keep createTableIfMissing: false.
+export async function ensureSessionTable(): Promise<void> {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS "user_sessions" (
+      "sid"    varchar        NOT NULL COLLATE "default",
+      "sess"   json           NOT NULL,
+      "expire" timestamp(6)   NOT NULL,
+      CONSTRAINT "user_sessions_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE
+    );
+    CREATE INDEX IF NOT EXISTS "IDX_user_sessions_expire" ON "user_sessions" ("expire");
+  `);
+}
+
 app.use(
   session({
     store: new PgSession({
       pool,
       tableName: "user_sessions",
-      createTableIfMissing: true,
+      createTableIfMissing: false, // we handle this in ensureSessionTable()
     }),
     secret: process.env.SESSION_SECRET,
     resave: false,
