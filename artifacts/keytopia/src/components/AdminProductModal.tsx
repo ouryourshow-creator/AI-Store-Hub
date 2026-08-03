@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Upload, ImageIcon } from 'lucide-react';
 import {
   Product,
   ProductInput,
@@ -125,6 +125,65 @@ function formToInput(f: FormData): ProductInput {
   };
 }
 
+// ── Inline image uploader (presigned URL flow) ────────────────────────────
+function ImageUploader({
+  value, onChange,
+}: { value: string; onChange: (url: string) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [err, setErr] = useState('');
+
+  const handleFile = async (file: File) => {
+    if (!file.type.startsWith('image/')) { setErr('Please select an image file.'); return; }
+    setErr(''); setUploading(true);
+    try {
+      // Step 1 — get presigned URL
+      const meta = await fetch('/api/storage/uploads/request-url', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: file.name, size: file.size, contentType: file.type }),
+      });
+      if (!meta.ok) throw new Error('Failed to get upload URL');
+      const { uploadURL, objectPath } = await meta.json() as { uploadURL: string; objectPath: string };
+
+      // Step 2 — upload directly to GCS
+      await fetch(uploadURL, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } });
+
+      // Step 3 — store serving path
+      onChange(`/api/storage${objectPath}`);
+    } catch (e) {
+      setErr('Upload failed. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div>
+      <input ref={inputRef} type="file" accept="image/*" className="hidden"
+        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ''; }} />
+      {value ? (
+        <div className="relative rounded-[10px] overflow-hidden h-36 bg-muted group">
+          <img src={value} alt="Product" className="w-full h-full object-cover" />
+          <button type="button" onClick={() => inputRef.current?.click()}
+            className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white text-sm font-semibold">
+            <Upload className="w-4 h-4" /> Change Image
+          </button>
+        </div>
+      ) : (
+        <button type="button" onClick={() => inputRef.current?.click()} disabled={uploading}
+          className="w-full h-28 rounded-[10px] border-2 border-dashed border-muted-foreground/20 hover:border-primary/40 bg-muted hover:bg-primary/5 flex flex-col items-center justify-center gap-2 transition-all disabled:opacity-50">
+          {uploading
+            ? <><div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" /><span className="text-xs text-muted-foreground">Uploading…</span></>
+            : <><ImageIcon className="w-6 h-6 text-muted-foreground/50" /><span className="text-xs text-muted-foreground">Click to upload image</span></>}
+        </button>
+      )}
+      {err && <p className="text-[11px] text-destructive mt-1">{err}</p>}
+    </div>
+  );
+}
+
 export default function AdminProductModal({ isOpen, onClose, product }: Props) {
   const isEditing = !!product;
   const queryClient = useQueryClient();
@@ -218,14 +277,12 @@ export default function AdminProductModal({ isOpen, onClose, product }: Props) {
                         <input type="text" placeholder="e.g. OpenAI" value={form.brand} onChange={e => set({ brand: e.target.value })} className={inputCls} />
                       </Field>
                       <div className="col-span-2">
-                        <Field label="Product Image URL">
-                          <input type="url" placeholder="https://..." value={form.coverImageUrl} onChange={e => set({ coverImageUrl: e.target.value })} className={inputCls} />
+                        <Field label="Product Image">
+                          <ImageUploader
+                            value={form.coverImageUrl}
+                            onChange={url => set({ coverImageUrl: url })}
+                          />
                         </Field>
-                        {form.coverImageUrl && (
-                          <div className="mt-2 rounded-[10px] overflow-hidden h-28 bg-muted">
-                            <img src={form.coverImageUrl} alt="Preview" className="w-full h-full object-cover" onError={e => (e.currentTarget.style.display = 'none')} />
-                          </div>
-                        )}
                       </div>
                     </div>
                   )}

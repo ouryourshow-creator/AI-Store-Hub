@@ -10,3 +10,5 @@ export * from './healthStatus';
 export * from './product';
 export * from './productInput';
 export * from './productUpdate';
+export * from './uploadUrlRequest';
+export * from './uploadUrlResponse';

@@ -10,14 +10,14 @@ export const translations = {
     toggleLang: 'EN',
 
     // Hero
-    heroTitle: 'اشتراكات رقمية مميزة،\nتُسلَّم فوراً.',
+    heroTitle: 'اشتراكات رقمية بأرخص سعر،\nتُسلَّم فوراً.',
     heroSubtitle: 'وصول رسمي لأفضل أدوات الذكاء الاصطناعي والبرامج الإبداعية. سريع، آمن، وصُمِّم للمحترفين في العالم العربي.',
 
     // Trust Badges
     officialAccess: 'وصول رسمي',
     instantActivation: 'تفعيل فوري',
     verifiedPartners: 'شركاء موثقون',
-    support247: 'دعم ٢٤/٧',
+    support247: 'دعم على مدار الساعة',
     securePayment: 'دفع آمن',
 
     // Search
