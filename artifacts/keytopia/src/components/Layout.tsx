@@ -18,7 +18,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-black/[0.03]">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3 select-none">
-            <img src={logoImg} alt="Keytopia" className="h-10 w-auto object-contain" />
+            <img src={logoImg} alt="Keytopia" className="h-14 w-auto object-contain" />
           </Link>
 
           <div className="flex items-center gap-3">
