@@ -23,6 +23,7 @@ timeoutMs = 20000
 
 [userenv.shared]
 WHATSAPP_NUMBER = "+201229327902"
+ADMIN_EMAILS = "bassamihab@gmail.com"
 
 [nix]
 channel = "stable-25_05"
