@@ -133,6 +133,59 @@ paths:
         "404":
           description: Product not found
 
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [products]
+      summary: List all categories
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+  /admin/categories:
+    post:
+      operationId: createCategory
+      tags: [products]
+      summary: Create a category (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryInput"
+      responses:
+        "201":
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "400":
+          description: Invalid input
+
+  /admin/categories/{id}:
+    delete:
+      operationId: deleteCategory
+      tags: [products]
+      summary: Delete a category (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "204":
+          description: Deleted
+        "404":
+          description: Not found
+
   /admin/promo-codes:
     get:
       operationId: listPromoCodes
@@ -457,6 +510,25 @@ components:
             type: string
         afterPurchaseInstructions:
           type: string
+
+    Category:
+      type: object
+      required: [id, name, createdAt]
+      properties:
+        id:
+          type: number
+        name:
+          type: string
+        createdAt:
+          type: string
+
+    CategoryInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
 
     PromoCode:
       type: object

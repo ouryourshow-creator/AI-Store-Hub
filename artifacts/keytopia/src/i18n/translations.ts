@@ -112,6 +112,14 @@ export const translations = {
     contactViaWhatsApp: 'تواصل معنا عبر واتساب',
     lastUpdated: 'آخر تحديث',
 
+    // Categories
+    categories: 'الفئات',
+    manageCategories: 'إنشاء وإدارة فئات المنتجات.',
+    addCategory: 'إضافة فئة',
+    categoryName: 'اسم الفئة',
+    noCategories: 'لا توجد فئات بعد.',
+    allCategories: 'الكل',
+
     // Admin
     adminAccess: 'لوحة الإدارة',
     adminAccessSub: 'أدخل الرمز السري للوصول إلى إدارة المنتجات.',
@@ -259,6 +267,14 @@ export const translations = {
     howToClaimContent: 'Contact us directly on WhatsApp with your name, order number, and a description of the issue. Our team will respond and resolve it within a few hours.',
     contactViaWhatsApp: 'Contact Us on WhatsApp',
     lastUpdated: 'Last updated',
+
+    // Categories
+    categories: 'Categories',
+    manageCategories: 'Create and manage product categories.',
+    addCategory: 'Add Category',
+    categoryName: 'Category Name',
+    noCategories: 'No categories yet.',
+    allCategories: 'All',
 
     // Admin
     adminAccess: 'Admin Access',

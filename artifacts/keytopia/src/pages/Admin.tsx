@@ -3,15 +3,16 @@ import { useUser, useClerk } from '@clerk/react';
 import {
   useListProducts, useDeleteProduct, getListProductsQueryKey, Product,
   useListPromoCodes, useCreatePromoCode, useDeletePromoCode, getListPromoCodesQueryKey,
+  useListCategories, useCreateCategory, useDeleteCategory, getListCategoriesQueryKey,
 } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { ShieldAlert, Plus, Pencil, Trash2, LogOut, Search, Tag, X } from 'lucide-react';
+import { ShieldAlert, Plus, Pencil, Trash2, LogOut, Search, Tag, X, Layers } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { toast } from 'sonner';
 import { useLang } from '../contexts/LanguageContext';
 import AdminProductModal from '../components/AdminProductModal';
 
-type Tab = 'products' | 'promo';
+type Tab = 'products' | 'promo' | 'categories';
 
 export default function Admin() {
   const { isLoaded, isSignedIn } = useUser();
@@ -114,6 +115,45 @@ export default function Admin() {
     }));
   };
 
+  // Categories
+  const { data: categories, isLoading: categoriesLoading } = useListCategories({
+    query: { enabled: isAdmin === true, queryKey: getListCategoriesQueryKey() },
+  });
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [categorySubmitting, setCategorySubmitting] = useState(false);
+
+  const createCategoryMutation = useCreateCategory({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListCategoriesQueryKey() });
+        setNewCategoryName('');
+        toast.success(dir === 'rtl' ? 'تم إنشاء الفئة' : 'Category created');
+        setCategorySubmitting(false);
+      },
+      onError: (err: any) => {
+        const msg = err?.response?.data?.error ?? (dir === 'rtl' ? 'فشل إنشاء الفئة' : 'Failed to create category');
+        toast.error(msg);
+        setCategorySubmitting(false);
+      },
+    },
+  });
+
+  const deleteCategoryMutation = useDeleteCategory({
+    mutation: {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: getListCategoriesQueryKey() });
+        toast.success(dir === 'rtl' ? 'تم حذف الفئة' : 'Category deleted');
+      },
+    },
+  });
+
+  const handleCreateCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCategoryName.trim()) return;
+    setCategorySubmitting(true);
+    createCategoryMutation.mutate({ data: { name: newCategoryName.trim() } });
+  };
+
   // Loading / auth states
   if (!isLoaded || (isSignedIn && isAdmin === null)) {
     return (
@@ -176,7 +216,7 @@ export default function Admin() {
       <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-12">
         {/* Tab bar */}
         <div className="flex gap-2 mb-8 border-b border-black/[0.06] pb-0">
-          {(['products', 'promo'] as Tab[]).map(tab => (
+          {(['products', 'categories', 'promo'] as Tab[]).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -186,7 +226,7 @@ export default function Admin() {
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
-              {tab === 'products' ? t('products') : t('promoCodes')}
+              {tab === 'products' ? t('products') : tab === 'categories' ? t('categories') : t('promoCodes')}
             </button>
           ))}
         </div>
@@ -277,6 +317,83 @@ export default function Admin() {
                     )}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* ── Categories tab ── */}
+        {activeTab === 'categories' && (
+          <>
+            <div className="mb-6">
+              <h1 className="text-3xl font-display font-bold text-foreground">{t('categories')}</h1>
+              <p className="text-muted-foreground mt-1">{t('manageCategories')}</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+              {/* Create form */}
+              <div className="lg:col-span-2">
+                <div className="bg-white rounded-[20px] border border-black/[0.03] shadow-sm p-6">
+                  <h2 className="text-base font-display font-bold mb-4 flex items-center gap-2">
+                    <Layers className="w-4 h-4 text-primary" />
+                    {t('addCategory')}
+                  </h2>
+                  <form onSubmit={handleCreateCategory} className="flex flex-col gap-4">
+                    <div>
+                      <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">{t('categoryName')}</label>
+                      <input
+                        type="text"
+                        required
+                        value={newCategoryName}
+                        onChange={e => setNewCategoryName(e.target.value)}
+                        placeholder={dir === 'rtl' ? 'مثال: أدوات الذكاء الاصطناعي' : 'e.g. AI Tools'}
+                        className={inputCls}
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={categorySubmitting || !newCategoryName.trim()}
+                      className="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-3 rounded-[12px] transition-all shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      {t('addCategory')}
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              {/* Categories list */}
+              <div className="lg:col-span-3">
+                <div className="bg-white rounded-[20px] border border-black/[0.03] shadow-sm overflow-hidden">
+                  {categoriesLoading ? (
+                    <div className="p-12 text-center text-muted-foreground">{t('loading')}</div>
+                  ) : !categories?.length ? (
+                    <div className="p-12 text-center text-muted-foreground">{t('noCategories')}</div>
+                  ) : (
+                    <ul className="divide-y divide-black/[0.03]">
+                      {categories.map(cat => (
+                        <li key={cat.id} className="flex items-center justify-between px-5 py-4 hover:bg-muted/20 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <Layers className="w-4 h-4 text-primary" />
+                            </div>
+                            <span className="font-semibold text-sm text-foreground">{cat.name}</span>
+                          </div>
+                          <button
+                            onClick={() => {
+                              if (confirm(dir === 'rtl' ? `حذف فئة "${cat.name}"؟` : `Delete category "${cat.name}"?`)) {
+                                deleteCategoryMutation.mutate({ id: cat.id });
+                              }
+                            }}
+                            className="p-2 rounded-full text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
             </div>
           </>

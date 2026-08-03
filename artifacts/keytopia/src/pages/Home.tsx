@@ -1,19 +1,23 @@
 import { useState } from 'react';
-import { useListProducts } from '@workspace/api-client-react';
+import { useListProducts, useListCategories } from '@workspace/api-client-react';
 import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
 import { Search, CheckCircle2, Zap, ShieldCheck, Clock, Shield } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useLang } from '../contexts/LanguageContext';
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const { data: products, isLoading } = useListProducts();
+  const { data: categories } = useListCategories();
   const { t, lang } = useLang();
 
-  const filteredProducts = products?.filter(p =>
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredProducts = products?.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === null || p.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  }) || [];
 
   const badges = [
     { icon: CheckCircle2, label: t('officialAccess') },
@@ -22,6 +26,10 @@ export default function Home() {
     { icon: Clock, label: t('support247') },
     { icon: Shield, label: t('securePayment') },
   ];
+
+  const pillBase = "px-4 py-2 rounded-full text-sm font-semibold transition-all whitespace-nowrap";
+  const pillActive = `${pillBase} bg-primary text-white shadow-sm shadow-primary/20`;
+  const pillInactive = `${pillBase} bg-white border border-black/[0.07] text-muted-foreground hover:text-foreground hover:border-black/20`;
 
   return (
     <Layout>
@@ -68,7 +76,7 @@ export default function Home() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-16 w-full flex-1">
         {/* Search */}
-        <div className="flex justify-center mb-16">
+        <div className="flex justify-center mb-8">
           <div className="relative w-full max-w-xl">
             <div className="absolute inset-y-0 start-0 ps-4 flex items-center pointer-events-none">
               <Search className="h-5 w-5 text-muted-foreground" />
@@ -82,6 +90,27 @@ export default function Home() {
             />
           </div>
         </div>
+
+        {/* Category filter pills */}
+        {categories && categories.length > 0 && (
+          <div className="flex items-center gap-2 mb-10 overflow-x-auto no-scrollbar pb-1">
+            <button
+              onClick={() => setSelectedCategory(null)}
+              className={selectedCategory === null ? pillActive : pillInactive}
+            >
+              {t('allCategories')}
+            </button>
+            {categories.map(cat => (
+              <button
+                key={cat.id}
+                onClick={() => setSelectedCategory(selectedCategory === cat.name ? null : cat.name)}
+                className={selectedCategory === cat.name ? pillActive : pillInactive}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
+        )}
 
         {/* Grid */}
         {isLoading ? (
@@ -105,11 +134,25 @@ export default function Home() {
             {searchQuery && <p>{t('noProductsBody')} "{searchQuery}".</p>}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <AnimatePresence mode="popLayout">
+            <motion.div
+              layout
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            >
+              {filteredProducts.map((product) => (
+                <motion.div
+                  key={product.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.18 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
         )}
       </div>
     </Layout>

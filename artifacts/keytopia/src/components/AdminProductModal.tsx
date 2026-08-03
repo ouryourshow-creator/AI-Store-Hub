@@ -6,6 +6,7 @@ import {
   ProductInput,
   useCreateProduct,
   useUpdateProduct,
+  useListCategories,
   getListProductsQueryKey,
 } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
@@ -58,6 +59,22 @@ function Field({ label, children, hint }: { label: string; children: React.React
 
 const inputCls = "w-full bg-muted border-none rounded-[10px] px-3 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary outline-none transition-all";
 const checkboxCls = "w-4 h-4 rounded border-muted-foreground/30 text-primary focus:ring-primary";
+
+function CategorySelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const { data: categories } = useListCategories();
+  return (
+    <select
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      className={inputCls}
+    >
+      <option value="">— No category —</option>
+      {categories?.map(c => (
+        <option key={c.id} value={c.name}>{c.name}</option>
+      ))}
+    </select>
+  );
+}
 
 type PricingRow = { duration: string; price: string; salePrice: string };
 
@@ -302,7 +319,7 @@ export default function AdminProductModal({ isOpen, onClose, product }: Props) {
                         </Field>
                       </div>
                       <Field label="Category">
-                        <input type="text" placeholder="e.g. AI Tools" value={form.category} onChange={e => set({ category: e.target.value })} className={inputCls} />
+                        <CategorySelect value={form.category} onChange={v => set({ category: v })} />
                       </Field>
                       <Field label="Brand">
                         <input type="text" placeholder="e.g. OpenAI" value={form.brand} onChange={e => set({ brand: e.target.value })} className={inputCls} />

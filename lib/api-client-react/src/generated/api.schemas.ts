@@ -123,6 +123,17 @@ export interface ProductUpdate {
   afterPurchaseInstructions?: string;
 }
 
+export interface Category {
+  id: number;
+  name: string;
+  createdAt: string;
+}
+
+export interface CategoryInput {
+  /** @minLength 1 */
+  name: string;
+}
+
 export interface PromoCode {
   id: number;
   code: string;

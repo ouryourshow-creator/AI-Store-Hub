@@ -257,6 +257,44 @@ export const DeleteProductResponse = zod.void()
 
 
 /**
+ * @summary List all categories
+ */
+export const ListCategoriesResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "createdAt": zod.string()
+})
+export const ListCategoriesResponse = zod.array(ListCategoriesResponseItem)
+
+
+/**
+ * @summary Create a category (admin only)
+ */
+
+
+
+export const CreateCategoryBody = zod.object({
+  "name": zod.string().min(1)
+})
+
+export const CreateCategoryResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "createdAt": zod.string()
+})
+
+
+/**
+ * @summary Delete a category (admin only)
+ */
+export const DeleteCategoryParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const DeleteCategoryResponse = zod.void()
+
+
+/**
  * @summary List all promo codes (admin only)
  */
 export const listPromoCodesResponsePercentageMax = 100;
