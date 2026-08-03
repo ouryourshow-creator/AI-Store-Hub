@@ -99,6 +99,7 @@ export const translations = {
     lockSession: 'تسجيل الخروج',
     logOut: 'تسجيل الخروج',
     noDescription: 'لا يوجد وصف',
+    from: 'من',
   },
   en: {
     // Layout / Header
@@ -198,6 +199,7 @@ export const translations = {
     lockSession: 'Lock Session',
     logOut: 'Log Out',
     noDescription: 'No description',
+    from: 'from',
   },
 } satisfies Record<Lang, Record<string, string>>;
 

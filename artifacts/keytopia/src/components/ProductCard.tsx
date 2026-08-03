@@ -9,6 +9,30 @@ export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
   const { t } = useLang();
 
+  // Determine the cheapest pricing option (if multiple exist)
+  const hasMultipleOptions =
+    product.pricingOptions != null && product.pricingOptions.length > 1;
+
+  const cheapestOption = hasMultipleOptions
+    ? [...product.pricingOptions!].sort((a, b) => {
+        const aEffective = a.salePrice ?? a.price;
+        const bEffective = b.salePrice ?? b.price;
+        return aEffective - bEffective;
+      })[0]
+    : null;
+
+  // What to show in the duration badge
+  const badgeDuration = cheapestOption ? cheapestOption.duration : product.duration;
+
+  // What to show as the price
+  const displayPrice = cheapestOption
+    ? (cheapestOption.salePrice ?? cheapestOption.price)
+    : (product.salePrice ?? product.price);
+
+  const originalPrice = cheapestOption
+    ? (cheapestOption.salePrice != null ? cheapestOption.price : null)
+    : (product.salePrice != null ? product.price : null);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -31,7 +55,7 @@ export default function ProductCard({ product }: { product: Product }) {
             </div>
           )}
           <div className="absolute top-4 end-4 bg-accent/20 backdrop-blur-md text-secondary font-semibold text-xs px-3 py-1 rounded-full border border-accent/30">
-            {product.duration}
+            {badgeDuration}
           </div>
         </div>
       </Link>
@@ -53,15 +77,26 @@ export default function ProductCard({ product }: { product: Product }) {
         <div className="mt-auto pt-4 flex items-center justify-between">
           <div className="flex flex-col">
             <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-medium">{t('price')}</span>
-            <span className="font-display font-bold text-xl text-foreground">
-              EGP {product.price}
-            </span>
+            <div className="flex items-baseline gap-2">
+              <span className="font-display font-bold text-xl text-foreground">
+                {hasMultipleOptions ? `${t('from')} ` : ''}EGP {displayPrice}
+              </span>
+              {originalPrice != null && (
+                <span className="text-sm text-muted-foreground line-through">
+                  EGP {originalPrice}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
         <button
           onClick={() => {
-            addItem(product, product.duration, product.salePrice ?? product.price);
+            const addDuration = cheapestOption ? cheapestOption.duration : product.duration;
+            const addPrice = cheapestOption
+              ? (cheapestOption.salePrice ?? cheapestOption.price)
+              : (product.salePrice ?? product.price);
+            addItem(product, addDuration, addPrice);
             toast.success(t('addToCart'), {
               description: product.name,
               duration: 2000,
