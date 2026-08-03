@@ -20,7 +20,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     if (!name || !whatsapp) return;
 
     const orderLines = items.map(
-      item => `- ${item.name} x${item.quantity} — EGP ${item.price * item.quantity}`
+      item => `- ${item.name} (${item.selectedDuration}) x${item.quantity} — EGP ${item.selectedPrice * item.quantity}`
     ).join('\n');
 
     const text = `🛒 ${t('waOrderFrom')}\n\n${t('waName')}: ${name}\n${t('waWhatsApp')}: ${whatsapp}\n\n${t('waOrder')}:\n${orderLines}\n\n${t('waTotal')}: EGP ${cartTotal}`;

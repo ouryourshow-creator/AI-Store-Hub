@@ -46,7 +46,8 @@ export default function ProductPage() {
   }
 
   const handleAddToCart = () => {
-    addItem(product);
+    const effectivePrice = selectedOption.salePrice ?? selectedOption.price;
+    addItem(product, selectedOption.duration, effectivePrice);
     toast.success(t('addToCart'), { description: product.name, duration: 2000 });
   };
 

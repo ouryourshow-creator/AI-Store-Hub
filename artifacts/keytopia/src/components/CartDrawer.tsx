@@ -82,12 +82,12 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         <div>
                           <h3 className="font-display font-semibold text-sm leading-tight mb-1">{item.name}</h3>
                           <span className="text-[10px] font-medium text-accent-foreground px-2 py-0.5 rounded-full bg-accent/20">
-                            {item.duration}
+                            {item.selectedDuration}
                           </span>
                         </div>
 
                         <div className="flex items-center justify-between mt-2">
-                          <span className="font-display font-bold text-sm">EGP {item.price}</span>
+                          <span className="font-display font-bold text-sm">EGP {item.selectedPrice}</span>
 
                           <div className="flex items-center gap-2 bg-muted rounded-full p-1">
                             <button

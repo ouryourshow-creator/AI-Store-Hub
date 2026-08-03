@@ -61,7 +61,7 @@ export default function ProductCard({ product }: { product: Product }) {
 
         <button
           onClick={() => {
-            addItem(product);
+            addItem(product, product.duration, product.salePrice ?? product.price);
             toast.success(t('addToCart'), {
               description: product.name,
               duration: 2000,
