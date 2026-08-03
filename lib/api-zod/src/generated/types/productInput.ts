@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { PricingOption } from './pricingOption';
 
 export interface ProductInput {
   /** @minLength 1 */
@@ -16,6 +17,7 @@ export interface ProductInput {
   price: number;
   /** @minimum 0 */
   salePrice?: number;
+  pricingOptions?: PricingOption[];
   /** @minLength 1 */
   duration: string;
   deliveryTime?: string;

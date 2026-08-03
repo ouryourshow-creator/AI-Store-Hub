@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronDown, ChevronUp, Upload, ImageIcon } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, Upload, ImageIcon, Plus } from 'lucide-react';
 import {
   Product,
   ProductInput,
@@ -59,20 +59,24 @@ function Field({ label, children, hint }: { label: string; children: React.React
 const inputCls = "w-full bg-muted border-none rounded-[10px] px-3 py-2.5 text-sm text-foreground focus:ring-2 focus:ring-primary outline-none transition-all";
 const checkboxCls = "w-4 h-4 rounded border-muted-foreground/30 text-primary focus:ring-primary";
 
+type PricingRow = { duration: string; price: string; salePrice: string };
+
 type FormData = {
   name: string; category: string; brand: string; coverImageUrl: string;
-  price: string; salePrice: string;
-  duration: string; deliveryTime: string; activationType: string;
+  pricingOptions: PricingRow[];
+  deliveryTime: string; activationType: string;
   onCustomerAccount: boolean; invitationLink: string; licenseKey: string; sharedAccount: boolean;
   description: string; featuresText: string;
   customerInfoRequired: string[];
   afterPurchaseInstructions: string;
 };
 
+const EMPTY_PRICING: PricingRow = { duration: '1 Month', price: '', salePrice: '' };
+
 const EMPTY: FormData = {
   name: '', category: '', brand: '', coverImageUrl: '',
-  price: '', salePrice: '',
-  duration: '1 Month', deliveryTime: '', activationType: '',
+  pricingOptions: [{ ...EMPTY_PRICING }],
+  deliveryTime: '', activationType: '',
   onCustomerAccount: false, invitationLink: '', licenseKey: '', sharedAccount: false,
   description: '', featuresText: '',
   customerInfoRequired: [],
@@ -80,14 +84,21 @@ const EMPTY: FormData = {
 };
 
 function productToForm(p: Product): FormData {
+  const pricingOptions: PricingRow[] = (
+    p.pricingOptions && p.pricingOptions.length > 0
+      ? p.pricingOptions
+      : [{ duration: p.duration, price: p.price, salePrice: p.salePrice ?? null }]
+  ).map(o => ({
+    duration: o.duration,
+    price: String(o.price),
+    salePrice: o.salePrice != null ? String(o.salePrice) : '',
+  }));
   return {
     name: p.name,
     category: p.category ?? '',
     brand: p.brand ?? '',
     coverImageUrl: p.coverImageUrl ?? '',
-    price: String(p.price),
-    salePrice: p.salePrice != null ? String(p.salePrice) : '',
-    duration: p.duration,
+    pricingOptions,
     deliveryTime: p.deliveryTime ?? '',
     activationType: p.activationType ?? '',
     onCustomerAccount: p.onCustomerAccount ?? false,
@@ -102,14 +113,23 @@ function productToForm(p: Product): FormData {
 }
 
 function formToInput(f: FormData): ProductInput {
+  const pricingOptions = f.pricingOptions
+    .filter(o => o.duration && o.price)
+    .map(o => ({
+      duration: o.duration,
+      price: Number(o.price),
+      salePrice: o.salePrice ? Number(o.salePrice) : null,
+    }));
+  const first = pricingOptions[0] ?? { duration: '1 Month', price: 0, salePrice: null };
   return {
     name: f.name,
     category: f.category || undefined,
     brand: f.brand || undefined,
     coverImageUrl: f.coverImageUrl || undefined,
-    price: Number(f.price),
-    salePrice: f.salePrice ? Number(f.salePrice) : undefined,
-    duration: f.duration,
+    price: first.price,
+    salePrice: first.salePrice ?? undefined,
+    duration: first.duration,
+    pricingOptions,
     deliveryTime: f.deliveryTime || undefined,
     activationType: f.activationType || undefined,
     onCustomerAccount: f.onCustomerAccount,
@@ -208,6 +228,13 @@ export default function AdminProductModal({ isOpen, onClose, product }: Props) {
         : [...form.customerInfoRequired, key],
     });
 
+  // Pricing option helpers
+  const updateOption = (i: number, field: keyof PricingRow, value: string) =>
+    set({ pricingOptions: form.pricingOptions.map((o, idx) => idx === i ? { ...o, [field]: value } : o) });
+  const addOption = () => set({ pricingOptions: [...form.pricingOptions, { ...EMPTY_PRICING }] });
+  const removeOption = (i: number) =>
+    set({ pricingOptions: form.pricingOptions.filter((_, idx) => idx !== i) });
+
   const onSuccess = (msg: string) => {
     queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
     toast.success(msg);
@@ -290,17 +317,44 @@ export default function AdminProductModal({ isOpen, onClose, product }: Props) {
                   )}
                 </div>
 
-                {/* ── Pricing ── */}
+                {/* ── Pricing & Duration ── */}
                 <div className="py-2">
-                  <SectionHeader title="Pricing" open={open.pricing} onToggle={() => toggle('pricing')} />
+                  <SectionHeader title="Pricing & Duration" open={open.pricing} onToggle={() => toggle('pricing')} />
                   {open.pricing && (
-                    <div className="grid grid-cols-2 gap-3 pb-3">
-                      <Field label="Price (EGP) *">
-                        <input type="number" required min="0" step="0.01" value={form.price} onChange={e => set({ price: e.target.value })} className={inputCls} />
-                      </Field>
-                      <Field label="Sale Price (EGP)" hint="Leave empty if no sale">
-                        <input type="number" min="0" step="0.01" value={form.salePrice} onChange={e => set({ salePrice: e.target.value })} className={inputCls} />
-                      </Field>
+                    <div className="flex flex-col gap-2 pb-3">
+                      {form.pricingOptions.map((opt, i) => (
+                        <div key={i} className="bg-muted/70 rounded-[12px] p-3 relative">
+                          {form.pricingOptions.length > 1 && (
+                            <button type="button" onClick={() => removeOption(i)}
+                              className="absolute top-2 end-2 text-muted-foreground hover:text-destructive transition-colors">
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          )}
+                          <div className="grid grid-cols-3 gap-2">
+                            <div>
+                              <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Duration *</label>
+                              <select value={opt.duration} onChange={e => updateOption(i, 'duration', e.target.value)} className={inputCls}>
+                                {DURATION_OPTIONS.map(d => <option key={d}>{d}</option>)}
+                                {!DURATION_OPTIONS.includes(opt.duration) && <option value={opt.duration}>{opt.duration}</option>}
+                              </select>
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Price (EGP) *</label>
+                              <input type="number" min="0" step="0.01" required={i === 0} value={opt.price}
+                                onChange={e => updateOption(i, 'price', e.target.value)} className={inputCls} />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Sale Price</label>
+                              <input type="number" min="0" step="0.01" value={opt.salePrice}
+                                onChange={e => updateOption(i, 'salePrice', e.target.value)} className={inputCls} />
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                      <button type="button" onClick={addOption}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/70 transition-colors py-1 mt-1">
+                        <Plus className="w-3.5 h-3.5" /> Add Duration Option
+                      </button>
                     </div>
                   )}
                 </div>
@@ -310,18 +364,6 @@ export default function AdminProductModal({ isOpen, onClose, product }: Props) {
                   <SectionHeader title="Subscription" open={open.subscription} onToggle={() => toggle('subscription')} />
                   {open.subscription && (
                     <div className="grid grid-cols-2 gap-3 pb-3">
-                      <Field label="Duration *">
-                        <select
-                          value={form.duration}
-                          onChange={e => set({ duration: e.target.value })}
-                          className={inputCls}
-                        >
-                          {DURATION_OPTIONS.map(d => <option key={d}>{d}</option>)}
-                          {!DURATION_OPTIONS.includes(form.duration) && (
-                            <option value={form.duration}>{form.duration}</option>
-                          )}
-                        </select>
-                      </Field>
                       <Field label="Delivery Time" hint="e.g. 5–30 minutes">
                         <input type="text" placeholder="5–30 minutes" value={form.deliveryTime} onChange={e => set({ deliveryTime: e.target.value })} className={inputCls} />
                       </Field>

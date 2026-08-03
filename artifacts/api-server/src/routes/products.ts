@@ -18,11 +18,29 @@ const router: IRouter = Router();
 
 /** Map a raw DB row to the shape the API returns */
 function mapProduct(p: typeof productsTable.$inferSelect) {
+  const price = Number(p.price);
+  const salePrice = p.salePrice != null ? Number(p.salePrice) : null;
+  // Derive pricingOptions from legacy fields if not stored
+  const pricingOptions: Array<{ duration: string; price: number; salePrice?: number | null }> =
+    p.pricingOptions && p.pricingOptions.length > 0
+      ? p.pricingOptions
+      : [{ duration: p.duration, price, salePrice }];
   return {
     ...p,
-    price: Number(p.price),
-    salePrice: p.salePrice != null ? Number(p.salePrice) : null,
+    price,
+    salePrice,
+    pricingOptions,
     createdAt: p.createdAt.toISOString(),
+  };
+}
+
+/** Sync legacy price/duration/salePrice from first pricing option */
+function syncLegacyFields(pricingOptions: Array<{ duration: string; price: number; salePrice?: number | null }>) {
+  const first = pricingOptions[0];
+  return {
+    price: String(first.price),
+    salePrice: first.salePrice != null ? String(first.salePrice) : null,
+    duration: first.duration,
   };
 }
 
@@ -46,6 +64,11 @@ router.post("/products", requireAdmin, async (req, res): Promise<void> => {
   }
 
   const d = parsed.data;
+  const legacy = d.pricingOptions?.length ? syncLegacyFields(d.pricingOptions) : {
+    price: String(d.price),
+    salePrice: d.salePrice != null ? String(d.salePrice) : null,
+    duration: d.duration,
+  };
   const [product] = await db
     .insert(productsTable)
     .values({
@@ -53,9 +76,10 @@ router.post("/products", requireAdmin, async (req, res): Promise<void> => {
       category: d.category ?? null,
       brand: d.brand ?? null,
       coverImageUrl: d.coverImageUrl ?? null,
-      price: String(d.price),
-      salePrice: d.salePrice != null ? String(d.salePrice) : null,
-      duration: d.duration,
+      price: legacy.price,
+      salePrice: legacy.salePrice,
+      pricingOptions: d.pricingOptions ?? null,
+      duration: legacy.duration,
       deliveryTime: d.deliveryTime ?? null,
       activationType: d.activationType ?? null,
       onCustomerAccount: d.onCustomerAccount ?? false,
@@ -114,9 +138,17 @@ router.put("/products/:id", requireAdmin, async (req, res): Promise<void> => {
   if (d.category !== undefined) updateData.category = d.category;
   if (d.brand !== undefined) updateData.brand = d.brand;
   if (d.coverImageUrl !== undefined) updateData.coverImageUrl = d.coverImageUrl;
-  if (d.price !== undefined) updateData.price = String(d.price);
-  if (d.salePrice !== undefined) updateData.salePrice = d.salePrice != null ? String(d.salePrice) : null;
-  if (d.duration !== undefined) updateData.duration = d.duration;
+  if (d.pricingOptions !== undefined && d.pricingOptions.length > 0) {
+    const legacy = syncLegacyFields(d.pricingOptions);
+    updateData.pricingOptions = d.pricingOptions;
+    updateData.price = legacy.price;
+    updateData.salePrice = legacy.salePrice;
+    updateData.duration = legacy.duration;
+  } else {
+    if (d.price !== undefined) updateData.price = String(d.price);
+    if (d.salePrice !== undefined) updateData.salePrice = d.salePrice != null ? String(d.salePrice) : null;
+    if (d.duration !== undefined) updateData.duration = d.duration;
+  }
   if (d.deliveryTime !== undefined) updateData.deliveryTime = d.deliveryTime;
   if (d.activationType !== undefined) updateData.activationType = d.activationType;
   if (d.onCustomerAccount !== undefined) updateData.onCustomerAccount = d.onCustomerAccount;

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, Link } from 'wouter';
 import { useGetProduct, getGetProductQueryKey } from '@workspace/api-client-react';
 import { useCart } from '../contexts/CartContext';
@@ -15,6 +16,7 @@ export default function ProductPage() {
   const { data: product, isLoading, isError } = useGetProduct(id, {
     query: { enabled: !isNaN(id), queryKey: getGetProductQueryKey(id) },
   });
+  const [selectedOptionIdx, setSelectedOptionIdx] = useState(0);
 
   const BackArrow = dir === 'rtl' ? ArrowRight : ArrowLeft;
 
@@ -48,10 +50,15 @@ export default function ProductPage() {
     toast.success(t('addToCart'), { description: product.name, duration: 2000 });
   };
 
+  const pricingOptions = product.pricingOptions && product.pricingOptions.length > 0
+    ? product.pricingOptions
+    : [{ duration: product.duration, price: product.price, salePrice: product.salePrice }];
+  const selectedOption = pricingOptions[selectedOptionIdx] ?? pricingOptions[0];
+
   const features = [
     { icon: Zap, label: t('activationTime'), value: t('activationTimeDetail') },
     { icon: ShieldCheck, label: t('warranty'), value: t('warrantyDetail') },
-    { icon: Clock, label: t('subscriptionDuration'), value: product.duration },
+    { icon: Clock, label: t('subscriptionDuration'), value: selectedOption.duration },
     { icon: MessageCircle, label: t('support'), value: t('supportDetail') },
   ];
 
@@ -97,9 +104,6 @@ export default function ProductPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#1CC88A] animate-pulse" />
                 {t('instantActivation')}
               </span>
-              <span className="px-3 py-1 rounded-full text-xs font-semibold bg-accent/20 text-secondary border border-accent/30">
-                {product.duration}
-              </span>
             </div>
 
             {/* Name */}
@@ -118,14 +122,44 @@ export default function ProductPage() {
 
             {/* Price + CTA */}
             <div className="bg-card rounded-[20px] border border-black/[0.06] p-6 flex flex-col gap-4 shadow-sm">
+              {/* Duration selector */}
+              {pricingOptions.length > 1 && (
+                <div className="flex flex-wrap gap-2">
+                  {pricingOptions.map((opt, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => setSelectedOptionIdx(i)}
+                      className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all ${
+                        i === selectedOptionIdx
+                          ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                          : 'bg-muted text-muted-foreground border-transparent hover:border-primary/30'
+                      }`}
+                    >
+                      {opt.duration}
+                    </button>
+                  ))}
+                </div>
+              )}
               <div className="flex items-end justify-between">
                 <div>
                   <span className="text-xs text-muted-foreground uppercase tracking-widest font-medium block mb-1">
                     {t('price')}
                   </span>
-                  <span className="text-4xl font-display font-bold text-foreground">
-                    EGP {product.price}
-                  </span>
+                  {selectedOption.salePrice != null ? (
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-4xl font-display font-bold text-foreground">
+                        EGP {selectedOption.salePrice}
+                      </span>
+                      <span className="text-lg text-muted-foreground line-through">
+                        EGP {selectedOption.price}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-4xl font-display font-bold text-foreground">
+                      EGP {selectedOption.price}
+                    </span>
+                  )}
                 </div>
               </div>
               <button

@@ -21,6 +21,10 @@ export const HealthCheckResponse = zod.object({
  * Returns all products in the catalog
  * @summary List all products
  */
+export const listProductsResponsePricingOptionsItemPriceMin = 0;
+
+
+
 export const ListProductsResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -29,6 +33,11 @@ export const ListProductsResponseItem = zod.object({
   "coverImageUrl": zod.string().nullish(),
   "price": zod.number(),
   "salePrice": zod.number().nullish(),
+  "pricingOptions": zod.array(zod.object({
+  "duration": zod.string(),
+  "price": zod.number().min(listProductsResponsePricingOptionsItemPriceMin),
+  "salePrice": zod.number().nullish()
+})).nullish(),
   "duration": zod.string(),
   "deliveryTime": zod.string().nullish(),
   "activationType": zod.string().nullish(),
@@ -54,6 +63,10 @@ export const createProductBodyPriceMin = 0;
 
 export const createProductBodySalePriceMin = 0;
 
+export const createProductBodyPricingOptionsItemPriceMin = 0;
+
+
+
 
 export const CreateProductBody = zod.object({
   "name": zod.string().min(1),
@@ -62,6 +75,11 @@ export const CreateProductBody = zod.object({
   "coverImageUrl": zod.string().optional(),
   "price": zod.number().min(createProductBodyPriceMin),
   "salePrice": zod.number().min(createProductBodySalePriceMin).optional(),
+  "pricingOptions": zod.array(zod.object({
+  "duration": zod.string(),
+  "price": zod.number().min(createProductBodyPricingOptionsItemPriceMin),
+  "salePrice": zod.number().nullish()
+})).optional(),
   "duration": zod.string().min(1),
   "deliveryTime": zod.string().optional(),
   "activationType": zod.string().optional(),
@@ -75,6 +93,10 @@ export const CreateProductBody = zod.object({
   "afterPurchaseInstructions": zod.string().optional()
 })
 
+export const createProductResponsePricingOptionsItemPriceMin = 0;
+
+
+
 export const CreateProductResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -83,6 +105,11 @@ export const CreateProductResponse = zod.object({
   "coverImageUrl": zod.string().nullish(),
   "price": zod.number(),
   "salePrice": zod.number().nullish(),
+  "pricingOptions": zod.array(zod.object({
+  "duration": zod.string(),
+  "price": zod.number().min(createProductResponsePricingOptionsItemPriceMin),
+  "salePrice": zod.number().nullish()
+})).nullish(),
   "duration": zod.string(),
   "deliveryTime": zod.string().nullish(),
   "activationType": zod.string().nullish(),
@@ -105,6 +132,10 @@ export const GetProductParams = zod.object({
   "id": zod.coerce.number()
 })
 
+export const getProductResponsePricingOptionsItemPriceMin = 0;
+
+
+
 export const GetProductResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -113,6 +144,11 @@ export const GetProductResponse = zod.object({
   "coverImageUrl": zod.string().nullish(),
   "price": zod.number(),
   "salePrice": zod.number().nullish(),
+  "pricingOptions": zod.array(zod.object({
+  "duration": zod.string(),
+  "price": zod.number().min(getProductResponsePricingOptionsItemPriceMin),
+  "salePrice": zod.number().nullish()
+})).nullish(),
   "duration": zod.string(),
   "deliveryTime": zod.string().nullish(),
   "activationType": zod.string().nullish(),
@@ -141,6 +177,10 @@ export const updateProductBodyPriceMin = 0;
 
 export const updateProductBodySalePriceMin = 0;
 
+export const updateProductBodyPricingOptionsItemPriceMin = 0;
+
+
+
 
 export const UpdateProductBody = zod.object({
   "name": zod.string().min(1).optional(),
@@ -149,6 +189,11 @@ export const UpdateProductBody = zod.object({
   "coverImageUrl": zod.string().optional(),
   "price": zod.number().min(updateProductBodyPriceMin).optional(),
   "salePrice": zod.number().min(updateProductBodySalePriceMin).optional(),
+  "pricingOptions": zod.array(zod.object({
+  "duration": zod.string(),
+  "price": zod.number().min(updateProductBodyPricingOptionsItemPriceMin),
+  "salePrice": zod.number().nullish()
+})).optional(),
   "duration": zod.string().min(1).optional(),
   "deliveryTime": zod.string().optional(),
   "activationType": zod.string().optional(),
@@ -162,6 +207,10 @@ export const UpdateProductBody = zod.object({
   "afterPurchaseInstructions": zod.string().optional()
 })
 
+export const updateProductResponsePricingOptionsItemPriceMin = 0;
+
+
+
 export const UpdateProductResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
@@ -170,6 +219,11 @@ export const UpdateProductResponse = zod.object({
   "coverImageUrl": zod.string().nullish(),
   "price": zod.number(),
   "salePrice": zod.number().nullish(),
+  "pricingOptions": zod.array(zod.object({
+  "duration": zod.string(),
+  "price": zod.number().min(updateProductResponsePricingOptionsItemPriceMin),
+  "salePrice": zod.number().nullish()
+})).nullish(),
   "duration": zod.string(),
   "deliveryTime": zod.string().nullish(),
   "activationType": zod.string().nullish(),
@@ -201,9 +255,12 @@ export const DeleteProductResponse = zod.void()
  */
 
 
+
+
+
 export const RequestUploadUrlBody = zod.object({
   "name": zod.string().min(1),
-  "size": zod.number().int().min(1),
+  "size": zod.number().min(1),
   "contentType": zod.string().min(1)
 })
 
@@ -221,3 +278,5 @@ export const GetStorageObjectParams = zod.object({
 })
 
 export const GetStorageObjectResponse = zod.unknown()
+
+

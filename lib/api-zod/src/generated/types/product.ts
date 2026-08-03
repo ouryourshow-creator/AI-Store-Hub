@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { PricingOption } from './pricingOption';
 
 export interface Product {
   id: number;
@@ -18,6 +19,8 @@ export interface Product {
   price: number;
   /** @nullable */
   salePrice?: number | null;
+  /** @nullable */
+  pricingOptions?: PricingOption[] | null;
   duration: string;
   /** @nullable */
   deliveryTime?: string | null;

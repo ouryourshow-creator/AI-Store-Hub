@@ -5,6 +5,7 @@ import {
   timestamp,
   numeric,
   boolean,
+  jsonb,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -19,6 +20,7 @@ export const productsTable = pgTable("products", {
   // Pricing
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   salePrice: numeric("sale_price", { precision: 10, scale: 2 }),
+  pricingOptions: jsonb("pricing_options").$type<Array<{ duration: string; price: number; salePrice?: number | null }>>(),
   // Subscription
   duration: text("duration").notNull(),
   deliveryTime: text("delivery_time"),

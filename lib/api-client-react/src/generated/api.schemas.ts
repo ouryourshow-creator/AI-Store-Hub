@@ -9,6 +9,14 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface PricingOption {
+  duration: string;
+  /** @minimum 0 */
+  price: number;
+  /** @nullable */
+  salePrice?: number | null;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -21,6 +29,8 @@ export interface Product {
   price: number;
   /** @nullable */
   salePrice?: number | null;
+  /** @nullable */
+  pricingOptions?: PricingOption[] | null;
   duration: string;
   /** @nullable */
   deliveryTime?: string | null;
@@ -55,6 +65,7 @@ export interface ProductInput {
   price: number;
   /** @minimum 0 */
   salePrice?: number;
+  pricingOptions?: PricingOption[];
   /** @minLength 1 */
   duration: string;
   deliveryTime?: string;
@@ -93,6 +104,7 @@ export interface ProductUpdate {
   price?: number;
   /** @minimum 0 */
   salePrice?: number;
+  pricingOptions?: PricingOption[];
   /** @minLength 1 */
   duration?: string;
   deliveryTime?: string;

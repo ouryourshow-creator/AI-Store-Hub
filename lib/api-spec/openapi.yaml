@@ -188,6 +188,18 @@ components:
       required:
         - status
 
+    PricingOption:
+      type: object
+      required: [duration, price]
+      properties:
+        duration:
+          type: string
+        price:
+          type: number
+          minimum: 0
+        salePrice:
+          type: ["number", "null"]
+
     Product:
       type: object
       required:
@@ -211,6 +223,10 @@ components:
           type: number
         salePrice:
           type: ["number", "null"]
+        pricingOptions:
+          type: ["array", "null"]
+          items:
+            $ref: '#/components/schemas/PricingOption'
         duration:
           type: string
         deliveryTime:
@@ -262,6 +278,10 @@ components:
         salePrice:
           type: number
           minimum: 0
+        pricingOptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PricingOption'
         duration:
           type: string
           minLength: 1
@@ -298,7 +318,7 @@ components:
           type: string
           minLength: 1
         size:
-          type: integer
+          type: number
           minimum: 1
         contentType:
           type: string
@@ -330,6 +350,10 @@ components:
         salePrice:
           type: number
           minimum: 0
+        pricingOptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PricingOption'
         duration:
           type: string
           minLength: 1
