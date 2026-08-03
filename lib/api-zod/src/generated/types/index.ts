@@ -15,6 +15,7 @@ export * from './productInput';
 export * from './productUpdate';
 export * from './promoCode';
 export * from './promoCodeInput';
+export * from './setProductPublished';
 export * from './uploadUrlRequest';
 export * from './uploadUrlResponse';
 export * from './validatePromoCodeRequest';

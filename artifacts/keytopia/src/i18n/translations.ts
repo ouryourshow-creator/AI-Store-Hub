@@ -148,6 +148,11 @@ export const translations = {
     applicableProducts: 'المنتجات المشمولة',
     allProducts: 'جميع المنتجات',
     noPromoCodes: 'لا توجد أكواد خصم بعد.',
+    // Product visibility
+    published: 'منشور',
+    unpublished: 'مخفي',
+    publish: 'نشر',
+    unpublish: 'إخفاء',
     // Checkout promo
     promoCode: 'كود الخصم',
     promoCodePlaceholder: 'أدخل الكود',
@@ -304,6 +309,11 @@ export const translations = {
     applicableProducts: 'Applicable Products',
     allProducts: 'All products',
     noPromoCodes: 'No promo codes yet.',
+    // Product visibility
+    published: 'Published',
+    unpublished: 'Hidden',
+    publish: 'Publish',
+    unpublish: 'Unpublish',
     // Checkout promo
     promoCode: 'Promo Code',
     promoCodePlaceholder: 'Enter code',

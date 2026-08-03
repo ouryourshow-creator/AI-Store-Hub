@@ -133,6 +133,48 @@ paths:
         "404":
           description: Product not found
 
+  /admin/products:
+    get:
+      operationId: listAdminProducts
+      tags: [products]
+      summary: List all products including unpublished (admin only)
+      responses:
+        "200":
+          description: List of all products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /admin/products/{id}/published:
+    patch:
+      operationId: setProductPublished
+      tags: [products]
+      summary: Toggle product published state (admin only)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetProductPublished"
+      responses:
+        "200":
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Product not found
+
   /categories:
     get:
       operationId: listCategories
@@ -378,6 +420,8 @@ components:
             type: string
         afterPurchaseInstructions:
           type: ["string", "null"]
+        published:
+          type: boolean
         createdAt:
           type: string
 
@@ -510,6 +554,15 @@ components:
             type: string
         afterPurchaseInstructions:
           type: string
+        published:
+          type: boolean
+
+    SetProductPublished:
+      type: object
+      required: [published]
+      properties:
+        published:
+          type: boolean
 
     Category:
       type: object

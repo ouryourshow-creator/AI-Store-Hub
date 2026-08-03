@@ -31,4 +31,5 @@ export interface ProductUpdate {
   warrantyDuration?: string;
   customerInfoRequired?: string[];
   afterPurchaseInstructions?: string;
+  published?: boolean;
 }

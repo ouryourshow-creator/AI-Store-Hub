@@ -44,5 +44,6 @@ export interface Product {
   customerInfoRequired?: string[] | null;
   /** @nullable */
   afterPurchaseInstructions?: string | null;
+  published?: boolean;
   createdAt: string;
 }

@@ -54,6 +54,7 @@ export interface Product {
   customerInfoRequired?: string[] | null;
   /** @nullable */
   afterPurchaseInstructions?: string | null;
+  published?: boolean;
   createdAt: string;
 }
 
@@ -121,6 +122,11 @@ export interface ProductUpdate {
   warrantyDuration?: string;
   customerInfoRequired?: string[];
   afterPurchaseInstructions?: string;
+  published?: boolean;
+}
+
+export interface SetProductPublished {
+  published: boolean;
 }
 
 export interface Category {

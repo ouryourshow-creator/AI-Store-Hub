@@ -50,6 +50,7 @@ export const ListProductsResponseItem = zod.object({
   "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
+  "published": zod.boolean().optional(),
   "createdAt": zod.string()
 })
 export const ListProductsResponse = zod.array(ListProductsResponseItem)
@@ -124,6 +125,7 @@ export const CreateProductResponse = zod.object({
   "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
+  "published": zod.boolean().optional(),
   "createdAt": zod.string()
 })
 
@@ -164,6 +166,7 @@ export const GetProductResponse = zod.object({
   "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
+  "published": zod.boolean().optional(),
   "createdAt": zod.string()
 })
 
@@ -209,7 +212,8 @@ export const UpdateProductBody = zod.object({
   "features": zod.array(zod.string()).optional(),
   "warrantyDuration": zod.string().optional(),
   "customerInfoRequired": zod.array(zod.string()).optional(),
-  "afterPurchaseInstructions": zod.string().optional()
+  "afterPurchaseInstructions": zod.string().optional(),
+  "published": zod.boolean().optional()
 })
 
 export const updateProductResponsePricingOptionsItemPriceMin = 0;
@@ -241,6 +245,7 @@ export const UpdateProductResponse = zod.object({
   "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
+  "published": zod.boolean().optional(),
   "createdAt": zod.string()
 })
 
@@ -254,6 +259,89 @@ export const DeleteProductParams = zod.object({
 })
 
 export const DeleteProductResponse = zod.void()
+
+
+/**
+ * @summary List all products including unpublished (admin only)
+ */
+export const listAdminProductsResponsePricingOptionsItemPriceMin = 0;
+
+
+
+export const ListAdminProductsResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "category": zod.string().nullish(),
+  "brand": zod.string().nullish(),
+  "coverImageUrl": zod.string().nullish(),
+  "price": zod.number(),
+  "salePrice": zod.number().nullish(),
+  "pricingOptions": zod.array(zod.object({
+  "duration": zod.string(),
+  "price": zod.number().min(listAdminProductsResponsePricingOptionsItemPriceMin),
+  "salePrice": zod.number().nullish()
+})).nullish(),
+  "duration": zod.string(),
+  "deliveryTime": zod.string().nullish(),
+  "activationType": zod.string().nullish(),
+  "onCustomerAccount": zod.boolean().nullish(),
+  "invitationLink": zod.string().nullish(),
+  "licenseKey": zod.string().nullish(),
+  "sharedAccount": zod.boolean().nullish(),
+  "description": zod.string().nullish(),
+  "features": zod.array(zod.string()).nullish(),
+  "warrantyDuration": zod.string().nullish(),
+  "customerInfoRequired": zod.array(zod.string()).nullish(),
+  "afterPurchaseInstructions": zod.string().nullish(),
+  "published": zod.boolean().optional(),
+  "createdAt": zod.string()
+})
+export const ListAdminProductsResponse = zod.array(ListAdminProductsResponseItem)
+
+
+/**
+ * @summary Toggle product published state (admin only)
+ */
+export const SetProductPublishedParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const SetProductPublishedBody = zod.object({
+  "published": zod.boolean()
+})
+
+export const setProductPublishedResponsePricingOptionsItemPriceMin = 0;
+
+
+
+export const SetProductPublishedResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "category": zod.string().nullish(),
+  "brand": zod.string().nullish(),
+  "coverImageUrl": zod.string().nullish(),
+  "price": zod.number(),
+  "salePrice": zod.number().nullish(),
+  "pricingOptions": zod.array(zod.object({
+  "duration": zod.string(),
+  "price": zod.number().min(setProductPublishedResponsePricingOptionsItemPriceMin),
+  "salePrice": zod.number().nullish()
+})).nullish(),
+  "duration": zod.string(),
+  "deliveryTime": zod.string().nullish(),
+  "activationType": zod.string().nullish(),
+  "onCustomerAccount": zod.boolean().nullish(),
+  "invitationLink": zod.string().nullish(),
+  "licenseKey": zod.string().nullish(),
+  "sharedAccount": zod.boolean().nullish(),
+  "description": zod.string().nullish(),
+  "features": zod.array(zod.string()).nullish(),
+  "warrantyDuration": zod.string().nullish(),
+  "customerInfoRequired": zod.array(zod.string()).nullish(),
+  "afterPurchaseInstructions": zod.string().nullish(),
+  "published": zod.boolean().optional(),
+  "createdAt": zod.string()
+})
 
 
 /**

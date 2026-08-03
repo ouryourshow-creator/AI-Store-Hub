@@ -44,8 +44,19 @@ function syncLegacyFields(pricingOptions: Array<{ duration: string; price: numbe
   };
 }
 
-// GET /products — public
+// GET /products — public (only published)
 router.get("/products", async (req, res): Promise<void> => {
+  const products = await db
+    .select()
+    .from(productsTable)
+    .where(eq(productsTable.published, true))
+    .orderBy(productsTable.createdAt);
+
+  res.json(ListProductsResponse.parse(products.map(mapProduct)));
+});
+
+// GET /admin/products — admin (all products including unpublished)
+router.get("/admin/products", requireAdmin, async (req, res): Promise<void> => {
   const products = await db
     .select()
     .from(productsTable)
@@ -161,11 +172,39 @@ router.put("/products/:id", requireAdmin, async (req, res): Promise<void> => {
   if (d.warrantyDuration !== undefined) updateData.warrantyDuration = d.warrantyDuration;
   if (d.customerInfoRequired !== undefined) updateData.customerInfoRequired = d.customerInfoRequired;
   if (d.afterPurchaseInstructions !== undefined) updateData.afterPurchaseInstructions = d.afterPurchaseInstructions;
+  if ((d as any).published !== undefined) updateData.published = (d as any).published;
 
   const [product] = await db
     .update(productsTable)
     .set(updateData)
     .where(eq(productsTable.id, params.data.id))
+    .returning();
+
+  if (!product) {
+    res.status(404).json({ error: "Product not found" });
+    return;
+  }
+
+  res.json(UpdateProductResponse.parse(mapProduct(product)));
+});
+
+// PATCH /admin/products/:id/published — admin only
+router.patch("/admin/products/:id/published", requireAdmin, async (req, res): Promise<void> => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid product id" });
+    return;
+  }
+  const { published } = req.body;
+  if (typeof published !== "boolean") {
+    res.status(400).json({ error: "published must be a boolean" });
+    return;
+  }
+
+  const [product] = await db
+    .update(productsTable)
+    .set({ published })
+    .where(eq(productsTable.id, id))
     .returning();
 
   if (!product) {

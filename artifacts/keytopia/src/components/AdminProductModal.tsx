@@ -7,7 +7,7 @@ import {
   useCreateProduct,
   useUpdateProduct,
   useListCategories,
-  getListProductsQueryKey,
+  getListAdminProductsQueryKey,
 } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -16,6 +16,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   product?: Product | null;
+  onProductSaved?: () => void;
 }
 
 const DURATION_OPTIONS = ['1 Month', '3 Months', '6 Months', '12 Months', 'Lifetime'];
@@ -225,7 +226,7 @@ function ImageUploader({
   );
 }
 
-export default function AdminProductModal({ isOpen, onClose, product }: Props) {
+export default function AdminProductModal({ isOpen, onClose, product, onProductSaved }: Props) {
   const isEditing = !!product;
   const queryClient = useQueryClient();
   const [form, setForm] = useState<FormData>(EMPTY);
@@ -255,8 +256,9 @@ export default function AdminProductModal({ isOpen, onClose, product }: Props) {
     set({ pricingOptions: form.pricingOptions.filter((_, idx) => idx !== i) });
 
   const onSuccess = (msg: string) => {
-    queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
+    queryClient.invalidateQueries({ queryKey: getListAdminProductsQueryKey() });
     toast.success(msg);
+    onProductSaved?.();
     onClose();
   };
 

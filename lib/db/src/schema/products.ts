@@ -37,6 +37,8 @@ export const productsTable = pgTable("products", {
   customerInfoRequired: text("customer_info_required").array(),
   // Post-purchase
   afterPurchaseInstructions: text("after_purchase_instructions"),
+  // Visibility
+  published: boolean("published").notNull().default(true),
   // Meta
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()

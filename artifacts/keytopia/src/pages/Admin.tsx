@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useUser, useClerk } from '@clerk/react';
 import {
-  useListProducts, useDeleteProduct, getListProductsQueryKey, Product,
+  useListAdminProducts, getListAdminProductsQueryKey,
+  useDeleteProduct, Product,
+  useSetProductPublished,
   useListPromoCodes, useCreatePromoCode, useDeletePromoCode, getListPromoCodesQueryKey,
   useListCategories, useCreateCategory, useDeleteCategory, getListCategoriesQueryKey,
 } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { ShieldAlert, Plus, Pencil, Trash2, LogOut, Search, Tag, X, Layers } from 'lucide-react';
+import { ShieldAlert, Plus, Pencil, Trash2, LogOut, Search, Tag, X, Layers, Eye, EyeOff } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { toast } from 'sonner';
 import { useLang } from '../contexts/LanguageContext';
@@ -38,8 +40,8 @@ export default function Admin() {
   const queryClient = useQueryClient();
 
   // Products
-  const { data: products, isLoading } = useListProducts({
-    query: { enabled: isAdmin === true, queryKey: getListProductsQueryKey() },
+  const { data: products, isLoading } = useListAdminProducts({
+    query: { enabled: isAdmin === true, queryKey: getListAdminProductsQueryKey() },
   });
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,10 +50,23 @@ export default function Admin() {
   const deleteMutation = useDeleteProduct({
     mutation: {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getListProductsQueryKey() });
+        queryClient.invalidateQueries({ queryKey: getListAdminProductsQueryKey() });
         toast.success(dir === 'rtl' ? 'تم حذف المنتج' : 'Product deleted');
       },
       onError: () => toast.error(dir === 'rtl' ? 'فشل حذف المنتج' : 'Failed to delete product'),
+    },
+  });
+
+  const togglePublishedMutation = useSetProductPublished({
+    mutation: {
+      onSuccess: (updated) => {
+        queryClient.invalidateQueries({ queryKey: getListAdminProductsQueryKey() });
+        const msg = updated.published
+          ? (dir === 'rtl' ? 'تم نشر المنتج' : 'Product published')
+          : (dir === 'rtl' ? 'تم إخفاء المنتج' : 'Product unpublished');
+        toast.success(msg);
+      },
+      onError: () => toast.error(dir === 'rtl' ? 'فشل تغيير حالة النشر' : 'Failed to update visibility'),
     },
   });
 
@@ -270,14 +285,15 @@ export default function Admin() {
                       <th className="px-6 py-4 font-semibold">{t('product')}</th>
                       <th className="px-6 py-4 font-semibold">{t('duration')}</th>
                       <th className="px-6 py-4 font-semibold">{t('price')}</th>
+                      <th className="px-6 py-4 font-semibold">{dir === 'rtl' ? 'الحالة' : 'Status'}</th>
                       <th className="px-6 py-4 font-semibold text-end">{t('actions')}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-black/[0.03]">
                     {isLoading ? (
-                      <tr><td colSpan={4} className="px-6 py-12 text-center text-muted-foreground">{t('loading')}</td></tr>
+                      <tr><td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">{t('loading')}</td></tr>
                     ) : filteredProducts.length === 0 ? (
-                      <tr><td colSpan={4} className="px-6 py-12 text-center text-muted-foreground">{t('noProductsAdmin')}</td></tr>
+                      <tr><td colSpan={5} className="px-6 py-12 text-center text-muted-foreground">{t('noProductsAdmin')}</td></tr>
                     ) : (
                       filteredProducts.map((product) => (
                         <tr key={product.id} data-testid={`row-product-${product.id}`} className="hover:bg-muted/20 transition-colors">
@@ -303,7 +319,28 @@ export default function Admin() {
                           </td>
                           <td className="px-6 py-4 font-display font-semibold">EGP {product.price}</td>
                           <td className="px-6 py-4">
+                            {product.published !== false ? (
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <Eye className="w-3 h-3" />
+                                {t('published')}
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                <EyeOff className="w-3 h-3" />
+                                {t('unpublished')}
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4">
                             <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => togglePublishedMutation.mutate({ id: product.id, data: { published: !product.published } })}
+                                data-testid={`button-toggle-published-${product.id}`}
+                                title={product.published !== false ? t('unpublish') : t('publish')}
+                                className={`p-2 rounded-full transition-colors ${product.published !== false ? 'text-emerald-600 hover:text-amber-600 hover:bg-amber-50' : 'text-amber-600 hover:text-emerald-600 hover:bg-emerald-50'}`}
+                              >
+                                {product.published !== false ? <Eye className="w-4 h-4" /> : <EyeOff className="w-4 h-4" />}
+                              </button>
                               <button onClick={() => handleEdit(product)} data-testid={`button-edit-product-${product.id}`} className="p-2 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors">
                                 <Pencil className="w-4 h-4" />
                               </button>
@@ -541,6 +578,7 @@ export default function Admin() {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         product={editingProduct}
+        onProductSaved={() => queryClient.invalidateQueries({ queryKey: getListAdminProductsQueryKey() })}
       />
     </div>
   );
