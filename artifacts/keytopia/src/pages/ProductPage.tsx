@@ -135,7 +135,7 @@ export default function ProductPage() {
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-200">
                   <TrendingUp className="w-3 h-3" />
                   {dir === 'rtl'
-                    ? `${product.soldCount.toLocaleString('ar-EG')}+ تم البيع`
+                    ? `${product.soldCount.toLocaleString('ar-EG')}+ عدد مرات البيع`
                     : `${product.soldCount.toLocaleString()}+ sold`}
                 </span>
               )}

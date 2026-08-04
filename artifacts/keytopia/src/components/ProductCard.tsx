@@ -71,7 +71,7 @@ export default function ProductCard({ product }: { product: Product }) {
             <span className="hidden md:inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold text-blue-600 bg-blue-50 border border-blue-200">
               <TrendingUp className="w-2.5 h-2.5" />
               {lang === 'ar'
-                ? `${product.soldCount.toLocaleString('ar-EG')}+ تم البيع`
+                ? `${product.soldCount.toLocaleString('ar-EG')}+ عدد مرات البيع`
                 : `${product.soldCount.toLocaleString()}+ sold`}
             </span>
           )}
