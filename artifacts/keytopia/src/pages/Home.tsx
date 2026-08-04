@@ -81,43 +81,91 @@ export default function Home() {
       {/* Hero Section */}
       <section className="relative w-full bg-gradient-to-br from-secondary to-primary overflow-hidden">
         {/* Floating brand logos — animated decorative background */}
-        {([
-          { src: '/hero-logos/chatgpt.png', top: '8%',  left: '3%',   size: 68, rotate: -12, dur: 6.2, dy: 14 },
-          { src: '/hero-logos/claude.png',  top: '55%', left: '2%',   size: 58, rotate: 8,   dur: 7.8, dy: 10 },
-          { src: '/hero-logos/gemini.png',  top: '20%', left: '13%',  size: 52, rotate: 6,   dur: 5.5, dy: 18 },
-          { src: '/hero-logos/netflix.png', top: '70%', left: '11%',  size: 50, rotate: -8,  dur: 8.3, dy: 12 },
-          { src: '/hero-logos/netflix.png',  top: '80%', left: '24%',  size: 44, rotate: 14,  dur: 6.7, dy: 16 },
-          { src: '/hero-logos/chatgpt.png', top: '5%',  left: '30%',  size: 40, rotate: -5,  dur: 9.1, dy: 8  },
-          { src: '/hero-logos/claude.png',  top: '40%', right: '3%',  size: 72, rotate: 10,  dur: 7.0, dy: 20 },
-          { src: '/hero-logos/gemini.png',  top: '8%',  right: '10%', size: 60, rotate: -6,  dur: 5.8, dy: 15 },
-          { src: '/hero-logos/netflix.png', top: '68%', right: '5%',  size: 54, rotate: -14, dur: 8.6, dy: 11 },
-          { src: '/hero-logos/chatgpt.png',  top: '22%', right: '20%', size: 46, rotate: 9,   dur: 6.4, dy: 17 },
-          { src: '/hero-logos/chatgpt.png', top: '60%', right: '17%', size: 42, rotate: -10, dur: 7.5, dy: 13 },
-          { src: '/hero-logos/claude.png',  top: '3%',  right: '32%', size: 38, rotate: 7,   dur: 5.2, dy: 9  },
-        ] as Array<{ src: string; top: string; left?: string; right?: string; size: number; rotate: number; dur: number; dy: number }>).map((logo, i) => (
-          <motion.img
-            key={i}
-            src={logo.src}
-            alt=""
-            aria-hidden="true"
-            animate={{ y: [0, -logo.dy, 0] }}
-            transition={{ duration: logo.dur, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
-            style={{
+        {(() => {
+          // Gemini: 4-pointed sparkle path
+          const geminiPath = 'M50 3 C50 32 68 50 97 50 C68 50 50 68 50 97 C50 68 32 50 3 50 C32 50 50 32 50 3Z';
+          // Claude: 12-spoke asterisk
+          const claudeSpokes = Array.from({ length: 12 }, (_, i) => i);
+
+          const logos: Array<{
+            kind: 'chatgpt' | 'netflix' | 'claude' | 'gemini';
+            top: string; left?: string; right?: string;
+            size: number; rotate: number; dur: number; dy: number;
+          }> = [
+            { kind: 'chatgpt', top: '8%',  left: '3%',   size: 68, rotate: -12, dur: 6.2, dy: 14 },
+            { kind: 'netflix', top: '70%', left: '11%',  size: 50, rotate: -8,  dur: 8.3, dy: 12 },
+            { kind: 'claude',  top: '55%', left: '2%',   size: 58, rotate: 8,   dur: 7.8, dy: 10 },
+            { kind: 'gemini',  top: '20%', left: '13%',  size: 52, rotate: 6,   dur: 5.5, dy: 18 },
+            { kind: 'netflix', top: '80%', left: '24%',  size: 44, rotate: 14,  dur: 6.7, dy: 16 },
+            { kind: 'chatgpt', top: '5%',  left: '30%',  size: 40, rotate: -5,  dur: 9.1, dy: 8  },
+            { kind: 'chatgpt', top: '40%', right: '3%',  size: 72, rotate: 10,  dur: 7.0, dy: 20 },
+            { kind: 'gemini',  top: '8%',  right: '10%', size: 60, rotate: -6,  dur: 5.8, dy: 15 },
+            { kind: 'netflix', top: '68%', right: '5%',  size: 54, rotate: -14, dur: 8.6, dy: 11 },
+            { kind: 'claude',  top: '22%', right: '20%', size: 46, rotate: 9,   dur: 6.4, dy: 17 },
+            { kind: 'chatgpt', top: '60%', right: '17%', size: 42, rotate: -10, dur: 7.5, dy: 13 },
+            { kind: 'claude',  top: '3%',  right: '32%', size: 38, rotate: 7,   dur: 5.2, dy: 9  },
+          ];
+
+          return logos.map((logo, i) => {
+            const baseStyle: React.CSSProperties = {
               position: 'absolute',
               top: logo.top,
               left: logo.left,
               right: logo.right,
               width: logo.size,
               height: logo.size,
-              objectFit: 'contain',
-              opacity: 0.09,
-              filter: 'brightness(0) invert(1)',
+              opacity: 0.1,
               transform: `rotate(${logo.rotate}deg)`,
               pointerEvents: 'none',
               userSelect: 'none',
-            }}
-          />
-        ))}
+            };
+
+            if (logo.kind === 'claude') {
+              return (
+                <motion.svg
+                  key={i}
+                  viewBox="0 0 100 100"
+                  aria-hidden="true"
+                  animate={{ y: [0, -logo.dy, 0] }}
+                  transition={{ duration: logo.dur, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
+                  style={baseStyle}
+                >
+                  {claudeSpokes.map(j => (
+                    <rect key={j} x="46.5" y="12" width="7" height="28" rx="3.5" fill="white"
+                          transform={`rotate(${j * 30} 50 50)`} />
+                  ))}
+                </motion.svg>
+              );
+            }
+
+            if (logo.kind === 'gemini') {
+              return (
+                <motion.svg
+                  key={i}
+                  viewBox="0 0 100 100"
+                  aria-hidden="true"
+                  animate={{ y: [0, -logo.dy, 0] }}
+                  transition={{ duration: logo.dur, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
+                  style={baseStyle}
+                >
+                  <path d={geminiPath} fill="white" />
+                </motion.svg>
+              );
+            }
+
+            return (
+              <motion.img
+                key={i}
+                src={`/hero-logos/${logo.kind}.png`}
+                alt=""
+                aria-hidden="true"
+                animate={{ y: [0, -logo.dy, 0] }}
+                transition={{ duration: logo.dur, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
+                style={{ ...baseStyle, objectFit: 'contain', filter: 'brightness(0) invert(1)' }}
+              />
+            );
+          });
+        })()}
 
         <div className="relative max-w-7xl mx-auto px-6 py-24 md:py-32 flex flex-col items-center text-center">
           <motion.h1
