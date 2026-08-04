@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useListProducts, useListCategories } from '@workspace/api-client-react';
 import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
-import { Search, CheckCircle2, Zap, ShieldCheck, Clock, Shield, Star, Facebook, TrendingUp } from 'lucide-react';
+import { Search, CheckCircle2, Zap, ShieldCheck, Clock, Shield, Star, Facebook, TrendingUp, ShoppingBag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLang } from '../contexts/LanguageContext';
 
@@ -61,6 +61,8 @@ export default function Home() {
     const matchesCategory = selectedCategory === null || p.category === selectedCategory;
     return matchesSearch && matchesCategory;
   }) || [];
+
+  const totalSold = products?.reduce((sum, p) => sum + (p.soldCount ?? 0), 0) ?? 0;
 
   const badges = [
     { icon: CheckCircle2, label: t('officialAccess') },
@@ -147,6 +149,16 @@ export default function Home() {
                 <span>{badge.label}</span>
               </div>
             ))}
+            {totalSold > 0 && (
+              <div className="flex items-center gap-2 font-semibold text-sm text-primary">
+                <ShoppingBag className="w-5 h-5 flex-shrink-0" />
+                <span>
+                  {lang === 'ar'
+                    ? `${totalSold.toLocaleString('ar-EG')}+ طلب تم تنفيذه`
+                    : `${totalSold.toLocaleString()}+ orders fulfilled`}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -248,10 +260,10 @@ export default function Home() {
 
         {/* Grid */}
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="bg-white rounded-[20px] h-[380px] animate-pulse border border-black/[0.03]">
-                <div className="h-[200px] bg-muted w-full rounded-t-[20px]" />
+              <div key={i} className="bg-white rounded-[20px] h-[280px] md:h-[380px] animate-pulse border border-black/[0.03]">
+                <div className="h-[130px] md:h-[200px] bg-muted w-full rounded-t-[20px]" />
                 <div className="p-6">
                   <div className="h-4 bg-muted w-1/3 rounded mb-4" />
                   <div className="h-6 bg-muted w-3/4 rounded mb-2" />
@@ -271,7 +283,7 @@ export default function Home() {
           <AnimatePresence mode="popLayout">
             <motion.div
               layout
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-6"
             >
               {filteredProducts.map((product) => (
                 <motion.div
