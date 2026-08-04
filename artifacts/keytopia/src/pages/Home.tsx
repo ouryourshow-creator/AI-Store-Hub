@@ -78,7 +78,42 @@ export default function Home() {
     <Layout>
       {/* Hero Section */}
       <section className="relative w-full bg-gradient-to-br from-secondary to-primary overflow-hidden">
-        <div className="absolute inset-0 opacity-[0.05]" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, white 1px, transparent 0)', backgroundSize: '32px 32px' }} />
+        {/* Floating brand logos — decorative background */}
+        {[
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/512px-ChatGPT_logo.svg.png',      top: '10%',  left: '4%',   size: 64, rotate: -12 },
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Notion-logo.svg/512px-Notion-logo.svg.png',         top: '55%',  left: '2%',   size: 52, rotate: 8  },
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Adobe_Creative_Cloud_logo_and_wordmark.svg/512px-Adobe_Creative_Cloud_logo_and_wordmark.svg.png', top: '20%', left: '14%', size: 44, rotate: 6 },
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Canva_icon_2021.svg/512px-Canva_icon_2021.svg.png', top: '70%',  left: '10%',  size: 48, rotate: -8 },
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg',                                          top: '80%',  left: '22%',  size: 38, rotate: 14 },
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Spotify_logo_without_text.svg/512px-Spotify_logo_without_text.svg.png', top: '8%', left: '28%', size: 42, rotate: -5 },
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/ChatGPT_logo.svg/512px-ChatGPT_logo.svg.png',      top: '40%',  right: '3%',  size: 70, rotate: 10 },
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Notion-logo.svg/512px-Notion-logo.svg.png',         top: '12%',  right: '12%', size: 56, rotate: -6 },
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Adobe_Creative_Cloud_logo_and_wordmark.svg/512px-Adobe_Creative_Cloud_logo_and_wordmark.svg.png', top: '72%', right: '6%', size: 50, rotate: -14 },
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/08/Canva_icon_2021.svg/512px-Canva_icon_2021.svg.png', top: '25%', right: '22%', size: 40, rotate: 9  },
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg',                           top: '60%',  right: '18%', size: 46, rotate: -10 },
+          { src: 'https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg',                                          top: '5%',   right: '30%', size: 36, rotate: 7  },
+        ].map((logo, i) => (
+          <img
+            key={i}
+            src={logo.src}
+            alt=""
+            aria-hidden="true"
+            style={{
+              position: 'absolute',
+              top: logo.top,
+              left: 'left' in logo ? logo.left : undefined,
+              right: 'right' in logo ? logo.right : undefined,
+              width: logo.size,
+              height: logo.size,
+              objectFit: 'contain',
+              opacity: 0.07,
+              filter: 'brightness(0) invert(1)',
+              transform: `rotate(${logo.rotate}deg)`,
+              pointerEvents: 'none',
+              userSelect: 'none',
+            }}
+          />
+        ))}
 
         <div className="relative max-w-7xl mx-auto px-6 py-24 md:py-32 flex flex-col items-center text-center">
           <motion.h1
