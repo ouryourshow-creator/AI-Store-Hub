@@ -50,6 +50,7 @@ export const ListProductsResponseItem = zod.object({
   "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
+  "soldCount": zod.number().optional(),
   "published": zod.boolean().optional(),
   "createdAt": zod.string()
 })
@@ -125,6 +126,7 @@ export const CreateProductResponse = zod.object({
   "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
+  "soldCount": zod.number().optional(),
   "published": zod.boolean().optional(),
   "createdAt": zod.string()
 })
@@ -166,6 +168,7 @@ export const GetProductResponse = zod.object({
   "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
+  "soldCount": zod.number().optional(),
   "published": zod.boolean().optional(),
   "createdAt": zod.string()
 })
@@ -245,6 +248,7 @@ export const UpdateProductResponse = zod.object({
   "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
+  "soldCount": zod.number().optional(),
   "published": zod.boolean().optional(),
   "createdAt": zod.string()
 })
@@ -259,6 +263,48 @@ export const DeleteProductParams = zod.object({
 })
 
 export const DeleteProductResponse = zod.void()
+
+
+/**
+ * @summary Increment sold count for a product
+ */
+export const RecordProductSaleParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const recordProductSaleResponsePricingOptionsItemPriceMin = 0;
+
+
+
+export const RecordProductSaleResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "category": zod.string().nullish(),
+  "brand": zod.string().nullish(),
+  "coverImageUrl": zod.string().nullish(),
+  "price": zod.number(),
+  "salePrice": zod.number().nullish(),
+  "pricingOptions": zod.array(zod.object({
+  "duration": zod.string(),
+  "price": zod.number().min(recordProductSaleResponsePricingOptionsItemPriceMin),
+  "salePrice": zod.number().nullish()
+})).nullish(),
+  "duration": zod.string(),
+  "deliveryTime": zod.string().nullish(),
+  "activationType": zod.string().nullish(),
+  "onCustomerAccount": zod.boolean().nullish(),
+  "invitationLink": zod.string().nullish(),
+  "licenseKey": zod.string().nullish(),
+  "sharedAccount": zod.boolean().nullish(),
+  "description": zod.string().nullish(),
+  "features": zod.array(zod.string()).nullish(),
+  "warrantyDuration": zod.string().nullish(),
+  "customerInfoRequired": zod.array(zod.string()).nullish(),
+  "afterPurchaseInstructions": zod.string().nullish(),
+  "soldCount": zod.number().optional(),
+  "published": zod.boolean().optional(),
+  "createdAt": zod.string()
+})
 
 
 /**
@@ -293,6 +339,7 @@ export const ListAdminProductsResponseItem = zod.object({
   "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
+  "soldCount": zod.number().optional(),
   "published": zod.boolean().optional(),
   "createdAt": zod.string()
 })
@@ -339,6 +386,7 @@ export const SetProductPublishedResponse = zod.object({
   "warrantyDuration": zod.string().nullish(),
   "customerInfoRequired": zod.array(zod.string()).nullish(),
   "afterPurchaseInstructions": zod.string().nullish(),
+  "soldCount": zod.number().optional(),
   "published": zod.boolean().optional(),
   "createdAt": zod.string()
 })

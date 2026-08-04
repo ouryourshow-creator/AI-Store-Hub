@@ -4,7 +4,7 @@ import { useGetProduct, getGetProductQueryKey } from '@workspace/api-client-reac
 import { useCart } from '../contexts/CartContext';
 import { useLang } from '../contexts/LanguageContext';
 import Layout from '../components/Layout';
-import { ArrowRight, ArrowLeft, ShieldCheck, Zap, Clock, MessageCircle, CheckCircle2, Tag, Info } from 'lucide-react';
+import { ArrowRight, ArrowLeft, ShieldCheck, Zap, Clock, MessageCircle, CheckCircle2, Tag, Info, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 
@@ -131,6 +131,14 @@ export default function ProductPage() {
                 <span className="w-1.5 h-1.5 rounded-full bg-[#1CC88A] animate-pulse" />
                 {t('instantActivation')}
               </span>
+              {typeof product.soldCount === 'number' && product.soldCount > 0 && (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-orange-700 bg-orange-50 border border-orange-200">
+                  <TrendingUp className="w-3 h-3" />
+                  {dir === 'rtl'
+                    ? `${product.soldCount.toLocaleString('ar-EG')}+ تم البيع`
+                    : `${product.soldCount.toLocaleString()}+ sold`}
+                </span>
+              )}
               {product.category && (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold text-primary bg-primary/10 border border-primary/20">
                   <Tag className="w-3 h-3" />

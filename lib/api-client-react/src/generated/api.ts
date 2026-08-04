@@ -512,6 +512,77 @@ export const useDeleteProduct = <TError = ErrorType<void>,
       return useMutation(getDeleteProductMutationOptions(options));
     }
 
+export const getRecordProductSaleUrl = (id: number,) => {
+
+
+
+
+  return `/api/products/${id}/sold`
+}
+
+/**
+ * @summary Increment sold count for a product
+ */
+export const recordProductSale = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<Product> => {
+
+  return customFetch<Product>(getRecordProductSaleUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getRecordProductSaleMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordProductSale>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof recordProductSale>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['recordProductSale'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof recordProductSale>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  recordProductSale(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RecordProductSaleMutationResult = NonNullable<Awaited<ReturnType<typeof recordProductSale>>>
+
+    export type RecordProductSaleMutationError = ErrorType<void>
+
+    /**
+ * @summary Increment sold count for a product
+ */
+export const useRecordProductSale = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof recordProductSale>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof recordProductSale>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getRecordProductSaleMutationOptions(options));
+    }
+
 export const getListAdminProductsUrl = () => {
 
 

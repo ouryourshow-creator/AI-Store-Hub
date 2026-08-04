@@ -133,6 +133,27 @@ paths:
         "404":
           description: Product not found
 
+  /products/{id}/sold:
+    post:
+      operationId: recordProductSale
+      tags: [products]
+      summary: Increment sold count for a product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Sold count updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Product not found
+
   /admin/products:
     get:
       operationId: listAdminProducts
@@ -420,6 +441,8 @@ components:
             type: string
         afterPurchaseInstructions:
           type: ["string", "null"]
+        soldCount:
+          type: number
         published:
           type: boolean
         createdAt:

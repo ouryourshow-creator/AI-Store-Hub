@@ -2,6 +2,7 @@ import {
   pgTable,
   text,
   serial,
+  integer,
   timestamp,
   numeric,
   boolean,
@@ -37,6 +38,8 @@ export const productsTable = pgTable("products", {
   customerInfoRequired: text("customer_info_required").array(),
   // Post-purchase
   afterPurchaseInstructions: text("after_purchase_instructions"),
+  // Sales
+  soldCount: integer("sold_count").notNull().default(0),
   // Visibility
   published: boolean("published").notNull().default(true),
   // Meta

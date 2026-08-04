@@ -137,6 +137,11 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
 
     window.open(`${WA_LINK}?text=${encodeURIComponent(msg)}`, '_blank');
 
+    // Record each sold item
+    items.forEach(item => {
+      fetch(`/api/products/${item.id}/sold`, { method: 'POST' }).catch(() => {});
+    });
+
     clearCart();
     handleClose();
   };

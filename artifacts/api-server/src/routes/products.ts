@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db, productsTable } from "@workspace/db";
 import {
   CreateProductBody,
@@ -178,6 +178,28 @@ router.put("/products/:id", requireAdmin, async (req, res): Promise<void> => {
     .update(productsTable)
     .set(updateData)
     .where(eq(productsTable.id, params.data.id))
+    .returning();
+
+  if (!product) {
+    res.status(404).json({ error: "Product not found" });
+    return;
+  }
+
+  res.json(UpdateProductResponse.parse(mapProduct(product)));
+});
+
+// POST /products/:id/sold — public, increments sold count
+router.post("/products/:id/sold", async (req, res): Promise<void> => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid product id" });
+    return;
+  }
+
+  const [product] = await db
+    .update(productsTable)
+    .set({ soldCount: sql`${productsTable.soldCount} + 1` })
+    .where(eq(productsTable.id, id))
     .returning();
 
   if (!product) {
