@@ -68,7 +68,7 @@ export default function ProductCard({ product }: { product: Product }) {
             {t('instantActivation')}
           </span>
           {typeof product.soldCount === 'number' && product.soldCount > 0 && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold text-orange-700 bg-orange-50 border border-orange-200">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold text-blue-600 bg-blue-50 border border-blue-200">
               <TrendingUp className="w-2.5 h-2.5" />
               {lang === 'ar'
                 ? `${product.soldCount.toLocaleString('ar-EG')}+ تم البيع`
