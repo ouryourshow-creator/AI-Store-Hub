@@ -116,6 +116,54 @@ export default function Home() {
         </div>
       </div>
 
+      {/* ── Product Marquee ── */}
+      {products && products.length > 0 && (
+        <div className="w-full bg-[#F7F9FC] border-b border-black/[0.04] py-6 overflow-hidden">
+          <style>{`
+            @keyframes marquee-ltr { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+            .marquee-track { display: flex; width: max-content; animation: marquee-ltr 28s linear infinite; }
+            .marquee-track:hover { animation-play-state: paused; }
+          `}</style>
+          <div className="marquee-track gap-4 px-4">
+            {[...products, ...products].map((product, i) => {
+              const displayPrice =
+                product.pricingOptions?.length
+                  ? Math.min(...product.pricingOptions.map((o: any) => o.salePrice ?? o.price))
+                  : (product.salePrice ?? product.price);
+              const duration =
+                product.pricingOptions?.length
+                  ? [...product.pricingOptions].sort((a: any, b: any) => (a.salePrice ?? a.price) - (b.salePrice ?? b.price))[0].duration
+                  : product.duration;
+              return (
+                <a
+                  key={`${product.id}-${i}`}
+                  href={`/products/${product.id}`}
+                  className="flex-shrink-0 w-[200px] bg-white rounded-[16px] border border-black/[0.05] shadow-sm overflow-hidden hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+                  style={{ textDecoration: 'none' }}
+                >
+                  <div className="w-full h-[110px] bg-gradient-to-br from-secondary/20 to-primary/20 relative overflow-hidden">
+                    {product.coverImageUrl ? (
+                      <img src={product.coverImageUrl} alt={product.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-secondary to-primary flex items-center justify-center">
+                        <span className="text-white/60 font-display font-bold text-2xl">{product.name.charAt(0)}</span>
+                      </div>
+                    )}
+                    <span className="absolute top-2 start-2 bg-white/90 backdrop-blur-sm text-secondary text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      {duration}
+                    </span>
+                  </div>
+                  <div className="p-3">
+                    <p className="font-display font-semibold text-sm text-foreground truncate mb-1">{product.name}</p>
+                    <p className="text-primary font-bold text-sm">EGP {displayPrice}</p>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-16 w-full flex-1">
         {/* Search */}
