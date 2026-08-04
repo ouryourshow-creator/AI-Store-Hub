@@ -4,10 +4,11 @@ import { useLang } from '../contexts/LanguageContext';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Link } from 'wouter';
+import { TrendingUp } from 'lucide-react';
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
-  const { t } = useLang();
+  const { t, lang } = useLang();
 
   // Determine the cheapest pricing option (if multiple exist)
   const hasMultipleOptions =
@@ -61,9 +62,19 @@ export default function ProductCard({ product }: { product: Product }) {
       </Link>
 
       <div className="p-6 flex flex-col flex-1">
-        <div className="mb-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-[#1CC88A] bg-[#1CC88A]/10 w-fit">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#1CC88A] animate-pulse" />
-          {t('instantActivation')}
+        <div className="mb-1 flex flex-wrap items-center gap-1.5">
+          <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider text-[#1CC88A] bg-[#1CC88A]/10">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#1CC88A] animate-pulse" />
+            {t('instantActivation')}
+          </span>
+          {typeof product.soldCount === 'number' && product.soldCount > 0 && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold text-orange-700 bg-orange-50 border border-orange-200">
+              <TrendingUp className="w-2.5 h-2.5" />
+              {lang === 'ar'
+                ? `${product.soldCount.toLocaleString('ar-EG')}+ تم البيع`
+                : `${product.soldCount.toLocaleString()}+ sold`}
+            </span>
+          )}
         </div>
 
         <Link href={`/products/${product.id}`}>

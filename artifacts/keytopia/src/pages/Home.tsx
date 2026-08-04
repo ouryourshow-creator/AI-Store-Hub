@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useListProducts, useListCategories } from '@workspace/api-client-react';
 import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
-import { Search, CheckCircle2, Zap, ShieldCheck, Clock, Shield, Star, Facebook } from 'lucide-react';
+import { Search, CheckCircle2, Zap, ShieldCheck, Clock, Shield, Star, Facebook, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLang } from '../contexts/LanguageContext';
 
@@ -191,6 +191,14 @@ export default function Home() {
                   <div className="p-3">
                     <p className="font-display font-semibold text-sm text-foreground truncate mb-1">{product.name}</p>
                     <p className="text-primary font-bold text-sm">EGP {displayPrice}</p>
+                    {typeof product.soldCount === 'number' && product.soldCount > 0 && (
+                      <span className="inline-flex items-center gap-1 mt-1 px-1.5 py-0.5 rounded text-[10px] font-semibold text-orange-700 bg-orange-50 border border-orange-200">
+                        <TrendingUp className="w-2.5 h-2.5" />
+                        {lang === 'ar'
+                          ? `${product.soldCount.toLocaleString('ar-EG')}+ تم البيع`
+                          : `${product.soldCount.toLocaleString()}+ sold`}
+                      </span>
+                    )}
                   </div>
                 </a>
               );
