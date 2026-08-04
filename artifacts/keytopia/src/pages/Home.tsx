@@ -154,8 +154,8 @@ export default function Home() {
                 <ShoppingBag className="w-5 h-5 flex-shrink-0" />
                 <span>
                   {lang === 'ar'
-                    ? `${totalSold.toLocaleString('ar-EG')}+ طلب تم تنفيذه`
-                    : `${totalSold.toLocaleString()}+ orders fulfilled`}
+                    ? `${totalSold.toLocaleString('ar-EG')}+ اشتراك تم بيعه`
+                    : `${totalSold.toLocaleString()}+ subscriptions sold`}
                 </span>
               </div>
             )}
