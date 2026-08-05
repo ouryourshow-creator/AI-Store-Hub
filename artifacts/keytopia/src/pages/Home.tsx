@@ -217,12 +217,15 @@ export default function Home() {
       {products && products.length > 0 && (
         <div className="w-full bg-[#F7F9FC] border-b border-black/[0.04] py-6 overflow-hidden">
           <style>{`
-            @keyframes marquee-ltr { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-            .marquee-track { display: flex; width: max-content; animation: marquee-ltr 28s linear infinite; }
+            @keyframes marquee-ltr {
+              0%   { transform: translateX(0); }
+              100% { transform: translateX(calc(-216px * ${products.length} - 16px * ${products.length})); }
+            }
+            .marquee-track { display: flex; width: max-content; animation: marquee-ltr ${Math.max(products.length * 3, 18)}s linear infinite; }
             .marquee-track:hover { animation-play-state: paused; }
           `}</style>
           <div className="marquee-track gap-4 px-4">
-            {[...products, ...products].map((product, i) => {
+            {[...products, ...products, ...products, ...products, ...products, ...products].map((product, i) => {
               const displayPrice =
                 product.pricingOptions?.length
                   ? Math.min(...product.pricingOptions.map((o: any) => o.salePrice ?? o.price))
