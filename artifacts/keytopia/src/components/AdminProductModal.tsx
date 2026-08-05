@@ -354,10 +354,13 @@ export default function AdminProductModal({ isOpen, onClose, product, onProductS
                           <div className="grid grid-cols-3 gap-2">
                             <div>
                               <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Duration *</label>
-                              <select value={opt.duration} onChange={e => updateOption(i, 'duration', e.target.value)} className={inputCls}>
-                                {DURATION_OPTIONS.map(d => <option key={d}>{d}</option>)}
-                                {!DURATION_OPTIONS.includes(opt.duration) && <option value={opt.duration}>{opt.duration}</option>}
-                              </select>
+                              <input
+                                type="text"
+                                placeholder="e.g. 1 Month, Lifetime"
+                                value={opt.duration}
+                                onChange={e => updateOption(i, 'duration', e.target.value)}
+                                className={inputCls}
+                              />
                             </div>
                             <div>
                               <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Price (EGP) *</label>
