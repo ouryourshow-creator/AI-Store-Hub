@@ -15,6 +15,7 @@ export const productsTable = pgTable("products", {
   id: serial("id").primaryKey(),
   // Basic info
   name: text("name").notNull(),
+  slug: text("slug").unique(),
   category: text("category"),
   brand: text("brand"),
   coverImageUrl: text("cover_image_url"),

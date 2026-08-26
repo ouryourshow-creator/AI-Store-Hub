@@ -1,8 +1,8 @@
 import { useUser, SignIn } from '@clerk/react';
-import { useListMyOrders, getListMyOrdersQueryKey } from '@workspace/api-client-react';
+import { getGetMyCashbackQueryKey, getListMyOrdersQueryKey, useGetMyCashback, useListMyOrders } from '@workspace/api-client-react';
 import { Link } from 'wouter';
 import { format } from 'date-fns';
-import { Package, ArrowRight, ArrowLeft, Clock, CheckCircle2, XCircle, FileText } from 'lucide-react';
+import { Package, ArrowRight, ArrowLeft, Clock, CheckCircle2, XCircle, FileText, Gift, Wallet } from 'lucide-react';
 import { useLang } from '../contexts/LanguageContext';
 import Layout from '../components/Layout';
 
@@ -28,13 +28,16 @@ const StatusBadge = ({ status, dir }: { status: string; dir: 'rtl' | 'ltr' }) =>
 
 export default function Orders() {
   const { isSignedIn, isLoaded } = useUser();
-  const { dir } = useLang();
+  const { dir, t } = useLang();
   
   const { data: orders, isLoading } = useListMyOrders({
     query: {
       enabled: !!isSignedIn,
       queryKey: getListMyOrdersQueryKey()
     }
+  });
+  const { data: cashback, isLoading: cashbackLoading } = useGetMyCashback({
+    query: { enabled: !!isSignedIn, queryKey: getGetMyCashbackQueryKey() },
   });
 
   if (!isLoaded) {
@@ -89,6 +92,73 @@ export default function Orders() {
             {dir === 'rtl' ? 'العودة للمتجر' : 'Back to Store'}
           </Link>
         </div>
+
+        <section className="mb-8 rounded-[24px] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-sm">
+          <div className="flex items-start gap-3 mb-5">
+            <div className="w-11 h-11 rounded-[14px] bg-emerald-100 flex items-center justify-center">
+              <Wallet className="w-5 h-5 text-emerald-700" />
+            </div>
+            <div>
+              <h2 className="font-display text-xl font-bold text-foreground">{t('cashbackBalance')}</h2>
+              <p className="text-sm text-muted-foreground">
+                {dir === 'rtl' ? 'يصبح الكاش باك متاحاً للاستخدام بعد اعتماده.' : 'Cashback becomes available to spend after it is approved.'}
+              </p>
+            </div>
+          </div>
+          {cashbackLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[1, 2].map((item) => <div key={item} className="h-24 rounded-2xl bg-white/70 animate-pulse" />)}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {(cashback?.balances ?? []).map((balance) => (
+                <div key={balance.currency} className="rounded-2xl bg-white/80 border border-emerald-100 p-4">
+                  <p className="text-xs font-bold tracking-wider text-muted-foreground">{balance.currency}</p>
+                  <div className="mt-3 flex items-end justify-between gap-3">
+                    <div>
+                      <p className="text-xs text-emerald-700">{t('cashbackAvailable')}</p>
+                      <p className="font-display text-xl font-bold text-emerald-700">{balance.currency} {balance.available.toFixed(2)}</p>
+                    </div>
+                    <div className="text-end">
+                      <p className="text-xs text-amber-700">{t('cashbackPending')}</p>
+                      <p className="font-display text-lg font-bold text-amber-700">{balance.currency} {balance.pending.toFixed(2)}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {!cashbackLoading && cashback?.transactions.length ? (
+            <div className="mt-5 border-t border-emerald-100 pt-4">
+              <h3 className="text-sm font-bold text-foreground mb-3">{t('cashbackTransactions')}</h3>
+              <div className="space-y-2">
+                {cashback.transactions.slice(0, 5).map((transaction) => {
+                  const pending = transaction.status === 'pending';
+                  const debit = transaction.type === 'debit';
+                  const voided = transaction.status === 'voided';
+                  const reversed = transaction.status === 'reversed';
+                  return (
+                    <div key={transaction.id} className="flex items-center justify-between rounded-xl bg-white/70 px-4 py-3 text-sm">
+                      <div className="flex items-center gap-3">
+                        <Gift className={`w-4 h-4 ${voided ? 'text-slate-400' : reversed ? 'text-sky-600' : debit ? 'text-slate-500' : pending ? 'text-amber-600' : 'text-emerald-600'}`} />
+                        <span className="font-medium text-foreground">
+                          {voided ? t('cashbackVoided') : reversed ? t('cashbackReversed') : debit
+                            ? (dir === 'rtl' ? 'تم استخدام الكاش باك' : 'Cashback used')
+                            : pending ? t('cashbackPending') : t('cashbackAvailable')}
+                        </span>
+                      </div>
+                      <span className={`font-bold ${debit ? 'text-slate-600' : 'text-emerald-700'}`}>
+                        {debit ? '−' : '+'}{transaction.currency} {transaction.amount.toFixed(2)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ) : !cashbackLoading ? (
+            <p className="mt-4 text-sm text-muted-foreground">{t('cashbackNoTransactions')}</p>
+          ) : null}
+        </section>
 
         {isLoading ? (
           <div className="space-y-4">

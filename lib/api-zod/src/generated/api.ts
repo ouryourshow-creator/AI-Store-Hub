@@ -32,6 +32,7 @@ export const listProductsResponsePricingOptionsItemSalePriceUsdMin = 0;
 export const ListProductsResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "slug": zod.string(),
   "category": zod.string().nullish(),
   "brand": zod.string().nullish(),
   "coverImageUrl": zod.string().nullish(),
@@ -128,6 +129,7 @@ export const createProductResponsePricingOptionsItemSalePriceUsdMin = 0;
 export const CreateProductResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "slug": zod.string(),
   "category": zod.string().nullish(),
   "brand": zod.string().nullish(),
   "coverImageUrl": zod.string().nullish(),
@@ -178,6 +180,7 @@ export const getProductResponsePricingOptionsItemSalePriceUsdMin = 0;
 export const GetProductResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "slug": zod.string(),
   "category": zod.string().nullish(),
   "brand": zod.string().nullish(),
   "coverImageUrl": zod.string().nullish(),
@@ -278,6 +281,7 @@ export const updateProductResponsePricingOptionsItemSalePriceUsdMin = 0;
 export const UpdateProductResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "slug": zod.string(),
   "category": zod.string().nullish(),
   "brand": zod.string().nullish(),
   "coverImageUrl": zod.string().nullish(),
@@ -322,6 +326,57 @@ export const DeleteProductResponse = zod.void()
 
 
 /**
+ * @summary Get a product by its public slug
+ */
+export const GetProductBySlugParams = zod.object({
+  "slug": zod.coerce.string()
+})
+
+export const getProductBySlugResponsePricingOptionsItemPriceMin = 0;
+
+export const getProductBySlugResponsePricingOptionsItemPriceUsdMin = 0;
+
+export const getProductBySlugResponsePricingOptionsItemSalePriceUsdMin = 0;
+
+
+
+export const GetProductBySlugResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "slug": zod.string(),
+  "category": zod.string().nullish(),
+  "brand": zod.string().nullish(),
+  "coverImageUrl": zod.string().nullish(),
+  "price": zod.number(),
+  "salePrice": zod.number().nullish(),
+  "priceUsd": zod.number().nullish(),
+  "salePriceUsd": zod.number().nullish(),
+  "pricingOptions": zod.array(zod.object({
+  "duration": zod.string(),
+  "price": zod.number().min(getProductBySlugResponsePricingOptionsItemPriceMin),
+  "salePrice": zod.number().nullish(),
+  "priceUsd": zod.number().min(getProductBySlugResponsePricingOptionsItemPriceUsdMin).nullish(),
+  "salePriceUsd": zod.number().min(getProductBySlugResponsePricingOptionsItemSalePriceUsdMin).nullish()
+})).nullish(),
+  "duration": zod.string(),
+  "deliveryTime": zod.string().nullish(),
+  "activationType": zod.string().nullish(),
+  "onCustomerAccount": zod.boolean().nullish(),
+  "invitationLink": zod.string().nullish(),
+  "licenseKey": zod.string().nullish(),
+  "sharedAccount": zod.boolean().nullish(),
+  "description": zod.string().nullish(),
+  "features": zod.array(zod.string()).nullish(),
+  "warrantyDuration": zod.string().nullish(),
+  "customerInfoRequired": zod.array(zod.string()).nullish(),
+  "afterPurchaseInstructions": zod.string().nullish(),
+  "soldCount": zod.number().optional(),
+  "published": zod.boolean().optional(),
+  "createdAt": zod.string()
+})
+
+
+/**
  * @summary Adjust sold count for a product (admin only)
  */
 export const RecordProductSaleParams = zod.object({
@@ -339,6 +394,7 @@ export const recordProductSaleResponsePricingOptionsItemSalePriceUsdMin = 0;
 export const RecordProductSaleResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "slug": zod.string(),
   "category": zod.string().nullish(),
   "brand": zod.string().nullish(),
   "coverImageUrl": zod.string().nullish(),
@@ -385,6 +441,7 @@ export const listAdminProductsResponsePricingOptionsItemSalePriceUsdMin = 0;
 export const ListAdminProductsResponseItem = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "slug": zod.string(),
   "category": zod.string().nullish(),
   "brand": zod.string().nullish(),
   "coverImageUrl": zod.string().nullish(),
@@ -440,6 +497,7 @@ export const setProductPublishedResponsePricingOptionsItemSalePriceUsdMin = 0;
 export const SetProductPublishedResponse = zod.object({
   "id": zod.number(),
   "name": zod.string(),
+  "slug": zod.string(),
   "category": zod.string().nullish(),
   "brand": zod.string().nullish(),
   "coverImageUrl": zod.string().nullish(),
@@ -590,6 +648,8 @@ export const createOrderBodyCustomerPhoneMin = 3;
 export const createOrderBodyIdempotencyKeyMin = 16;
 export const createOrderBodyIdempotencyKeyMax = 100;
 
+export const createOrderBodyCashbackAmountMin = 0;
+
 export const createOrderBodyItemsItemQuantityMax = 10;
 
 export const createOrderBodyItemsItemPriceMin = 0;
@@ -606,6 +666,7 @@ export const CreateOrderBody = zod.object({
   "idempotencyKey": zod.string().min(createOrderBodyIdempotencyKeyMin).max(createOrderBodyIdempotencyKeyMax),
   "promoCode": zod.string().nullish(),
   "paymentMethod": zod.string().nullish(),
+  "cashbackAmount": zod.number().min(createOrderBodyCashbackAmountMin).optional(),
   "items": zod.array(zod.object({
   "productId": zod.number(),
   "duration": zod.string(),
@@ -616,7 +677,7 @@ export const CreateOrderBody = zod.object({
 
 export const CreateOrderResponse = zod.object({
   "id": zod.number(),
-  "orderNumber": zod.string(),
+  "orderNumber": zod.union([zod.string(),zod.number()]),
   "customerName": zod.string(),
   "customerEmail": zod.string(),
   "customerPhone": zod.string(),
@@ -647,7 +708,7 @@ export const CreateOrderResponse = zod.object({
  */
 export const ListMyOrdersResponseItem = zod.object({
   "id": zod.number(),
-  "orderNumber": zod.string(),
+  "orderNumber": zod.union([zod.string(),zod.number()]),
   "customerName": zod.string(),
   "customerEmail": zod.string(),
   "customerPhone": zod.string(),
@@ -675,6 +736,72 @@ export const ListMyOrdersResponse = zod.array(ListMyOrdersResponseItem)
 
 
 /**
+ * @summary Get the signed-in customer's cashback balance and history
+ */
+export const GetMyCashbackResponse = zod.object({
+  "balances": zod.array(zod.object({
+  "currency": zod.enum(['EGP', 'USD']),
+  "pending": zod.number(),
+  "available": zod.number()
+})),
+  "transactions": zod.array(zod.object({
+  "id": zod.number(),
+  "orderId": zod.number(),
+  "orderNumber": zod.union([zod.string(),zod.number()]).nullish(),
+  "type": zod.enum(['credit', 'debit']),
+  "status": zod.enum(['pending', 'available', 'redeemed', 'voided', 'reversed']),
+  "currency": zod.enum(['EGP', 'USD']),
+  "amount": zod.number(),
+  "createdAt": zod.string(),
+  "approvedAt": zod.string().nullable()
+}))
+})
+
+
+/**
+ * @summary List cashback credits awaiting manual approval
+ */
+export const ListPendingCashbackResponseItem = zod.object({
+  "id": zod.number(),
+  "orderId": zod.number(),
+  "orderNumber": zod.union([zod.string(),zod.number()]).nullish(),
+  "type": zod.enum(['credit', 'debit']),
+  "status": zod.enum(['pending', 'available', 'redeemed', 'voided', 'reversed']),
+  "currency": zod.enum(['EGP', 'USD']),
+  "amount": zod.number(),
+  "createdAt": zod.string(),
+  "approvedAt": zod.string().nullable()
+}).and(zod.object({
+  "customerName": zod.string(),
+  "customerEmail": zod.string()
+}))
+export const ListPendingCashbackResponse = zod.array(ListPendingCashbackResponseItem)
+
+
+/**
+ * @summary Approve a pending cashback credit
+ */
+export const ApproveCashbackParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const ApproveCashbackResponse = zod.object({
+  "id": zod.number(),
+  "orderId": zod.number(),
+  "orderNumber": zod.union([zod.string(),zod.number()]).nullish(),
+  "type": zod.enum(['credit', 'debit']),
+  "status": zod.enum(['pending', 'available', 'redeemed', 'voided', 'reversed']),
+  "currency": zod.enum(['EGP', 'USD']),
+  "amount": zod.number(),
+  "createdAt": zod.string(),
+  "approvedAt": zod.string().nullable()
+}).and(zod.object({
+  "customerName": zod.string(),
+  "customerEmail": zod.string()
+}))
+
+
+/**
  * @summary Search orders as an admin
  */
 export const ListAdminOrdersQueryParams = zod.object({
@@ -684,7 +811,7 @@ export const ListAdminOrdersQueryParams = zod.object({
 
 export const ListAdminOrdersResponseItem = zod.object({
   "id": zod.number(),
-  "orderNumber": zod.string(),
+  "orderNumber": zod.union([zod.string(),zod.number()]),
   "customerName": zod.string(),
   "customerEmail": zod.string(),
   "customerPhone": zod.string(),
@@ -724,7 +851,7 @@ export const UpdateOrderStatusBody = zod.object({
 
 export const UpdateOrderStatusResponse = zod.object({
   "id": zod.number(),
-  "orderNumber": zod.string(),
+  "orderNumber": zod.union([zod.string(),zod.number()]),
   "customerName": zod.string(),
   "customerEmail": zod.string(),
   "customerPhone": zod.string(),
@@ -773,6 +900,68 @@ export const GetAdminDashboardResponse = zod.object({
   "orders": zod.number(),
   "sales": zod.number(),
   "visits": zod.number()
+}))
+})
+
+
+/**
+ * @summary Get date-filtered visitor analytics
+ */
+export const getAdminVisitsAnalyticsQueryPresetDefault = `last_month`;
+
+export const GetAdminVisitsAnalyticsQueryParams = zod.object({
+  "preset": zod.enum(['today', 'yesterday', 'last_week', 'last_2_weeks', 'last_month', 'last_3_months', 'last_6_months', 'year', 'custom']).default(getAdminVisitsAnalyticsQueryPresetDefault),
+  "startDate": zod.coerce.string().optional(),
+  "endDate": zod.coerce.string().optional()
+})
+
+export const GetAdminVisitsAnalyticsResponse = zod.object({
+  "range": zod.object({
+  "preset": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string()
+}),
+  "totalVisits": zod.number(),
+  "countries": zod.array(zod.object({
+  "country": zod.string(),
+  "visits": zod.number()
+})),
+  "trends": zod.array(zod.object({
+  "date": zod.string(),
+  "visits": zod.number(),
+  "orders": zod.number(),
+  "sales": zod.number(),
+  "salesUsd": zod.number()
+}))
+})
+
+
+/**
+ * @summary Get date-filtered sales analytics
+ */
+export const getAdminSalesAnalyticsQueryPresetDefault = `last_month`;
+
+export const GetAdminSalesAnalyticsQueryParams = zod.object({
+  "preset": zod.enum(['today', 'yesterday', 'last_week', 'last_2_weeks', 'last_month', 'last_3_months', 'last_6_months', 'year', 'custom']).default(getAdminSalesAnalyticsQueryPresetDefault),
+  "startDate": zod.coerce.string().optional(),
+  "endDate": zod.coerce.string().optional()
+})
+
+export const GetAdminSalesAnalyticsResponse = zod.object({
+  "range": zod.object({
+  "preset": zod.string(),
+  "startDate": zod.string(),
+  "endDate": zod.string()
+}),
+  "totalOrders": zod.number(),
+  "totalSales": zod.number(),
+  "totalSalesUsd": zod.number(),
+  "trends": zod.array(zod.object({
+  "date": zod.string(),
+  "visits": zod.number(),
+  "orders": zod.number(),
+  "sales": zod.number(),
+  "salesUsd": zod.number()
 }))
 })
 

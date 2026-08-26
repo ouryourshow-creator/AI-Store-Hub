@@ -6,14 +6,29 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './adminCashbackTransaction';
 export * from './adminDashboard';
 export * from './adminDashboardCountriesItem';
 export * from './adminDashboardPopularProductsItem';
+export * from './analyticsDateRange';
+export * from './analyticsEndDateParameter';
+export * from './analyticsPresetParameter';
+export * from './analyticsStartDateParameter';
+export * from './analyticsTrend';
+export * from './cashbackBalance';
+export * from './cashbackBalanceCurrency';
+export * from './cashbackTransaction';
+export * from './cashbackTransactionCurrency';
+export * from './cashbackTransactionStatus';
+export * from './cashbackTransactionType';
 export * from './category';
 export * from './categoryInput';
 export * from './dashboardTrend';
+export * from './getAdminSalesAnalyticsParams';
+export * from './getAdminVisitsAnalyticsParams';
 export * from './healthStatus';
 export * from './listAdminOrdersParams';
+export * from './myCashback';
 export * from './order';
 export * from './orderInput';
 export * from './orderInputCurrency';
@@ -28,6 +43,7 @@ export * from './productUpdate';
 export * from './promoCode';
 export * from './promoCodeInput';
 export * from './promoValidationResult';
+export * from './salesAnalytics';
 export * from './setProductPublished';
 export * from './uploadUrlRequest';
 export * from './uploadUrlResponse';
@@ -35,3 +51,5 @@ export * from './validatePromoCodeRequest';
 export * from './visitInput';
 export * from './visitResult';
 export * from './visitResultCurrency';
+export * from './visitsAnalytics';
+export * from './visitsAnalyticsCountriesItem';

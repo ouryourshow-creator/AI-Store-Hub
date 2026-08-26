@@ -24,6 +24,8 @@ export interface OrderInput {
   promoCode?: string | null;
   /** @nullable */
   paymentMethod?: string | null;
+  /** @minimum 0 */
+  cashbackAmount?: number;
   /**
      * @minItems 1
      * @maxItems 20

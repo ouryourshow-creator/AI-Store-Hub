@@ -6,6 +6,7 @@ import storageRouter from "./storage";
 import promoCodesRouter from "./promoCodes";
 import categoriesRouter from "./categories";
 import ordersRouter from "./orders";
+import cashbackRouter from "./cashback";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(storageRouter);
 router.use(promoCodesRouter);
 router.use(categoriesRouter);
 router.use(ordersRouter);
+router.use(cashbackRouter);
 
 export default router;

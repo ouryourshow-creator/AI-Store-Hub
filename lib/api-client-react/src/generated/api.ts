@@ -20,11 +20,15 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AdminCashbackTransaction,
   AdminDashboard,
   Category,
   CategoryInput,
+  GetAdminSalesAnalyticsParams,
+  GetAdminVisitsAnalyticsParams,
   HealthStatus,
   ListAdminOrdersParams,
+  MyCashback,
   Order,
   OrderInput,
   OrderStatusUpdate,
@@ -34,12 +38,14 @@ import type {
   PromoCode,
   PromoCodeInput,
   PromoValidationResult,
+  SalesAnalytics,
   SetProductPublished,
   UploadUrlRequest,
   UploadUrlResponse,
   ValidatePromoCodeRequest,
   VisitInput,
-  VisitResult
+  VisitResult,
+  VisitsAnalytics
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -518,6 +524,83 @@ export const useDeleteProduct = <TError = ErrorType<void>,
       > => {
       return useMutation(getDeleteProductMutationOptions(options));
     }
+
+export const getGetProductBySlugUrl = (slug: string,) => {
+
+
+
+
+  return `/api/products/slug/${slug}`
+}
+
+/**
+ * @summary Get a product by its public slug
+ */
+export const getProductBySlug = async (slug: string, options?: Parameters<typeof customFetch>[1]): Promise<Product> => {
+
+  return customFetch<Product>(getGetProductBySlugUrl(slug),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetProductBySlugQueryKey = (slug: string,) => {
+    return [
+    `/api/products/slug/${slug}`
+    ] as const;
+    }
+
+
+export const getGetProductBySlugQueryOptions = <TData = Awaited<ReturnType<typeof getProductBySlug>>, TError = ErrorType<void>>(slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProductBySlug>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetProductBySlugQueryKey(slug);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getProductBySlug>>> = ({ signal }) => getProductBySlug(slug, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: slug !== null && slug !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getProductBySlug>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetProductBySlugQueryResult = NonNullable<Awaited<ReturnType<typeof getProductBySlug>>>
+export type GetProductBySlugQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get a product by its public slug
+ */
+
+export function useGetProductBySlug<TData = Awaited<ReturnType<typeof getProductBySlug>>, TError = ErrorType<void>>(
+ slug: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getProductBySlug>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetProductBySlugQueryOptions(slug,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getRecordProductSaleUrl = (id: number,) => {
 
@@ -1396,6 +1479,231 @@ export function useListMyOrders<TData = Awaited<ReturnType<typeof listMyOrders>>
 
 
 
+export const getGetMyCashbackUrl = () => {
+
+
+
+
+  return `/api/cashback/me`
+}
+
+/**
+ * @summary Get the signed-in customer's cashback balance and history
+ */
+export const getMyCashback = async ( options?: Parameters<typeof customFetch>[1]): Promise<MyCashback> => {
+
+  return customFetch<MyCashback>(getGetMyCashbackUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyCashbackQueryKey = () => {
+    return [
+    `/api/cashback/me`
+    ] as const;
+    }
+
+
+export const getGetMyCashbackQueryOptions = <TData = Awaited<ReturnType<typeof getMyCashback>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyCashback>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyCashbackQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyCashback>>> = ({ signal }) => getMyCashback({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyCashback>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyCashbackQueryResult = NonNullable<Awaited<ReturnType<typeof getMyCashback>>>
+export type GetMyCashbackQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get the signed-in customer's cashback balance and history
+ */
+
+export function useGetMyCashback<TData = Awaited<ReturnType<typeof getMyCashback>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyCashback>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyCashbackQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListPendingCashbackUrl = () => {
+
+
+
+
+  return `/api/admin/cashback/pending`
+}
+
+/**
+ * @summary List cashback credits awaiting manual approval
+ */
+export const listPendingCashback = async ( options?: Parameters<typeof customFetch>[1]): Promise<AdminCashbackTransaction[]> => {
+
+  return customFetch<AdminCashbackTransaction[]>(getListPendingCashbackUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListPendingCashbackQueryKey = () => {
+    return [
+    `/api/admin/cashback/pending`
+    ] as const;
+    }
+
+
+export const getListPendingCashbackQueryOptions = <TData = Awaited<ReturnType<typeof listPendingCashback>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPendingCashback>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListPendingCashbackQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listPendingCashback>>> = ({ signal }) => listPendingCashback({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listPendingCashback>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListPendingCashbackQueryResult = NonNullable<Awaited<ReturnType<typeof listPendingCashback>>>
+export type ListPendingCashbackQueryError = ErrorType<void>
+
+
+/**
+ * @summary List cashback credits awaiting manual approval
+ */
+
+export function useListPendingCashback<TData = Awaited<ReturnType<typeof listPendingCashback>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPendingCashback>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListPendingCashbackQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getApproveCashbackUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/cashback/${id}/approve`
+}
+
+/**
+ * @summary Approve a pending cashback credit
+ */
+export const approveCashback = async (id: number, options?: Parameters<typeof customFetch>[1]): Promise<AdminCashbackTransaction> => {
+
+  return customFetch<AdminCashbackTransaction>(getApproveCashbackUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+
+export const getApproveCashbackMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveCashback>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof approveCashback>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['approveCashback'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof approveCashback>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  approveCashback(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ApproveCashbackMutationResult = NonNullable<Awaited<ReturnType<typeof approveCashback>>>
+
+    export type ApproveCashbackMutationError = ErrorType<void>
+
+    /**
+ * @summary Approve a pending cashback credit
+ */
+export const useApproveCashback = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof approveCashback>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof approveCashback>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getApproveCashbackMutationOptions(options));
+    }
+
 export const getListAdminOrdersUrl = (params?: ListAdminOrdersParams,) => {
   const normalizedParams = new URLSearchParams();
 
@@ -1617,6 +1925,174 @@ export function useGetAdminDashboard<TData = Awaited<ReturnType<typeof getAdminD
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetAdminDashboardQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAdminVisitsAnalyticsUrl = (params?: GetAdminVisitsAnalyticsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/analytics/visits?${stringifiedParams}` : `/api/admin/analytics/visits`
+}
+
+/**
+ * @summary Get date-filtered visitor analytics
+ */
+export const getAdminVisitsAnalytics = async (params?: GetAdminVisitsAnalyticsParams, options?: Parameters<typeof customFetch>[1]): Promise<VisitsAnalytics> => {
+
+  return customFetch<VisitsAnalytics>(getGetAdminVisitsAnalyticsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminVisitsAnalyticsQueryKey = (params?: GetAdminVisitsAnalyticsParams,) => {
+    return [
+    `/api/admin/analytics/visits`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAdminVisitsAnalyticsQueryOptions = <TData = Awaited<ReturnType<typeof getAdminVisitsAnalytics>>, TError = ErrorType<void>>(params?: GetAdminVisitsAnalyticsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminVisitsAnalytics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminVisitsAnalyticsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminVisitsAnalytics>>> = ({ signal }) => getAdminVisitsAnalytics(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminVisitsAnalytics>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminVisitsAnalyticsQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminVisitsAnalytics>>>
+export type GetAdminVisitsAnalyticsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get date-filtered visitor analytics
+ */
+
+export function useGetAdminVisitsAnalytics<TData = Awaited<ReturnType<typeof getAdminVisitsAnalytics>>, TError = ErrorType<void>>(
+ params?: GetAdminVisitsAnalyticsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminVisitsAnalytics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminVisitsAnalyticsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getGetAdminSalesAnalyticsUrl = (params?: GetAdminSalesAnalyticsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/analytics/sales?${stringifiedParams}` : `/api/admin/analytics/sales`
+}
+
+/**
+ * @summary Get date-filtered sales analytics
+ */
+export const getAdminSalesAnalytics = async (params?: GetAdminSalesAnalyticsParams, options?: Parameters<typeof customFetch>[1]): Promise<SalesAnalytics> => {
+
+  return customFetch<SalesAnalytics>(getGetAdminSalesAnalyticsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminSalesAnalyticsQueryKey = (params?: GetAdminSalesAnalyticsParams,) => {
+    return [
+    `/api/admin/analytics/sales`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetAdminSalesAnalyticsQueryOptions = <TData = Awaited<ReturnType<typeof getAdminSalesAnalytics>>, TError = ErrorType<void>>(params?: GetAdminSalesAnalyticsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminSalesAnalytics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminSalesAnalyticsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminSalesAnalytics>>> = ({ signal }) => getAdminSalesAnalytics(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminSalesAnalytics>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminSalesAnalyticsQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminSalesAnalytics>>>
+export type GetAdminSalesAnalyticsQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get date-filtered sales analytics
+ */
+
+export function useGetAdminSalesAnalytics<TData = Awaited<ReturnType<typeof getAdminSalesAnalytics>>, TError = ErrorType<void>>(
+ params?: GetAdminSalesAnalyticsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminSalesAnalytics>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminSalesAnalyticsQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

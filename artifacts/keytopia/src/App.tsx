@@ -94,12 +94,14 @@ function VisitTracker() {
   const recordVisit = useRecordVisit();
 
   useEffect(() => {
-    const match = location.match(/^\/products\/(\d+)$/);
+    // Product pages record after their product lookup resolves so visits retain
+    // a product ID even when the public URL is a slug.
+    if (location.startsWith('/products/')) return;
     const key = 'keytopia_visitor';
     const visitorId = localStorage.getItem(key) ?? crypto.randomUUID();
     localStorage.setItem(key, visitorId);
     recordVisit.mutate({
-      data: { path: location, productId: match ? Number(match[1]) : null, visitorId },
+      data: { path: location, productId: null, visitorId },
     }, {
       onSuccess: (result) => setCurrency(result.currency),
     });
@@ -127,7 +129,7 @@ function ClerkProviderWithRoutes() {
               <VisitTracker />
               <Switch>
                 <Route path="/" component={Home} />
-                <Route path="/products/:id" component={ProductPage} />
+                <Route path="/products/:slug" component={ProductPage} />
                 <Route path="/policy" component={PolicyPage} />
                 {/* REQUIRED — /*? optional wildcard matches both bare URL and Clerk OAuth sub-paths */}
                 <Route path="/sign-in/*?" component={SignInPage} />

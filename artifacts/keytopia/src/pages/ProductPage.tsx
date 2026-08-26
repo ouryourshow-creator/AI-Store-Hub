@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { useParams, Link } from 'wouter';
-import { useGetProduct, getGetProductQueryKey } from '@workspace/api-client-react';
+import { useEffect, useState } from 'react';
+import { useParams, Link, useLocation } from 'wouter';
+import { getGetProductBySlugQueryKey, getGetProductQueryKey, useGetProduct, useGetProductBySlug, useRecordVisit } from '@workspace/api-client-react';
 import { useCart } from '../contexts/CartContext';
 import { useCurrency } from '../contexts/CurrencyContext';
 import { useLang } from '../contexts/LanguageContext';
@@ -18,15 +18,67 @@ const CUSTOMER_INFO_LABELS: Record<string, { ar: string; en: string }> = {
 };
 
 export default function ProductPage() {
-  const params = useParams<{ id: string }>();
-  const id = Number(params.id);
+  const params = useParams<{ slug: string }>();
+  const slug = params.slug;
+  const legacyId = Number(slug);
+  const isLegacyUrl = /^\d+$/.test(slug);
   const { t, dir, lang } = useLang();
   const { addItem } = useCart();
-  const { currency } = useCurrency();
-  const { data: product, isLoading, isError } = useGetProduct(id, {
-    query: { enabled: !isNaN(id), queryKey: getGetProductQueryKey(id) },
+  const { currency, setCurrency } = useCurrency();
+  const [location] = useLocation();
+  const legacyQuery = useGetProduct(legacyId, {
+    query: { enabled: isLegacyUrl, queryKey: getGetProductQueryKey(legacyId) },
   });
+  const slugQuery = useGetProductBySlug(slug, {
+    query: { enabled: !isLegacyUrl, queryKey: getGetProductBySlugQueryKey(slug) },
+  });
+  const product = isLegacyUrl ? legacyQuery.data : slugQuery.data;
+  const isLoading = isLegacyUrl ? legacyQuery.isLoading : slugQuery.isLoading;
+  const isError = isLegacyUrl ? legacyQuery.isError : slugQuery.isError;
+  const recordVisit = useRecordVisit();
   const [selectedOptionIdx, setSelectedOptionIdx] = useState(0);
+
+  useEffect(() => {
+    const fallbackTitle = 'Keytopia Store';
+    const fallbackDescription = 'Premium digital subscriptions delivered instantly.';
+    const title = product ? `${product.name} | Keytopia` : fallbackTitle;
+    const description = product?.description?.trim() || fallbackDescription;
+    const image = product?.coverImageUrl
+      ? new URL(product.coverImageUrl, window.location.origin).toString()
+      : `${window.location.origin}/logo.svg`;
+    const url = `${window.location.origin}${location}`;
+
+    document.title = title;
+    const setMeta = (selector: string, attribute: 'name' | 'property', value: string) => {
+      let element = document.head.querySelector<HTMLMetaElement>(selector);
+      if (!element) {
+        element = document.createElement('meta');
+        element.setAttribute(attribute, selector.split('=')[1].replace(/["\]]/g, ''));
+        document.head.appendChild(element);
+      }
+      element.content = value;
+    };
+    setMeta('meta[name="description"]', 'name', description);
+    setMeta('meta[property="og:title"]', 'property', title);
+    setMeta('meta[property="og:description"]', 'property', description);
+    setMeta('meta[property="og:image"]', 'property', image);
+    setMeta('meta[property="og:url"]', 'property', url);
+    setMeta('meta[name="twitter:title"]', 'name', title);
+    setMeta('meta[name="twitter:description"]', 'name', description);
+    setMeta('meta[name="twitter:image"]', 'name', image);
+  }, [location, product]);
+
+  useEffect(() => {
+    if (!product) return;
+    const key = 'keytopia_visitor';
+    const visitorId = localStorage.getItem(key) ?? crypto.randomUUID();
+    localStorage.setItem(key, visitorId);
+    recordVisit.mutate({
+      data: { path: location, productId: product.id, visitorId },
+    }, {
+      onSuccess: (result) => setCurrency(result.currency),
+    });
+  }, [location, product?.id]);
 
   const BackArrow = dir === 'rtl' ? ArrowRight : ArrowLeft;
 

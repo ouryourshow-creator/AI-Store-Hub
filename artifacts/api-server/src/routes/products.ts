@@ -6,6 +6,7 @@ import {
   UpdateProductBody,
   UpdateProductParams,
   GetProductParams,
+  GetProductBySlugParams,
   DeleteProductParams,
   ListProductsResponse,
   CreateProductResponse,
@@ -15,6 +16,30 @@ import {
 import { requireAdmin } from "../middlewares/requireAdmin";
 
 const router: IRouter = Router();
+
+function slugify(name: string): string {
+  const normalized = name.normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+  return normalized
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "") || "product";
+}
+
+function publicSlug(name: string, id: number): string {
+  return `${slugify(name)}-${id.toString(36)}`;
+}
+
+async function uniqueSlug(name: string, excludeId?: number): Promise<string> {
+  const base = slugify(name);
+  const rows = await db.select({ id: productsTable.id, name: productsTable.name, slug: productsTable.slug }).from(productsTable);
+  const used = new Set(rows
+    .filter((row) => row.id !== excludeId)
+    .map((row) => row.slug ?? publicSlug(row.name, row.id)));
+  if (!used.has(base)) return base;
+  let suffix = 2;
+  while (used.has(`${base}-${suffix}`)) suffix += 1;
+  return `${base}-${suffix}`;
+}
 
 /** Map a raw DB row to the shape the API returns */
 function mapProduct(p: typeof productsTable.$inferSelect, includeSensitiveFields = false) {
@@ -28,6 +53,7 @@ function mapProduct(p: typeof productsTable.$inferSelect, includeSensitiveFields
       : [{ duration: p.duration, price, salePrice, priceUsd: p.priceUsd != null ? Number(p.priceUsd) : null, salePriceUsd: p.salePriceUsd != null ? Number(p.salePriceUsd) : null }];
   return {
     ...safeProduct,
+    slug: p.slug ?? publicSlug(p.name, p.id),
     price,
     salePrice,
     priceUsd: p.priceUsd != null ? Number(p.priceUsd) : null,
@@ -92,6 +118,7 @@ router.post("/products", requireAdmin, async (req, res): Promise<void> => {
     .insert(productsTable)
     .values({
       name: d.name,
+      slug: await uniqueSlug(d.name),
       category: d.category ?? null,
       brand: d.brand ?? null,
       coverImageUrl: d.coverImageUrl ?? null,
@@ -118,7 +145,38 @@ router.post("/products", requireAdmin, async (req, res): Promise<void> => {
   res.status(201).json(CreateProductResponse.parse(mapProduct(product, true)));
 });
 
-// GET /products/:id — public
+// GET /products/slug/:slug — public readable lookup
+router.get("/products/slug/:slug", async (req, res): Promise<void> => {
+  const params = GetProductBySlugParams.safeParse(req.params);
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [storedProduct] = await db
+    .select()
+    .from(productsTable)
+    .where(and(eq(productsTable.slug, params.data.slug), eq(productsTable.published, true)));
+  if (storedProduct) {
+    res.json(GetProductResponse.parse(mapProduct(storedProduct)));
+    return;
+  }
+
+  // Existing products predate the slug column. Resolve their deterministic
+  // compatibility slug without exposing their numeric ID in the public URL.
+  const products = await db
+    .select()
+    .from(productsTable)
+    .where(eq(productsTable.published, true));
+  const product = products.find((candidate) => publicSlug(candidate.name, candidate.id) === params.data.slug);
+  if (!product) {
+    res.status(404).json({ error: "Product not found" });
+    return;
+  }
+  res.json(GetProductResponse.parse(mapProduct(product)));
+});
+
+// GET /products/:id — public legacy numeric lookup
 router.get("/products/:id", async (req, res): Promise<void> => {
   const params = GetProductParams.safeParse(req.params);
   if (!params.success) {
@@ -155,8 +213,22 @@ router.put("/products/:id", requireAdmin, async (req, res): Promise<void> => {
 
   const d = parsed.data;
   const updateData: Record<string, unknown> = {};
+  const [current] = await db
+    .select({ id: productsTable.id, name: productsTable.name, slug: productsTable.slug })
+    .from(productsTable)
+    .where(eq(productsTable.id, params.data.id))
+    .limit(1);
+  if (!current) {
+    res.status(404).json({ error: "Product not found" });
+    return;
+  }
 
-  if (d.name !== undefined) updateData.name = d.name;
+  if (d.name !== undefined) {
+    updateData.name = d.name;
+    // Public links stay valid when an admin corrects or renames a product.
+    // Legacy rows gain their current compatibility slug before the name changes.
+    if (!current.slug) updateData.slug = publicSlug(current.name, current.id);
+  }
   if (d.category !== undefined) updateData.category = d.category;
   if (d.brand !== undefined) updateData.brand = d.brand;
   if (d.coverImageUrl !== undefined) updateData.coverImageUrl = d.coverImageUrl;

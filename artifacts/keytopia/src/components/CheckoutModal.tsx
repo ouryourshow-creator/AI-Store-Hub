@@ -6,7 +6,8 @@ import {
 } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { useAuth } from '@clerk/react';
-import { useCreateOrder } from '@workspace/api-client-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { getGetMyCashbackQueryKey, useCreateOrder, useGetMyCashback } from '@workspace/api-client-react';
 import { useLocation } from 'wouter';
 import { useCart } from '../contexts/CartContext';
 import { useLang } from '../contexts/LanguageContext';
@@ -56,6 +57,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
   const { items, cartTotal, clearCart } = useCart();
   const { t, dir, lang } = useLang();
   const { isSignedIn } = useAuth();
+  const queryClient = useQueryClient();
   const [, setLocation] = useLocation();
   const isRtl = dir === 'rtl';
   const createOrder = useCreateOrder();
@@ -67,11 +69,19 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
   const [promoInput, setPromoInput] = useState('');
   const [promo, setPromo] = useState<PromoState>({ status: 'idle', code: '', percentage: 0 });
+  const [cashbackInput, setCashbackInput] = useState('');
+  const [appliedCashback, setAppliedCashback] = useState(0);
+  const [cashbackError, setCashbackError] = useState('');
   const cartCurrency = items[0]?.selectedCurrency ?? 'EGP';
   const idempotencyKeyRef = useRef(crypto.randomUUID());
+  const { data: cashbackAccount, isLoading: cashbackLoading } = useGetMyCashback({
+    query: { enabled: !!isSignedIn, queryKey: getGetMyCashbackQueryKey() },
+  });
 
   const discountAmount = promo.status === 'valid' ? Math.round(cartTotal * promo.percentage / 100) : 0;
-  const finalTotal = cartTotal - discountAmount;
+  const beforeCashbackTotal = Math.max(0, cartTotal - discountAmount);
+  const availableCashback = cashbackAccount?.balances.find((balance) => balance.currency === cartCurrency)?.available ?? 0;
+  const finalTotal = Math.max(0, beforeCashbackTotal - appliedCashback);
 
   const handleApplyPromo = async () => {
     const code = promoInput.trim().toUpperCase();
@@ -99,6 +109,22 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     setPromoInput('');
   };
 
+  const handleApplyCashback = () => {
+    const amount = Math.round(Number(cashbackInput) * 100) / 100;
+    if (!Number.isFinite(amount) || amount <= 0 || amount > availableCashback || amount > beforeCashbackTotal) {
+      setCashbackError(t('cashbackInvalid'));
+      return;
+    }
+    setAppliedCashback(amount);
+    setCashbackError('');
+  };
+
+  const clearCashback = () => {
+    setAppliedCashback(0);
+    setCashbackInput('');
+    setCashbackError('');
+  };
+
   const handleClose = () => {
     onClose();
     setTimeout(() => {
@@ -106,6 +132,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
       setName(''); setEmail(''); setPhone('');
       setPaymentMethod(null);
       clearPromo();
+      clearCashback();
       idempotencyKeyRef.current = crypto.randomUUID();
     }, 300);
   };
@@ -142,6 +169,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
           currency: cartCurrency,
           idempotencyKey: idempotencyKeyRef.current,
           promoCode: promo.status === 'valid' ? promo.code : null,
+          cashbackAmount: appliedCashback || undefined,
           paymentMethod,
           items: items.map(item => ({
             productId: item.id,
@@ -159,6 +187,7 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
         ? `مرحباً، أرسل لكم إيصال الدفع لطلبي من كيتوبيا.\n\nرقم الحجز: ${order.orderNumber}\nالاسم: ${name}\nالبريد: ${email}\nالهاتف: ${phone}\n\nالطلب:\n${orderLines}${promoLine}\n\nالإجمالي: ${order.currency} ${order.total}\nطريقة الدفع: ${method}\n\n[أرجو إرفاق إيصال الدفع]`
         : `Hello, I am sending payment proof for my Keytopia order.\n\nBooking number: ${order.orderNumber}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nOrder:\n${orderLines}${promoLine}\n\nTotal: ${order.currency} ${order.total}\nPayment method: ${method}\n\n[Please attach payment proof]`;
       window.open(`${WA_LINK}?text=${encodeURIComponent(msg)}`, '_blank');
+      queryClient.invalidateQueries({ queryKey: getGetMyCashbackQueryKey() });
       clearCart();
       handleClose();
     } catch {
@@ -303,6 +332,51 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                     </div>
 
                     {/* Order summary */}
+                    <div className="rounded-[16px] border border-emerald-200 bg-emerald-50/60 p-4">
+                      <div className="flex items-center justify-between gap-3 mb-2">
+                        <div>
+                          <p className="text-sm font-bold text-emerald-800">{t('cashbackUse')}</p>
+                          <p className="text-xs text-emerald-700/80">{t('cashbackEarned')}</p>
+                        </div>
+                        <span className="font-display font-bold text-emerald-700">
+                          {cashbackLoading ? '...' : `${cartCurrency} ${availableCashback.toFixed(2)}`}
+                        </span>
+                      </div>
+                      {appliedCashback > 0 ? (
+                        <div className="flex items-center justify-between rounded-xl bg-white/80 px-3 py-2.5">
+                          <span className="text-sm font-semibold text-emerald-800">{t('cashbackApplied')}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-bold text-emerald-700">−{cartCurrency} {appliedCashback.toFixed(2)}</span>
+                            <button type="button" onClick={clearCashback} className="p-1 rounded-full hover:bg-emerald-100">
+                              <X className="w-3.5 h-3.5 text-emerald-700" />
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={cashbackInput}
+                            onChange={(e) => { setCashbackInput(e.target.value); setCashbackError(''); }}
+                            placeholder={t('cashbackAmount')}
+                            disabled={!isSignedIn || cashbackLoading || availableCashback <= 0}
+                            className="min-w-0 flex-1 rounded-xl border border-emerald-200 bg-white px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-emerald-400 disabled:opacity-60"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleApplyCashback}
+                            disabled={!cashbackInput || !isSignedIn || cashbackLoading || availableCashback <= 0}
+                            className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+                          >
+                            {t('cashbackApply')}
+                          </button>
+                        </div>
+                      )}
+                      {cashbackError && <p className="mt-2 text-xs font-medium text-destructive">{cashbackError}</p>}
+                    </div>
+
                     <div className="bg-muted/50 rounded-[16px] p-4">
                       <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">{t('items')}</p>
                       <div className="flex flex-col gap-1 mb-3">
@@ -317,6 +391,12 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                         <div className="flex justify-between text-sm mb-1">
                           <span className="text-[#1CC88A] font-semibold">{t('discount')} ({promo.percentage}%)</span>
                           <span className="text-[#1CC88A] font-semibold">−{cartCurrency} {discountAmount}</span>
+                        </div>
+                      )}
+                      {appliedCashback > 0 && (
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="text-emerald-700 font-semibold">{t('cashback')}</span>
+                          <span className="text-emerald-700 font-semibold">−{cartCurrency} {appliedCashback.toFixed(2)}</span>
                         </div>
                       )}
                       <div className="flex justify-between font-display font-bold text-base pt-2 border-t border-black/[0.06]">

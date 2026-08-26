@@ -45,6 +45,8 @@ export interface OrderInput {
   promoCode?: string | null;
   /** @nullable */
   paymentMethod?: string | null;
+  /** @minimum 0 */
+  cashbackAmount?: number;
   /**
      * @minItems 1
      * @maxItems 20
@@ -66,7 +68,7 @@ export interface OrderItem {
 
 export interface Order {
   id: number;
-  orderNumber: string;
+  orderNumber: string | number;
   customerName: string;
   customerEmail: string;
   customerPhone: string;
@@ -99,6 +101,70 @@ export interface OrderStatusUpdate {
   status: OrderStatusUpdateStatus;
 }
 
+export type CashbackBalanceCurrency = typeof CashbackBalanceCurrency[keyof typeof CashbackBalanceCurrency];
+
+
+export const CashbackBalanceCurrency = {
+  EGP: 'EGP',
+  USD: 'USD',
+} as const;
+
+export interface CashbackBalance {
+  currency: CashbackBalanceCurrency;
+  pending: number;
+  available: number;
+}
+
+export type CashbackTransactionType = typeof CashbackTransactionType[keyof typeof CashbackTransactionType];
+
+
+export const CashbackTransactionType = {
+  credit: 'credit',
+  debit: 'debit',
+} as const;
+
+export type CashbackTransactionStatus = typeof CashbackTransactionStatus[keyof typeof CashbackTransactionStatus];
+
+
+export const CashbackTransactionStatus = {
+  pending: 'pending',
+  available: 'available',
+  redeemed: 'redeemed',
+  voided: 'voided',
+  reversed: 'reversed',
+} as const;
+
+export type CashbackTransactionCurrency = typeof CashbackTransactionCurrency[keyof typeof CashbackTransactionCurrency];
+
+
+export const CashbackTransactionCurrency = {
+  EGP: 'EGP',
+  USD: 'USD',
+} as const;
+
+export interface CashbackTransaction {
+  id: number;
+  orderId: number;
+  orderNumber?: string | number | null;
+  type: CashbackTransactionType;
+  status: CashbackTransactionStatus;
+  currency: CashbackTransactionCurrency;
+  amount: number;
+  createdAt: string;
+  /** @nullable */
+  approvedAt: string | null;
+}
+
+export interface MyCashback {
+  balances: CashbackBalance[];
+  transactions: CashbackTransaction[];
+}
+
+export type AdminCashbackTransaction = CashbackTransaction & {
+  customerName: string;
+  customerEmail: string;
+};
+
 export interface VisitInput {
   /** @minLength 1 */
   path: string;
@@ -126,6 +192,40 @@ export interface DashboardTrend {
   orders: number;
   sales: number;
   visits: number;
+}
+
+export interface AnalyticsDateRange {
+  preset: string;
+  startDate: string;
+  endDate: string;
+}
+
+export interface AnalyticsTrend {
+  date: string;
+  visits: number;
+  orders: number;
+  sales: number;
+  salesUsd: number;
+}
+
+export type VisitsAnalyticsCountriesItem = {
+  country: string;
+  visits: number;
+};
+
+export interface VisitsAnalytics {
+  range: AnalyticsDateRange;
+  totalVisits: number;
+  countries: VisitsAnalyticsCountriesItem[];
+  trends: AnalyticsTrend[];
+}
+
+export interface SalesAnalytics {
+  range: AnalyticsDateRange;
+  totalOrders: number;
+  totalSales: number;
+  totalSalesUsd: number;
+  trends: AnalyticsTrend[];
 }
 
 export type AdminDashboardCountriesItem = {
@@ -171,6 +271,7 @@ export interface PricingOption {
 export interface Product {
   id: number;
   name: string;
+  slug: string;
   /** @nullable */
   category?: string | null;
   /** @nullable */
@@ -340,8 +441,39 @@ export interface PromoValidationResult {
   code?: string;
 }
 
+export type AnalyticsPresetParameter = typeof AnalyticsPresetParameter[keyof typeof AnalyticsPresetParameter];
+
+
+export const AnalyticsPresetParameter = {
+  today: 'today',
+  yesterday: 'yesterday',
+  last_week: 'last_week',
+  last_2_weeks: 'last_2_weeks',
+  last_month: 'last_month',
+  last_3_months: 'last_3_months',
+  last_6_months: 'last_6_months',
+  year: 'year',
+  custom: 'custom',
+} as const;
+
+export type AnalyticsStartDateParameter = string;
+
+export type AnalyticsEndDateParameter = string;
+
 export type ListAdminOrdersParams = {
 search?: string;
 status?: string;
+};
+
+export type GetAdminVisitsAnalyticsParams = {
+preset?: AnalyticsPresetParameter;
+startDate?: AnalyticsStartDateParameter;
+endDate?: AnalyticsEndDateParameter;
+};
+
+export type GetAdminSalesAnalyticsParams = {
+preset?: AnalyticsPresetParameter;
+startDate?: AnalyticsStartDateParameter;
+endDate?: AnalyticsEndDateParameter;
 };
 

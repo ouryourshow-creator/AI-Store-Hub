@@ -8,15 +8,17 @@ import {
   useListCategories, useCreateCategory, useDeleteCategory, getListCategoriesQueryKey,
 } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { ShieldAlert, Plus, Pencil, Trash2, LogOut, Search, Tag, X, Layers, Eye, EyeOff } from 'lucide-react';
+import { ShieldAlert, Plus, Pencil, Trash2, LogOut, Search, Tag, X, Layers, Eye, EyeOff, Gift } from 'lucide-react';
 import { Link, useLocation } from 'wouter';
 import { toast } from 'sonner';
 import { useLang } from '../contexts/LanguageContext';
 import AdminProductModal from '../components/AdminProductModal';
 import AdminDashboard from '../components/AdminDashboard';
+import AdminAnalytics from '../components/AdminAnalytics';
 import AdminOrders from '../components/AdminOrders';
+import AdminCashback from '../components/AdminCashback';
 
-type Tab = 'dashboard' | 'orders' | 'products' | 'promo' | 'categories';
+type Tab = 'dashboard' | 'visits' | 'sales' | 'orders' | 'cashback' | 'products' | 'promo' | 'categories';
 
 export default function Admin() {
   const { isLoaded, isSignedIn } = useUser();
@@ -233,7 +235,7 @@ export default function Admin() {
       <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-12">
         {/* Tab bar */}
         <div className="flex gap-2 mb-8 border-b border-black/[0.06] pb-0">
-          {(['dashboard', 'orders', 'products', 'categories', 'promo'] as Tab[]).map(tab => (
+          {(['dashboard', 'visits', 'sales', 'orders', 'cashback', 'products', 'categories', 'promo'] as Tab[]).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -243,7 +245,7 @@ export default function Admin() {
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
-              {tab === 'dashboard' ? (dir === 'rtl' ? 'لوحة الأداء' : 'Dashboard') : tab === 'orders' ? (dir === 'rtl' ? 'الطلبات' : 'Orders') : tab === 'products' ? t('products') : tab === 'categories' ? t('categories') : t('promoCodes')}
+              {tab === 'dashboard' ? (dir === 'rtl' ? 'نظرة عامة' : 'Overview') : tab === 'visits' ? (dir === 'rtl' ? 'الزيارات' : 'Visits') : tab === 'sales' ? (dir === 'rtl' ? 'المبيعات' : 'Sales') : tab === 'orders' ? (dir === 'rtl' ? 'الطلبات' : 'Orders') : tab === 'cashback' ? <span className="inline-flex items-center gap-1.5"><Gift className="w-4 h-4" />{t('cashback')}</span> : tab === 'products' ? t('products') : tab === 'categories' ? t('categories') : t('promoCodes')}
             </button>
           ))}
         </div>
@@ -251,7 +253,13 @@ export default function Admin() {
         {/* ── Products tab ── */}
         {activeTab === 'dashboard' && <AdminDashboard />}
 
+        {activeTab === 'visits' && <AdminAnalytics kind="visits" />}
+
+        {activeTab === 'sales' && <AdminAnalytics kind="sales" />}
+
         {activeTab === 'orders' && <AdminOrders />}
+
+        {activeTab === 'cashback' && <AdminCashback />}
 
         {activeTab === 'products' && (
           <>

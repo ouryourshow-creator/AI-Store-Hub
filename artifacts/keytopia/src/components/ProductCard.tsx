@@ -48,7 +48,7 @@ export default function ProductCard({ product }: { product: Product }) {
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       className="bg-card rounded-[14px] md:rounded-[20px] overflow-hidden border border-black/[0.06] shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-300 flex flex-col h-full"
     >
-      <Link href={`/products/${product.id}`} className="block">
+      <Link href={`/products/${product.slug}`} className="block">
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
           {product.coverImageUrl ? (
             <img
@@ -83,7 +83,7 @@ export default function ProductCard({ product }: { product: Product }) {
           )}
         </div>
 
-        <Link href={`/products/${product.id}`}>
+        <Link href={`/products/${product.slug}`}>
           <h3 className="text-sm md:text-xl font-display font-semibold mt-1.5 md:mt-2 mb-0.5 md:mb-1 text-foreground hover:text-primary transition-colors line-clamp-2">{product.name}</h3>
         </Link>
 

@@ -33,14 +33,14 @@ export default function AdminOrders() {
   });
 
   const filteredOrders = (orders || []).filter(order => {
-    const matchesSearch = search === '' || 
-      order.orderNumber.toLowerCase().includes(search.toLowerCase()) || 
+    const matchesSearch = search === '' ||
+      String(order.orderNumber).toLowerCase().includes(search.toLowerCase()) ||
       order.customerName.toLowerCase().includes(search.toLowerCase()) ||
       order.customerEmail.toLowerCase().includes(search.toLowerCase()) ||
       order.customerPhone.includes(search);
-      
+
     const matchesStatus = statusFilter === '' || order.status === statusFilter;
-    
+
     return matchesSearch && matchesStatus;
   });
 

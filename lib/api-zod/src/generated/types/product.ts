@@ -10,6 +10,7 @@ import type { PricingOption } from './pricingOption';
 export interface Product {
   id: number;
   name: string;
+  slug: string;
   /** @nullable */
   category?: string | null;
   /** @nullable */

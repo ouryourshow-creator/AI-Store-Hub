@@ -1,8 +1,9 @@
 import { Router, type IRouter, type Request } from "express";
 import { getAuth } from "@clerk/express";
-import { and, desc, eq, gte, ilike, inArray, or, sql } from "drizzle-orm";
+import { and, desc, eq, gte, ilike, inArray, lt, or, sql } from "drizzle-orm";
 import {
   analyticsVisitsTable,
+  cashbackTransactionsTable,
   db,
   orderItemsTable,
   ordersTable,
@@ -13,6 +14,10 @@ import {
   CreateOrderBody,
   CreateOrderResponse,
   GetAdminDashboardResponse,
+  GetAdminSalesAnalyticsQueryParams,
+  GetAdminSalesAnalyticsResponse,
+  GetAdminVisitsAnalyticsQueryParams,
+  GetAdminVisitsAnalyticsResponse,
   ListAdminOrdersQueryParams,
   ListAdminOrdersResponse,
   ListMyOrdersResponse,
@@ -26,6 +31,17 @@ import { requireAdmin } from "../middlewares/requireAdmin";
 const router: IRouter = Router();
 const orderStatuses = new Set(["awaiting_payment", "payment_proof_received", "confirmed", "fulfilled", "cancelled"]);
 const completedOrderStatuses = new Set(["confirmed", "fulfilled"]);
+const analyticsPresets = new Set([
+  "today",
+  "yesterday",
+  "last_week",
+  "last_2_weeks",
+  "last_month",
+  "last_3_months",
+  "last_6_months",
+  "year",
+  "custom",
+]);
 
 type ProductRecord = typeof productsTable.$inferSelect;
 
@@ -35,7 +51,7 @@ function mapOrder(
 ) {
   return {
     id: order.id,
-    orderNumber: order.orderNumber,
+    orderNumber: /^\d+$/.test(order.orderNumber) ? Number(order.orderNumber) : order.orderNumber,
     customerName: order.customerName,
     customerEmail: order.customerEmail,
     customerPhone: order.customerPhone,
@@ -96,16 +112,82 @@ function authUserId(req: Request): string | null {
   return auth?.userId ?? null;
 }
 
-function makeOrderNumber(): string {
-  return `KTP-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
-}
-
 function getHeader(req: Request, names: string[]): string | null {
   for (const name of names) {
     const value = req.get(name);
     if (value && /^[A-Za-z]{2}$/.test(value.trim())) return value.trim().toUpperCase();
   }
   return null;
+}
+
+type AnalyticsRange = {
+  preset: string;
+  start: Date;
+  endExclusive: Date;
+  startDate: string;
+  endDate: string;
+};
+
+function toUtcDay(date: Date): Date {
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
+}
+
+function addUtcDays(date: Date, days: number): Date {
+  const result = new Date(date);
+  result.setUTCDate(result.getUTCDate() + days);
+  return result;
+}
+
+function formatUtcDay(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
+function parseDate(value: unknown): Date | null {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return null;
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return Number.isNaN(date.getTime()) || formatUtcDay(date) !== value ? null : date;
+}
+
+function resolveAnalyticsRange(query: Request["query"]): AnalyticsRange | null {
+  const rawPreset = Array.isArray(query.preset) ? query.preset[0] : query.preset;
+  const preset = typeof rawPreset === "string" ? rawPreset : "last_month";
+  if (!analyticsPresets.has(preset)) return null;
+
+  if (preset === "custom") {
+    const rawStart = Array.isArray(query.startDate) ? query.startDate[0] : query.startDate;
+    const rawEnd = Array.isArray(query.endDate) ? query.endDate[0] : query.endDate;
+    const start = parseDate(rawStart);
+    const end = parseDate(rawEnd);
+    if (!start || !end || end < start) return null;
+    return {
+      preset,
+      start,
+      endExclusive: addUtcDays(end, 1),
+      startDate: formatUtcDay(start),
+      endDate: formatUtcDay(end),
+    };
+  }
+
+  const today = toUtcDay(new Date());
+  const tomorrow = addUtcDays(today, 1);
+  if (preset === "today") return { preset, start: today, endExclusive: tomorrow, startDate: formatUtcDay(today), endDate: formatUtcDay(today) };
+  if (preset === "yesterday") {
+    const yesterday = addUtcDays(today, -1);
+    return { preset, start: yesterday, endExclusive: today, startDate: formatUtcDay(yesterday), endDate: formatUtcDay(yesterday) };
+  }
+
+  const daysByPreset: Record<string, number> = {
+    last_week: 7,
+    last_2_weeks: 14,
+    last_month: 30,
+    last_3_months: 90,
+    last_6_months: 180,
+    year: 365,
+  };
+  const days = daysByPreset[preset];
+  if (!days) return null;
+  const start = addUtcDays(today, -(days - 1));
+  return { preset, start, endExclusive: tomorrow, startDate: formatUtcDay(start), endDate: formatUtcDay(today) };
 }
 
 async function detectCountry(req: Request): Promise<string> {
@@ -192,9 +274,54 @@ router.post("/orders", async (req, res): Promise<void> => {
   }
 
   const total = Math.max(0, subtotal - discount);
-  const created = await db.transaction(async (tx) => {
+  const cashbackAmount = Math.round((data.cashbackAmount ?? 0) * 100) / 100;
+  if (cashbackAmount > total) {
+    res.status(400).json({ error: "Cashback redemption cannot exceed the order total" });
+    return;
+  }
+  const finalTotal = Math.max(0, total - cashbackAmount);
+  let created;
+  try {
+    created = await db.transaction(async (tx) => {
+    const [existing] = await tx.select().from(ordersTable).where(and(
+      eq(ordersTable.customerId, customerId),
+      eq(ordersTable.idempotencyKey, data.idempotencyKey),
+    )).limit(1);
+    if (existing) {
+      const existingItems = await tx.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, existing.id));
+      return mapOrder(existing, existingItems);
+    }
+
+    const availableCashback = cashbackAmount > 0
+      ? await (async () => {
+        await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`${customerId}:${data.currency}:cashback`}))`);
+        return tx.select().from(cashbackTransactionsTable)
+        .where(and(
+          eq(cashbackTransactionsTable.customerId, customerId),
+          eq(cashbackTransactionsTable.currency, data.currency),
+          or(
+            and(
+              eq(cashbackTransactionsTable.type, "credit"),
+              eq(cashbackTransactionsTable.status, "available"),
+            ),
+            and(
+              eq(cashbackTransactionsTable.type, "debit"),
+              eq(cashbackTransactionsTable.status, "redeemed"),
+            ),
+          ),
+        ))
+        .for("update");
+      })()
+      : [];
+    const availableTotal = availableCashback.reduce(
+      (sum, transaction) => sum + (transaction.type === "credit" ? Number(transaction.amount) : -Number(transaction.amount)),
+      0,
+    );
+    if (cashbackAmount > availableTotal + 0.001) {
+      throw new Error("Cashback redemption exceeds the available balance");
+    }
+
     const [order] = await tx.insert(ordersTable).values({
-      orderNumber: makeOrderNumber(),
       customerId,
       customerName: data.customerName.trim(),
       customerEmail: data.customerEmail.trim().toLowerCase(),
@@ -203,22 +330,14 @@ router.post("/orders", async (req, res): Promise<void> => {
       currency: data.currency,
       subtotal: String(subtotal),
       discount: String(discount),
-      total: String(total),
+      total: String(finalTotal),
       promoCode,
       paymentMethod: data.paymentMethod ?? null,
     }).onConflictDoNothing({
       target: [ordersTable.customerId, ordersTable.idempotencyKey],
     }).returning();
 
-    if (!order) {
-      const [existing] = await tx.select().from(ordersTable).where(and(
-        eq(ordersTable.customerId, customerId),
-        eq(ordersTable.idempotencyKey, data.idempotencyKey),
-      )).limit(1);
-      if (!existing) throw new Error("Order idempotency conflict could not be resolved");
-      const existingItems = await tx.select().from(orderItemsTable).where(eq(orderItemsTable.orderId, existing.id));
-      return mapOrder(existing, existingItems);
-    }
+    if (!order) throw new Error("Order idempotency conflict could not be resolved");
 
     const items = await tx.insert(orderItemsTable).values(validItems.map((item) => ({
       orderId: order.id,
@@ -231,8 +350,26 @@ router.post("/orders", async (req, res): Promise<void> => {
       lineTotal: String(item.lineTotal),
     }))).returning();
 
+    if (cashbackAmount > 0) {
+      await tx.insert(cashbackTransactionsTable).values({
+        customerId,
+        orderId: order.id,
+        type: "debit",
+        status: "redeemed",
+        currency: data.currency,
+        amount: String(cashbackAmount),
+      });
+    }
+
     return mapOrder(order, items);
-  });
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === "Cashback redemption exceeds the available balance") {
+      res.status(400).json({ error: error.message });
+      return;
+    }
+    throw error;
+  }
 
   res.status(201).json(CreateOrderResponse.parse(created));
 });
@@ -280,13 +417,54 @@ router.patch("/admin/orders/:id/status", requireAdmin, async (req, res): Promise
     res.status(400).json({ error: "Invalid order status update" });
     return;
   }
-  const result = await db.transaction(async (tx) => {
+  let result;
+  try {
+    result = await db.transaction(async (tx) => {
     const [current] = await tx.select().from(ordersTable)
       .where(eq(ordersTable.id, params.data.id))
       .for("update");
     if (!current) return null;
 
     const shouldCountAsSold = completedOrderStatuses.has(body.data.status) && !current.countedAsSold;
+    const shouldCreateCashback = completedOrderStatuses.has(body.data.status) && !completedOrderStatuses.has(current.status);
+    const isCancelling = body.data.status === "cancelled" && current.status !== "cancelled";
+    if (isCancelling) {
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`${current.customerId}:${current.currency}:cashback`}))`);
+      const [earnedCredit] = await tx.select().from(cashbackTransactionsTable)
+        .where(and(
+          eq(cashbackTransactionsTable.orderId, current.id),
+          eq(cashbackTransactionsTable.type, "credit"),
+          eq(cashbackTransactionsTable.status, "available"),
+        ))
+        .for("update");
+      if (earnedCredit) {
+        const ledger = await tx.select().from(cashbackTransactionsTable)
+          .where(and(
+            eq(cashbackTransactionsTable.customerId, current.customerId),
+            eq(cashbackTransactionsTable.currency, current.currency),
+            or(
+              and(
+                eq(cashbackTransactionsTable.type, "credit"),
+                eq(cashbackTransactionsTable.status, "available"),
+              ),
+              and(
+                eq(cashbackTransactionsTable.type, "debit"),
+                eq(cashbackTransactionsTable.status, "redeemed"),
+              ),
+            ),
+          ))
+          .for("update");
+        const availableAfterCancellation = ledger.reduce(
+          (sum, transaction) => sum + (transaction.type === "credit" ? Number(transaction.amount) : -Number(transaction.amount)),
+          0,
+        ) - Number(earnedCredit.amount)
+          + ledger.filter((transaction) => transaction.orderId === current.id && transaction.type === "debit")
+            .reduce((sum, transaction) => sum + Number(transaction.amount), 0);
+        if (availableAfterCancellation < -0.001) {
+          throw new Error("This order's cashback has already been spent and cannot be cancelled");
+        }
+      }
+    }
     const [order] = await tx.update(ordersTable)
       .set({ status: body.data.status, countedAsSold: current.countedAsSold || shouldCountAsSold })
       .where(eq(ordersTable.id, current.id))
@@ -300,8 +478,43 @@ router.patch("/admin/orders/:id/status", requireAdmin, async (req, res): Promise
           .where(eq(productsTable.id, item.productId));
       }
     }
+    if (shouldCreateCashback && Number(order.total) > 0) {
+      await tx.insert(cashbackTransactionsTable).values({
+        customerId: order.customerId,
+        orderId: order.id,
+        type: "credit",
+        status: "pending",
+        currency: order.currency,
+        amount: String(Math.round(Number(order.total) * 5) / 100),
+      }).onConflictDoNothing({
+        target: [cashbackTransactionsTable.orderId, cashbackTransactionsTable.type],
+      });
+    }
+    if (isCancelling) {
+      await tx.update(cashbackTransactionsTable)
+        .set({ status: "voided" })
+        .where(and(
+          eq(cashbackTransactionsTable.orderId, order.id),
+          eq(cashbackTransactionsTable.type, "credit"),
+          inArray(cashbackTransactionsTable.status, ["pending", "available"]),
+        ));
+      await tx.update(cashbackTransactionsTable)
+        .set({ status: "reversed" })
+        .where(and(
+          eq(cashbackTransactionsTable.orderId, order.id),
+          eq(cashbackTransactionsTable.type, "debit"),
+          eq(cashbackTransactionsTable.status, "redeemed"),
+        ));
+    }
     return { order, items };
-  });
+    });
+  } catch (error) {
+    if (error instanceof Error && error.message === "This order's cashback has already been spent and cannot be cancelled") {
+      res.status(409).json({ error: error.message });
+      return;
+    }
+    throw error;
+  }
   if (!result) {
     res.status(404).json({ error: "Order not found" });
     return;
@@ -360,6 +573,88 @@ router.get("/admin/dashboard", requireAdmin, async (_req, res): Promise<void> =>
     countries: countries.map((item) => ({ country: item.country === "UNKNOWN" ? "Unknown" : item.country, visits: Number(item.visits) })),
     popularProducts: products.map((item) => ({ productId: item.productId, productName: item.productName, views: Number(item.views), sold: item.sold })),
     trends,
+  }));
+});
+
+router.get("/admin/analytics/visits", requireAdmin, async (req, res): Promise<void> => {
+  // Validate the declared query shape first; dates are parsed separately to
+  // enforce YYYY-MM-DD values instead of accepting ambiguous local timestamps.
+  const query = GetAdminVisitsAnalyticsQueryParams.safeParse(req.query);
+  const range = query.success ? resolveAnalyticsRange(req.query) : null;
+  if (!range) {
+    res.status(400).json({ error: "Choose a valid date range with an end date on or after the start date" });
+    return;
+  }
+  const rangeCondition = and(
+    gte(analyticsVisitsTable.createdAt, range.start),
+    lt(analyticsVisitsTable.createdAt, range.endExclusive),
+  );
+  const [total] = await db.select({ count: sql<number>`count(*)` })
+    .from(analyticsVisitsTable)
+    .where(rangeCondition);
+  const countries = await db.select({
+    country: analyticsVisitsTable.countryCode,
+    visits: sql<number>`count(*)`,
+  }).from(analyticsVisitsTable)
+    .where(rangeCondition)
+    .groupBy(analyticsVisitsTable.countryCode)
+    .orderBy(desc(sql`count(*)`))
+    .limit(8);
+  const trends = await db.select({
+    date: sql<string>`to_char(${analyticsVisitsTable.createdAt} AT TIME ZONE 'UTC', 'YYYY-MM-DD')`,
+    visits: sql<number>`count(*)`,
+  }).from(analyticsVisitsTable)
+    .where(rangeCondition)
+    .groupBy(sql`to_char(${analyticsVisitsTable.createdAt} AT TIME ZONE 'UTC', 'YYYY-MM-DD')`)
+    .orderBy(sql`to_char(${analyticsVisitsTable.createdAt} AT TIME ZONE 'UTC', 'YYYY-MM-DD')`);
+
+  res.json(GetAdminVisitsAnalyticsResponse.parse({
+    range: { preset: range.preset, startDate: range.startDate, endDate: range.endDate },
+    totalVisits: Number(total.count),
+    countries: countries.map((row) => ({ country: row.country === "UNKNOWN" ? "Unknown" : row.country, visits: Number(row.visits) })),
+    trends: trends.map((row) => ({ date: row.date, visits: Number(row.visits), orders: 0, sales: 0, salesUsd: 0 })),
+  }));
+});
+
+router.get("/admin/analytics/sales", requireAdmin, async (req, res): Promise<void> => {
+  const query = GetAdminSalesAnalyticsQueryParams.safeParse(req.query);
+  const range = query.success ? resolveAnalyticsRange(req.query) : null;
+  if (!range) {
+    res.status(400).json({ error: "Choose a valid date range with an end date on or after the start date" });
+    return;
+  }
+  const rangeCondition = and(
+    gte(ordersTable.createdAt, range.start),
+    lt(ordersTable.createdAt, range.endExclusive),
+    inArray(ordersTable.status, [...completedOrderStatuses]),
+  );
+  const [totals] = await db.select({
+    orders: sql<number>`count(*)`,
+    sales: sql<number>`coalesce(sum(case when ${ordersTable.currency} = 'EGP' then ${ordersTable.total} else 0 end), 0)`,
+    salesUsd: sql<number>`coalesce(sum(case when ${ordersTable.currency} = 'USD' then ${ordersTable.total} else 0 end), 0)`,
+  }).from(ordersTable).where(rangeCondition);
+  const trends = await db.select({
+    date: sql<string>`to_char(${ordersTable.createdAt} AT TIME ZONE 'UTC', 'YYYY-MM-DD')`,
+    orders: sql<number>`count(*)`,
+    sales: sql<number>`coalesce(sum(case when ${ordersTable.currency} = 'EGP' then ${ordersTable.total} else 0 end), 0)`,
+    salesUsd: sql<number>`coalesce(sum(case when ${ordersTable.currency} = 'USD' then ${ordersTable.total} else 0 end), 0)`,
+  }).from(ordersTable)
+    .where(rangeCondition)
+    .groupBy(sql`to_char(${ordersTable.createdAt} AT TIME ZONE 'UTC', 'YYYY-MM-DD')`)
+    .orderBy(sql`to_char(${ordersTable.createdAt} AT TIME ZONE 'UTC', 'YYYY-MM-DD')`);
+
+  res.json(GetAdminSalesAnalyticsResponse.parse({
+    range: { preset: range.preset, startDate: range.startDate, endDate: range.endDate },
+    totalOrders: Number(totals.orders),
+    totalSales: Number(totals.sales),
+    totalSalesUsd: Number(totals.salesUsd),
+    trends: trends.map((row) => ({
+      date: row.date,
+      visits: 0,
+      orders: Number(row.orders),
+      sales: Number(row.sales),
+      salesUsd: Number(row.salesUsd),
+    })),
   }));
 });
 
