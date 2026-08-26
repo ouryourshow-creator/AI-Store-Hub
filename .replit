@@ -33,7 +33,7 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "(pnpm --filter @workspace/api-server run build && PORT=8080 NODE_ENV=development pnpm --filter @workspace/api-server run start) & (PORT=5000 BASE_PATH=/ API_PROXY_TARGET=http://127.0.0.1:8080 pnpm --filter @workspace/keytopia run dev) & wait"
+args = "(export ADMIN_EMAILS=bassamihab@gmail.com; pnpm --filter @workspace/api-server run build && PORT=8080 NODE_ENV=development pnpm --filter @workspace/api-server run start) & (PORT=5000 BASE_PATH=/ API_PROXY_TARGET=http://127.0.0.1:8080 pnpm --filter @workspace/keytopia run dev) & wait"
 waitForPort = 5000
 
 [nix]

@@ -27,5 +27,12 @@ export async function isAdminUser(userId: string): Promise<boolean | null> {
     .filter((e) => e.verification?.status === "verified")
     .map((e) => e.emailAddress.toLowerCase());
 
-  return verifiedEmails.some((email) => adminEmails.includes(email));
+  const matched = verifiedEmails.some((email) => adminEmails.includes(email));
+  console.info({
+    event: "admin_auth_check",
+    configuredAdminCount: adminEmails.length,
+    verifiedEmailCount: verifiedEmails.length,
+    matched,
+  });
+  return matched;
 }

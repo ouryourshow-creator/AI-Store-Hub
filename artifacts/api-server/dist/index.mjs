@@ -74979,7 +74979,14 @@ async function isAdminUser(userId) {
   }
   const user = await clerkClient.users.getUser(userId);
   const verifiedEmails = user.emailAddresses.filter((e) => e.verification?.status === "verified").map((e) => e.emailAddress.toLowerCase());
-  return verifiedEmails.some((email3) => adminEmails.includes(email3));
+  const matched = verifiedEmails.some((email3) => adminEmails.includes(email3));
+  console.info({
+    event: "admin_auth_check",
+    configuredAdminCount: adminEmails.length,
+    verifiedEmailCount: verifiedEmails.length,
+    matched
+  });
+  return matched;
 }
 
 // src/middlewares/requireAdmin.ts
