@@ -1,2 +1,0 @@
-- [Keytopia Architecture](keytopia-architecture.md) — stack, i18n, admin auth, CORS, DB migration, and Zod v3 constraints for the Keytopia storefront.
-- [Cashback ledger rules](cashback-ledger-rules.md) — rewards are approval-gated and cancellations must never create an unfunded redemption.
