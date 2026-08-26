@@ -9,12 +9,163 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface OrderItemInput {
+  productId: number;
+  duration: string;
+  /**
+     * @minimum 1
+     * @maximum 10
+     */
+  quantity: number;
+  /** @minimum 0 */
+  price?: number;
+}
+
+export type OrderInputCurrency = typeof OrderInputCurrency[keyof typeof OrderInputCurrency];
+
+
+export const OrderInputCurrency = {
+  EGP: 'EGP',
+  USD: 'USD',
+} as const;
+
+export interface OrderInput {
+  /** @minLength 1 */
+  customerName: string;
+  customerEmail: string;
+  /** @minLength 3 */
+  customerPhone: string;
+  currency: OrderInputCurrency;
+  /**
+     * @minLength 16
+     * @maxLength 100
+     */
+  idempotencyKey: string;
+  /** @nullable */
+  promoCode?: string | null;
+  /** @nullable */
+  paymentMethod?: string | null;
+  /**
+     * @minItems 1
+     * @maxItems 20
+     */
+  items: OrderItemInput[];
+}
+
+export interface OrderItem {
+  id: number;
+  productId: number;
+  productName: string;
+  /** @nullable */
+  coverImageUrl?: string | null;
+  duration: string;
+  unitPrice: number;
+  quantity: number;
+  lineTotal: number;
+}
+
+export interface Order {
+  id: number;
+  orderNumber: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  currency: string;
+  subtotal: number;
+  discount: number;
+  total: number;
+  /** @nullable */
+  promoCode?: string | null;
+  /** @nullable */
+  paymentMethod?: string | null;
+  status: string;
+  items: OrderItem[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type OrderStatusUpdateStatus = typeof OrderStatusUpdateStatus[keyof typeof OrderStatusUpdateStatus];
+
+
+export const OrderStatusUpdateStatus = {
+  awaiting_payment: 'awaiting_payment',
+  payment_proof_received: 'payment_proof_received',
+  confirmed: 'confirmed',
+  fulfilled: 'fulfilled',
+  cancelled: 'cancelled',
+} as const;
+
+export interface OrderStatusUpdate {
+  status: OrderStatusUpdateStatus;
+}
+
+export interface VisitInput {
+  /** @minLength 1 */
+  path: string;
+  /** @nullable */
+  productId?: number | null;
+  /** @nullable */
+  visitorId?: string | null;
+}
+
+export type VisitResultCurrency = typeof VisitResultCurrency[keyof typeof VisitResultCurrency];
+
+
+export const VisitResultCurrency = {
+  EGP: 'EGP',
+  USD: 'USD',
+} as const;
+
+export interface VisitResult {
+  country: string;
+  currency: VisitResultCurrency;
+}
+
+export interface DashboardTrend {
+  date: string;
+  orders: number;
+  sales: number;
+  visits: number;
+}
+
+export type AdminDashboardCountriesItem = {
+  country: string;
+  visits: number;
+};
+
+export type AdminDashboardPopularProductsItem = {
+  productId: number;
+  productName: string;
+  views: number;
+  sold: number;
+};
+
+export interface AdminDashboard {
+  totalSales: number;
+  totalSalesUsd: number;
+  totalOrders: number;
+  totalVisits: number;
+  countries: AdminDashboardCountriesItem[];
+  popularProducts: AdminDashboardPopularProductsItem[];
+  trends: DashboardTrend[];
+}
+
 export interface PricingOption {
   duration: string;
   /** @minimum 0 */
   price: number;
   /** @nullable */
   salePrice?: number | null;
+  /**
+     * @minimum 0
+     * @nullable
+     */
+  priceUsd?: number | null;
+  /**
+     * @minimum 0
+     * @nullable
+     */
+  salePriceUsd?: number | null;
 }
 
 export interface Product {
@@ -29,6 +180,10 @@ export interface Product {
   price: number;
   /** @nullable */
   salePrice?: number | null;
+  /** @nullable */
+  priceUsd?: number | null;
+  /** @nullable */
+  salePriceUsd?: number | null;
   /** @nullable */
   pricingOptions?: PricingOption[] | null;
   duration: string;
@@ -69,6 +224,10 @@ export interface ProductInput {
   price: number;
   /** @minimum 0 */
   salePrice?: number;
+  /** @minimum 0 */
+  priceUsd?: number;
+  /** @minimum 0 */
+  salePriceUsd?: number;
   pricingOptions?: PricingOption[];
   /** @minLength 1 */
   duration: string;
@@ -109,6 +268,10 @@ export interface ProductUpdate {
   price?: number;
   /** @minimum 0 */
   salePrice?: number;
+  /** @minimum 0 */
+  priceUsd?: number;
+  /** @minimum 0 */
+  salePriceUsd?: number;
   pricingOptions?: PricingOption[];
   /** @minLength 1 */
   duration?: string;
@@ -171,9 +334,14 @@ export interface ValidatePromoCodeRequest {
   productIds: number[];
 }
 
-export interface ValidatePromoCodeResponse {
+export interface PromoValidationResult {
   valid: boolean;
   percentage?: number;
   code?: string;
 }
+
+export type ListAdminOrdersParams = {
+search?: string;
+status?: string;
+};
 

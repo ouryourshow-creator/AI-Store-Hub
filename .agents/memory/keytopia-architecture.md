@@ -37,8 +37,22 @@ description: Key decisions and constraints for the Keytopia digital subscription
 - This ensures the schema is applied on every startup (idempotent).
 
 ### WhatsApp checkout
-- Purely client-side: formats `wa.me/201229327902?text=...` URL, no backend.
-- Number is hardcoded (also in `WHATSAPP_NUMBER` env var for reference).
+- An authenticated customer order is created before opening the WhatsApp payment-proof message; WhatsApp includes the saved booking number.
+- Server-side order creation resolves current published products, duration pricing, promo eligibility, and totals. Never trust a browser-supplied total or price.
+- Product activation credentials and invitation links are never returned from public catalog APIs.
+
+### Orders, pricing, and analytics
+- New orders begin in `awaiting_payment`; dashboard revenue only includes confirmed or fulfilled orders. Product sold counts update once, on the first confirmed/fulfilled transition, not when a booking is created.
+- Order requests use a per-checkout idempotency key so retries return the original booking instead of creating multiple payable orders.
+- EGP and USD are stored as independent admin-entered prices. If a product lacks USD pricing, storefront display safely falls back to EGP instead of converting rates automatically.
+- Anonymous visit analytics retains a country code and a local anonymous visitor identifier; raw IP addresses are not stored.
+**Why:** Customer order histories, regional prices, and store analytics must remain auditable without exposing activation secrets or collecting unnecessary personal data.
+**How to apply:** Keep booking/order totals server-calculated, use order-item snapshots for historical display, and expose sensitive delivery data only after authenticated fulfilment workflows.
+
+### Production database changes
+- Replit Publish applies the development-to-production schema diff for managed PostgreSQL. Do not add production migration scripts, deploy-time schema pushes, or startup DDL.
+**Why:** The managed publish flow safely presents schema changes and rename decisions; application-managed production DDL is unsupported.
+**How to apply:** Update the Drizzle source schema, verify it in development, then re-publish when production needs the schema change.
 
 ### CORS
 - Restricted to `CORS_ORIGIN` env var (comma-separated) or falls back to `REPLIT_DEV_DOMAIN`.

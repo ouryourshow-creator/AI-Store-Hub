@@ -132,7 +132,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         </div>
 
                         <div className="flex items-center justify-between mt-2">
-                          <span className="font-display font-bold text-sm">EGP {item.selectedPrice}</span>
+                          <span className="font-display font-bold text-sm">{item.selectedCurrency ?? 'EGP'} {item.selectedPrice}</span>
 
                           <div className="flex items-center gap-2 bg-muted rounded-full p-1">
                             <button
@@ -160,7 +160,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 <div className="p-6 border-t border-black/[0.03] bg-background">
                   <div className="flex justify-between mb-4 font-display">
                     <span className="text-muted-foreground">{t('total')}</span>
-                    <span className="font-bold text-xl">EGP {cartTotal}</span>
+                    <span className="font-bold text-xl">{items[0]?.selectedCurrency ?? 'EGP'} {cartTotal}</span>
                   </div>
 
                   <button

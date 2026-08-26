@@ -13,8 +13,10 @@ import { Link, useLocation } from 'wouter';
 import { toast } from 'sonner';
 import { useLang } from '../contexts/LanguageContext';
 import AdminProductModal from '../components/AdminProductModal';
+import AdminDashboard from '../components/AdminDashboard';
+import AdminOrders from '../components/AdminOrders';
 
-type Tab = 'products' | 'promo' | 'categories';
+type Tab = 'dashboard' | 'orders' | 'products' | 'promo' | 'categories';
 
 export default function Admin() {
   const { isLoaded, isSignedIn } = useUser();
@@ -22,7 +24,7 @@ export default function Admin() {
   const [, setLocation] = useLocation();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const { t, dir } = useLang();
-  const [activeTab, setActiveTab] = useState<Tab>('products');
+  const [activeTab, setActiveTab] = useState<Tab>('dashboard');
 
   useEffect(() => {
     if (isLoaded && !isSignedIn) setLocation('/sign-in');
@@ -231,7 +233,7 @@ export default function Admin() {
       <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-12">
         {/* Tab bar */}
         <div className="flex gap-2 mb-8 border-b border-black/[0.06] pb-0">
-          {(['products', 'categories', 'promo'] as Tab[]).map(tab => (
+          {(['dashboard', 'orders', 'products', 'categories', 'promo'] as Tab[]).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -241,12 +243,16 @@ export default function Admin() {
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
-              {tab === 'products' ? t('products') : tab === 'categories' ? t('categories') : t('promoCodes')}
+              {tab === 'dashboard' ? (dir === 'rtl' ? 'لوحة الأداء' : 'Dashboard') : tab === 'orders' ? (dir === 'rtl' ? 'الطلبات' : 'Orders') : tab === 'products' ? t('products') : tab === 'categories' ? t('categories') : t('promoCodes')}
             </button>
           ))}
         </div>
 
         {/* ── Products tab ── */}
+        {activeTab === 'dashboard' && <AdminDashboard />}
+
+        {activeTab === 'orders' && <AdminOrders />}
+
         {activeTab === 'products' && (
           <>
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">

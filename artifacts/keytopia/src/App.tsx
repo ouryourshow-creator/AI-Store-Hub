@@ -3,13 +3,17 @@ import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
+import { useEffect } from 'react';
+import { useRecordVisit } from '@workspace/api-client-react';
 import { CartProvider } from './contexts/CartContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { CurrencyProvider, useCurrency } from './contexts/CurrencyContext';
 import Home from './pages/Home';
 import Admin from './pages/Admin';
 import ProductPage from './pages/ProductPage';
 import PolicyPage from './pages/PolicyPage';
 import SignInPage from './pages/SignInPage';
+import Orders from './pages/Orders';
 import NotFound from './pages/not-found';
 import { Toaster } from 'sonner';
 
@@ -84,6 +88,26 @@ const clerkAppearance = {
   },
 };
 
+function VisitTracker() {
+  const [location] = useLocation();
+  const { setCurrency } = useCurrency();
+  const recordVisit = useRecordVisit();
+
+  useEffect(() => {
+    const match = location.match(/^\/products\/(\d+)$/);
+    const key = 'keytopia_visitor';
+    const visitorId = localStorage.getItem(key) ?? crypto.randomUUID();
+    localStorage.setItem(key, visitorId);
+    recordVisit.mutate({
+      data: { path: location, productId: match ? Number(match[1]) : null, visitorId },
+    }, {
+      onSuccess: (result) => setCurrency(result.currency),
+    });
+  }, [location]); // Only record on meaningful route changes.
+
+  return null;
+}
+
 function ClerkProviderWithRoutes() {
   const [, setLocation] = useLocation();
 
@@ -98,18 +122,22 @@ function ClerkProviderWithRoutes() {
     >
       <QueryClientProvider client={queryClient}>
         <LanguageProvider>
-          <CartProvider>
-            <Switch>
-              <Route path="/" component={Home} />
-              <Route path="/products/:id" component={ProductPage} />
-              <Route path="/policy" component={PolicyPage} />
-              {/* REQUIRED — /*? optional wildcard matches both bare URL and Clerk OAuth sub-paths */}
-              <Route path="/sign-in/*?" component={SignInPage} />
-              <Route path="/admin" component={Admin} />
-              <Route component={NotFound} />
-            </Switch>
-            <Toaster position="top-center" />
-          </CartProvider>
+          <CurrencyProvider>
+            <CartProvider>
+              <VisitTracker />
+              <Switch>
+                <Route path="/" component={Home} />
+                <Route path="/products/:id" component={ProductPage} />
+                <Route path="/policy" component={PolicyPage} />
+                {/* REQUIRED — /*? optional wildcard matches both bare URL and Clerk OAuth sub-paths */}
+                <Route path="/sign-in/*?" component={SignInPage} />
+                <Route path="/orders" component={Orders} />
+                <Route path="/admin" component={Admin} />
+                <Route component={NotFound} />
+              </Switch>
+              <Toaster position="top-center" />
+            </CartProvider>
+          </CurrencyProvider>
         </LanguageProvider>
       </QueryClientProvider>
     </ClerkProvider>

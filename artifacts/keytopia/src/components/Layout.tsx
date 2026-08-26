@@ -56,6 +56,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <p>&copy; {new Date().getFullYear()} Keytopia. {t('allRightsReserved')}</p>
         <div className="mt-4 flex justify-center gap-6">
           <Link href="/policy" className="hover:text-foreground transition-colors">{t('policyLink')}</Link>
+          <Link href="/orders" className="hover:text-foreground transition-colors">{dir === 'rtl' ? 'طلباتي' : 'My orders'}</Link>
           <Link href="/admin" className="hover:text-foreground transition-colors">{t('adminLogin')}</Link>
         </div>
       </footer>

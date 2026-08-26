@@ -6,8 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface ValidatePromoCodeResponse {
-  valid: boolean;
-  percentage?: number;
-  code?: string;
+export interface DashboardTrend {
+  date: string;
+  orders: number;
+  sales: number;
+  visits: number;
 }

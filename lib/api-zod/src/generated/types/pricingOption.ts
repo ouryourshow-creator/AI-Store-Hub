@@ -12,4 +12,14 @@ export interface PricingOption {
   price: number;
   /** @nullable */
   salePrice?: number | null;
+  /**
+     * @minimum 0
+     * @nullable
+     */
+  priceUsd?: number | null;
+  /**
+     * @minimum 0
+     * @nullable
+     */
+  salePriceUsd?: number | null;
 }

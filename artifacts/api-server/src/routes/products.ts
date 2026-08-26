@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { db, productsTable } from "@workspace/db";
 import {
   CreateProductBody,
@@ -17,30 +17,36 @@ import { requireAdmin } from "../middlewares/requireAdmin";
 const router: IRouter = Router();
 
 /** Map a raw DB row to the shape the API returns */
-function mapProduct(p: typeof productsTable.$inferSelect) {
+function mapProduct(p: typeof productsTable.$inferSelect, includeSensitiveFields = false) {
+  const { licenseKey, invitationLink, ...safeProduct } = p;
   const price = Number(p.price);
   const salePrice = p.salePrice != null ? Number(p.salePrice) : null;
   // Derive pricingOptions from legacy fields if not stored
-  const pricingOptions: Array<{ duration: string; price: number; salePrice?: number | null }> =
+  const pricingOptions: Array<{ duration: string; price: number; salePrice?: number | null; priceUsd?: number | null; salePriceUsd?: number | null }> =
     p.pricingOptions && p.pricingOptions.length > 0
       ? p.pricingOptions
-      : [{ duration: p.duration, price, salePrice }];
+      : [{ duration: p.duration, price, salePrice, priceUsd: p.priceUsd != null ? Number(p.priceUsd) : null, salePriceUsd: p.salePriceUsd != null ? Number(p.salePriceUsd) : null }];
   return {
-    ...p,
+    ...safeProduct,
     price,
     salePrice,
+    priceUsd: p.priceUsd != null ? Number(p.priceUsd) : null,
+    salePriceUsd: p.salePriceUsd != null ? Number(p.salePriceUsd) : null,
     pricingOptions,
+    ...(includeSensitiveFields ? { licenseKey, invitationLink } : {}),
     createdAt: p.createdAt.toISOString(),
   };
 }
 
 /** Sync legacy price/duration/salePrice from first pricing option */
-function syncLegacyFields(pricingOptions: Array<{ duration: string; price: number; salePrice?: number | null }>) {
+function syncLegacyFields(pricingOptions: Array<{ duration: string; price: number; salePrice?: number | null; priceUsd?: number | null; salePriceUsd?: number | null }>) {
   const first = pricingOptions[0];
   return {
     price: String(first.price),
     salePrice: first.salePrice != null ? String(first.salePrice) : null,
     duration: first.duration,
+    priceUsd: first.priceUsd != null ? String(first.priceUsd) : null,
+    salePriceUsd: first.salePriceUsd != null ? String(first.salePriceUsd) : null,
   };
 }
 
@@ -52,7 +58,7 @@ router.get("/products", async (req, res): Promise<void> => {
     .where(eq(productsTable.published, true))
     .orderBy(productsTable.createdAt);
 
-  res.json(ListProductsResponse.parse(products.map(mapProduct)));
+  res.json(ListProductsResponse.parse(products.map((product) => mapProduct(product))));
 });
 
 // GET /admin/products — admin (all products including unpublished)
@@ -62,7 +68,7 @@ router.get("/admin/products", requireAdmin, async (req, res): Promise<void> => {
     .from(productsTable)
     .orderBy(productsTable.createdAt);
 
-  res.json(ListProductsResponse.parse(products.map(mapProduct)));
+  res.json(ListProductsResponse.parse(products.map((product) => mapProduct(product, true))));
 });
 
 // POST /products — admin only
@@ -79,6 +85,8 @@ router.post("/products", requireAdmin, async (req, res): Promise<void> => {
     price: String(d.price),
     salePrice: d.salePrice != null ? String(d.salePrice) : null,
     duration: d.duration,
+    priceUsd: d.priceUsd != null ? String(d.priceUsd) : null,
+    salePriceUsd: d.salePriceUsd != null ? String(d.salePriceUsd) : null,
   };
   const [product] = await db
     .insert(productsTable)
@@ -89,6 +97,8 @@ router.post("/products", requireAdmin, async (req, res): Promise<void> => {
       coverImageUrl: d.coverImageUrl ?? null,
       price: legacy.price,
       salePrice: legacy.salePrice,
+      priceUsd: legacy.priceUsd,
+      salePriceUsd: legacy.salePriceUsd,
       pricingOptions: d.pricingOptions ?? null,
       duration: legacy.duration,
       deliveryTime: d.deliveryTime ?? null,
@@ -105,7 +115,7 @@ router.post("/products", requireAdmin, async (req, res): Promise<void> => {
     })
     .returning();
 
-  res.status(201).json(CreateProductResponse.parse(mapProduct(product)));
+  res.status(201).json(CreateProductResponse.parse(mapProduct(product, true)));
 });
 
 // GET /products/:id — public
@@ -119,7 +129,7 @@ router.get("/products/:id", async (req, res): Promise<void> => {
   const [product] = await db
     .select()
     .from(productsTable)
-    .where(eq(productsTable.id, params.data.id));
+    .where(and(eq(productsTable.id, params.data.id), eq(productsTable.published, true)));
 
   if (!product) {
     res.status(404).json({ error: "Product not found" });
@@ -156,9 +166,13 @@ router.put("/products/:id", requireAdmin, async (req, res): Promise<void> => {
     updateData.price = legacy.price;
     updateData.salePrice = legacy.salePrice;
     updateData.duration = legacy.duration;
+    updateData.priceUsd = legacy.priceUsd;
+    updateData.salePriceUsd = legacy.salePriceUsd;
   } else {
     if (d.price !== undefined) updateData.price = String(d.price);
     if (d.salePrice !== undefined) updateData.salePrice = d.salePrice != null ? String(d.salePrice) : null;
+    if (d.priceUsd !== undefined) updateData.priceUsd = d.priceUsd != null ? String(d.priceUsd) : null;
+    if (d.salePriceUsd !== undefined) updateData.salePriceUsd = d.salePriceUsd != null ? String(d.salePriceUsd) : null;
     if (d.duration !== undefined) updateData.duration = d.duration;
   }
   if (d.deliveryTime !== undefined) updateData.deliveryTime = d.deliveryTime;
@@ -185,12 +199,14 @@ router.put("/products/:id", requireAdmin, async (req, res): Promise<void> => {
     return;
   }
 
-  res.json(UpdateProductResponse.parse(mapProduct(product)));
+  res.json(UpdateProductResponse.parse(mapProduct(product, true)));
 });
 
-// POST /products/:id/sold — public, increments sold count
-router.post("/products/:id/sold", async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+// POST /products/:id/sold — admin-only legacy adjustment endpoint.
+// Customer checkout updates the count exactly once while creating an order.
+router.post("/products/:id/sold", requireAdmin, async (req, res): Promise<void> => {
+  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = parseInt(rawId, 10);
   if (isNaN(id)) {
     res.status(400).json({ error: "Invalid product id" });
     return;
@@ -212,7 +228,8 @@ router.post("/products/:id/sold", async (req, res): Promise<void> => {
 
 // PATCH /admin/products/:id/published — admin only
 router.patch("/admin/products/:id/published", requireAdmin, async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const rawId = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const id = parseInt(rawId, 10);
   if (isNaN(id)) {
     res.status(400).json({ error: "Invalid product id" });
     return;

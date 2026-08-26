@@ -21,7 +21,15 @@ export const productsTable = pgTable("products", {
   // Pricing
   price: numeric("price", { precision: 10, scale: 2 }).notNull(),
   salePrice: numeric("sale_price", { precision: 10, scale: 2 }),
-  pricingOptions: jsonb("pricing_options").$type<Array<{ duration: string; price: number; salePrice?: number | null }>>(),
+  pricingOptions: jsonb("pricing_options").$type<Array<{
+    duration: string;
+    price: number;
+    salePrice?: number | null;
+    priceUsd?: number | null;
+    salePriceUsd?: number | null;
+  }>>(),
+  priceUsd: numeric("price_usd", { precision: 10, scale: 2 }),
+  salePriceUsd: numeric("sale_price_usd", { precision: 10, scale: 2 }),
   // Subscription
   duration: text("duration").notNull(),
   deliveryTime: text("delivery_time"),

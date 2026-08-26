@@ -4,7 +4,10 @@ import {
   User, Mail, Phone, CreditCard, Tag, CheckCircle2, AlertCircle,
   MessageCircle,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useAuth } from '@clerk/react';
+import { useCreateOrder } from '@workspace/api-client-react';
+import { useLocation } from 'wouter';
 import { useCart } from '../contexts/CartContext';
 import { useLang } from '../contexts/LanguageContext';
 
@@ -52,7 +55,10 @@ function CopyButton({ text }: { text: string }) {
 export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
   const { items, cartTotal, clearCart } = useCart();
   const { t, dir, lang } = useLang();
+  const { isSignedIn } = useAuth();
+  const [, setLocation] = useLocation();
   const isRtl = dir === 'rtl';
+  const createOrder = useCreateOrder();
 
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
@@ -61,6 +67,8 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(null);
   const [promoInput, setPromoInput] = useState('');
   const [promo, setPromo] = useState<PromoState>({ status: 'idle', code: '', percentage: 0 });
+  const cartCurrency = items[0]?.selectedCurrency ?? 'EGP';
+  const idempotencyKeyRef = useRef(crypto.randomUUID());
 
   const discountAmount = promo.status === 'valid' ? Math.round(cartTotal * promo.percentage / 100) : 0;
   const finalTotal = cartTotal - discountAmount;
@@ -98,52 +106,64 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
       setName(''); setEmail(''); setPhone('');
       setPaymentMethod(null);
       clearPromo();
+      idempotencyKeyRef.current = crypto.randomUUID();
     }, 300);
   };
 
   const handleStep1Next = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !email.trim() || !phone.trim()) return;
+    if (!isSignedIn) {
+      setLocation('/sign-in');
+      return;
+    }
     setStep(2);
   };
 
   const handlePaymentSelect = (method: PaymentMethod) => {
-    if (method === 'other') {
-      const msg = isRtl
-        ? `مرحباً، أريد الشراء من كيتوبيا ولكن لا أستطيع استخدام طرق الدفع المتاحة. هل يمكنكم توفير طريقة دفع بديلة؟\n\nاسمي: ${name}\nالإجمالي: EGP ${finalTotal}`
-        : `Hello, I want to purchase from Keytopia but cannot use the available payment methods. Can you offer an alternative?\n\nName: ${name}\nTotal: EGP ${finalTotal}`;
-      window.open(`${WA_LINK}?text=${encodeURIComponent(msg)}`, '_blank');
-      return;
-    }
     setPaymentMethod(method);
     setStep(3);
   };
 
-  const handleSendProof = () => {
+  const handleSendProof = async () => {
+    if (!paymentMethod || createOrder.isPending) return;
     const methodLabel: Record<string, string> = {
       instapay: 'Instapay',
       vodafone: isRtl ? 'فودافون كاش' : 'Vodafone Cash',
       bank: isRtl ? 'تحويل بنكي (HSBC)' : 'Bank Transfer (HSBC)',
+      other: isRtl ? 'طريقة بديلة' : 'Alternative method',
     };
-    const orderLines = items.map(
-      item => `• ${item.name} (${item.selectedDuration}) ×${item.quantity} — EGP ${item.selectedPrice * item.quantity}`
-    ).join('\n');
-    const promoLine = promo.status === 'valid' ? `\n${t('discount')} (${promo.code} ${promo.percentage}%): -EGP ${discountAmount}` : '';
-    const method = paymentMethod ? (methodLabel[paymentMethod] ?? paymentMethod) : '';
-
-    const msg = isRtl
-      ? `مرحباً، أرسل لكم إيصال الدفع لطلبي من كيتوبيا.\n\n👤 الاسم: ${name}\n📧 البريد: ${email}\n📱 الهاتف: ${phone}\n\n🛒 الطلب:\n${orderLines}${promoLine}\n\n💰 الإجمالي: EGP ${finalTotal}\n💳 طريقة الدفع: ${method}\n\n[أرجو إرفاق إيصال الدفع]`
-      : `Hello, I am sending my payment proof for my Keytopia order.\n\n👤 Name: ${name}\n📧 Email: ${email}\n📱 Phone: ${phone}\n\n🛒 Order:\n${orderLines}${promoLine}\n\n💰 Total: EGP ${finalTotal}\n💳 Payment: ${method}\n\n[Please attach payment proof]`;
-
-    window.open(`${WA_LINK}?text=${encodeURIComponent(msg)}`, '_blank');
-
-    // Record each sold item
-    items.forEach(item => {
-      fetch(`/api/products/${item.id}/sold`, { method: 'POST' }).catch(() => {});
-    });
-
-    clearCart();
-    handleClose();
+    try {
+      const order = await createOrder.mutateAsync({
+        data: {
+          customerName: name.trim(),
+          customerEmail: email.trim(),
+          customerPhone: phone.trim(),
+          currency: cartCurrency,
+          idempotencyKey: idempotencyKeyRef.current,
+          promoCode: promo.status === 'valid' ? promo.code : null,
+          paymentMethod,
+          items: items.map(item => ({
+            productId: item.id,
+            duration: item.selectedDuration,
+            quantity: item.quantity,
+          })),
+        },
+      });
+      const orderLines = order.items.map(
+        item => `• ${item.productName} (${item.duration}) ×${item.quantity} — ${order.currency} ${item.lineTotal}`
+      ).join('\n');
+      const promoLine = order.discount > 0 ? `\n${t('discount')}: -${order.currency} ${order.discount}` : '';
+      const method = methodLabel[paymentMethod] ?? paymentMethod;
+      const msg = isRtl
+        ? `مرحباً، أرسل لكم إيصال الدفع لطلبي من كيتوبيا.\n\nرقم الحجز: ${order.orderNumber}\nالاسم: ${name}\nالبريد: ${email}\nالهاتف: ${phone}\n\nالطلب:\n${orderLines}${promoLine}\n\nالإجمالي: ${order.currency} ${order.total}\nطريقة الدفع: ${method}\n\n[أرجو إرفاق إيصال الدفع]`
+        : `Hello, I am sending payment proof for my Keytopia order.\n\nBooking number: ${order.orderNumber}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nOrder:\n${orderLines}${promoLine}\n\nTotal: ${order.currency} ${order.total}\nPayment method: ${method}\n\n[Please attach payment proof]`;
+      window.open(`${WA_LINK}?text=${encodeURIComponent(msg)}`, '_blank');
+      clearCart();
+      handleClose();
+    } catch {
+      // The generated mutation retains its error state for the checkout button message.
+    }
   };
 
   const inputCls = 'w-full bg-muted border border-transparent rounded-[14px] px-4 py-3.5 text-sm text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary outline-none transition-all';
@@ -289,19 +309,19 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                         {items.map(item => (
                           <div key={`${item.id}-${item.selectedDuration}`} className="flex justify-between text-sm">
                             <span className="text-foreground/80 truncate max-w-[200px]">{item.name} ({item.selectedDuration})</span>
-                            <span className="font-semibold">EGP {item.selectedPrice * item.quantity}</span>
+                            <span className="font-semibold">{item.selectedCurrency ?? cartCurrency} {item.selectedPrice * item.quantity}</span>
                           </div>
                         ))}
                       </div>
                       {promo.status === 'valid' && (
                         <div className="flex justify-between text-sm mb-1">
                           <span className="text-[#1CC88A] font-semibold">{t('discount')} ({promo.percentage}%)</span>
-                          <span className="text-[#1CC88A] font-semibold">−EGP {discountAmount}</span>
+                          <span className="text-[#1CC88A] font-semibold">−{cartCurrency} {discountAmount}</span>
                         </div>
                       )}
                       <div className="flex justify-between font-display font-bold text-base pt-2 border-t border-black/[0.06]">
                         <span>{t('total')}</span>
-                        <span className="text-primary">EGP {finalTotal}</span>
+                        <span className="text-primary">{cartCurrency} {finalTotal}</span>
                       </div>
                     </div>
 
@@ -457,15 +477,15 @@ export default function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
                     {/* Order total reminder */}
                     <div className="flex justify-between items-center bg-muted/50 rounded-[14px] px-4 py-3">
                       <span className="text-sm text-muted-foreground">{t('total')}</span>
-                      <span className="font-display font-bold text-primary text-lg">EGP {finalTotal}</span>
+                      <span className="font-display font-bold text-primary text-lg">{cartCurrency} {finalTotal}</span>
                     </div>
 
                     {/* WhatsApp proof button */}
                     <div className="bg-[#F0FFF5] border border-[#1CC88A]/30 rounded-[16px] p-4">
                       <p className="text-sm font-semibold text-foreground mb-1">{t('afterPayment')}</p>
                       <p className="text-xs text-muted-foreground mb-3">{t('sendProofExplain')}</p>
-                      <button type="button" onClick={handleSendProof}
-                        className="w-full bg-[#1CC88A] hover:bg-[#1CC88A]/90 text-white font-semibold py-4 px-4 rounded-[16px] transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-2">
+                      <button type="button" onClick={handleSendProof} disabled={createOrder.isPending}
+                        className="w-full bg-[#1CC88A] hover:bg-[#1CC88A]/90 text-white font-semibold py-4 px-4 rounded-[16px] transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 disabled:opacity-60">
                         <MessageCircle className="w-5 h-5" />
                         {t('sendProofViaWhatsApp')}
                         <ExternalLink className="w-4 h-4" />

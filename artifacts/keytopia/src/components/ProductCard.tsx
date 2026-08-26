@@ -5,10 +5,22 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Link } from 'wouter';
 import { TrendingUp } from 'lucide-react';
+import { useCurrency } from '../contexts/CurrencyContext';
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addItem } = useCart();
   const { t, lang } = useLang();
+  const { currency } = useCurrency();
+  const priceForOption = (option: NonNullable<Product['pricingOptions']>[number]) => {
+    const usd = option.salePriceUsd ?? option.priceUsd;
+    return usd != null ? { amount: currency === 'USD' ? usd : option.salePrice ?? option.price, code: currency === 'USD' ? 'USD' as const : 'EGP' as const, original: currency === 'USD' && option.salePriceUsd != null ? option.priceUsd : currency === 'EGP' && option.salePrice != null ? option.price : null }
+      : { amount: option.salePrice ?? option.price, code: 'EGP' as const, original: option.salePrice != null ? option.price : null };
+  };
+  const priceForProduct = () => {
+    const usd = product.salePriceUsd ?? product.priceUsd;
+    return usd != null ? { amount: currency === 'USD' ? usd : product.salePrice ?? product.price, code: currency === 'USD' ? 'USD' as const : 'EGP' as const, original: currency === 'USD' && product.salePriceUsd != null ? product.priceUsd : currency === 'EGP' && product.salePrice != null ? product.price : null }
+      : { amount: product.salePrice ?? product.price, code: 'EGP' as const, original: product.salePrice != null ? product.price : null };
+  };
 
   // Determine the cheapest pricing option (if multiple exist)
   const hasMultipleOptions =
@@ -16,8 +28,8 @@ export default function ProductCard({ product }: { product: Product }) {
 
   const cheapestOption = hasMultipleOptions
     ? [...product.pricingOptions!].sort((a, b) => {
-        const aEffective = a.salePrice ?? a.price;
-        const bEffective = b.salePrice ?? b.price;
+        const aEffective = priceForOption(a).amount;
+        const bEffective = priceForOption(b).amount;
         return aEffective - bEffective;
       })[0]
     : null;
@@ -26,13 +38,7 @@ export default function ProductCard({ product }: { product: Product }) {
   const badgeDuration = cheapestOption ? cheapestOption.duration : product.duration;
 
   // What to show as the price
-  const displayPrice = cheapestOption
-    ? (cheapestOption.salePrice ?? cheapestOption.price)
-    : (product.salePrice ?? product.price);
-
-  const originalPrice = cheapestOption
-    ? (cheapestOption.salePrice != null ? cheapestOption.price : null)
-    : (product.salePrice != null ? product.price : null);
+  const display = cheapestOption ? priceForOption(cheapestOption) : priceForProduct();
 
   return (
     <motion.div
@@ -90,11 +96,11 @@ export default function ProductCard({ product }: { product: Product }) {
             <span className="hidden md:block text-[10px] text-muted-foreground uppercase tracking-widest font-medium">{t('price')}</span>
             <div className="flex items-baseline gap-1.5">
               <span className="font-display font-bold text-sm md:text-xl text-foreground">
-                {hasMultipleOptions ? `${t('from')} ` : ''}EGP {displayPrice}
+                {hasMultipleOptions ? `${t('from')} ` : ''}{display.code} {display.amount}
               </span>
-              {originalPrice != null && (
+              {display.original != null && (
                 <span className="hidden md:inline text-sm text-muted-foreground line-through">
-                  EGP {originalPrice}
+                  {display.code} {display.original}
                 </span>
               )}
             </div>
@@ -104,10 +110,7 @@ export default function ProductCard({ product }: { product: Product }) {
         <button
           onClick={() => {
             const addDuration = cheapestOption ? cheapestOption.duration : product.duration;
-            const addPrice = cheapestOption
-              ? (cheapestOption.salePrice ?? cheapestOption.price)
-              : (product.salePrice ?? product.price);
-            addItem(product, addDuration, addPrice);
+            addItem(product, addDuration, display.amount, display.code);
             toast.success(t('addToCart'), {
               description: product.name,
               duration: 2000,

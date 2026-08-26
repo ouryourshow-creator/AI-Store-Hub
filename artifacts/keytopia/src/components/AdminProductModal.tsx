@@ -77,7 +77,7 @@ function CategorySelect({ value, onChange }: { value: string; onChange: (v: stri
   );
 }
 
-type PricingRow = { duration: string; price: string; salePrice: string };
+type PricingRow = { duration: string; price: string; salePrice: string; priceUsd: string; salePriceUsd: string };
 
 type FormData = {
   name: string; category: string; brand: string; coverImageUrl: string;
@@ -89,7 +89,7 @@ type FormData = {
   afterPurchaseInstructions: string;
 };
 
-const EMPTY_PRICING: PricingRow = { duration: '1 Month', price: '', salePrice: '' };
+const EMPTY_PRICING: PricingRow = { duration: '1 Month', price: '', salePrice: '', priceUsd: '', salePriceUsd: '' };
 
 const EMPTY: FormData = {
   name: '', category: '', brand: '', coverImageUrl: '',
@@ -105,11 +105,13 @@ function productToForm(p: Product): FormData {
   const pricingOptions: PricingRow[] = (
     p.pricingOptions && p.pricingOptions.length > 0
       ? p.pricingOptions
-      : [{ duration: p.duration, price: p.price, salePrice: p.salePrice ?? null }]
+      : [{ duration: p.duration, price: p.price, salePrice: p.salePrice ?? null, priceUsd: p.priceUsd ?? null, salePriceUsd: p.salePriceUsd ?? null }]
   ).map(o => ({
     duration: o.duration,
     price: String(o.price),
     salePrice: o.salePrice != null ? String(o.salePrice) : '',
+    priceUsd: o.priceUsd != null ? String(o.priceUsd) : '',
+    salePriceUsd: o.salePriceUsd != null ? String(o.salePriceUsd) : '',
   }));
   return {
     name: p.name,
@@ -138,8 +140,10 @@ function formToInput(f: FormData): ProductInput {
       duration: o.duration,
       price: Number(o.price),
       salePrice: o.salePrice ? Number(o.salePrice) : null,
+      priceUsd: o.priceUsd ? Number(o.priceUsd) : null,
+      salePriceUsd: o.salePriceUsd ? Number(o.salePriceUsd) : null,
     }));
-  const first = pricingOptions[0] ?? { duration: '1 Month', price: 0, salePrice: null };
+  const first = pricingOptions[0] ?? { duration: '1 Month', price: 0, salePrice: null, priceUsd: null, salePriceUsd: null };
   return {
     name: f.name,
     category: f.category || undefined,
@@ -147,6 +151,8 @@ function formToInput(f: FormData): ProductInput {
     coverImageUrl: f.coverImageUrl || undefined,
     price: first.price,
     salePrice: first.salePrice ?? undefined,
+    priceUsd: first.priceUsd ?? undefined,
+    salePriceUsd: first.salePriceUsd ?? undefined,
     duration: first.duration,
     pricingOptions,
     deliveryTime: f.deliveryTime || undefined,
@@ -351,7 +357,7 @@ export default function AdminProductModal({ isOpen, onClose, product, onProductS
                               <X className="w-3.5 h-3.5" />
                             </button>
                           )}
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
                             <div>
                               <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Duration *</label>
                               <input
@@ -371,6 +377,16 @@ export default function AdminProductModal({ isOpen, onClose, product, onProductS
                               <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Sale Price</label>
                               <input type="number" min="0" step="0.01" value={opt.salePrice}
                                 onChange={e => updateOption(i, 'salePrice', e.target.value)} className={inputCls} />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Price (USD)</label>
+                              <input type="number" min="0" step="0.01" value={opt.priceUsd}
+                                onChange={e => updateOption(i, 'priceUsd', e.target.value)} className={inputCls} />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-semibold text-muted-foreground mb-1 block">Sale USD</label>
+                              <input type="number" min="0" step="0.01" value={opt.salePriceUsd}
+                                onChange={e => updateOption(i, 'salePriceUsd', e.target.value)} className={inputCls} />
                             </div>
                           </div>
                         </div>

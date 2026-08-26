@@ -6,11 +6,12 @@ export type CartItem = Product & {
   quantity: number;
   selectedDuration: string;
   selectedPrice: number;
+  selectedCurrency: 'EGP' | 'USD';
 };
 
 interface CartContextType {
   items: CartItem[];
-  addItem: (product: Product, selectedDuration: string, selectedPrice: number) => void;
+  addItem: (product: Product, selectedDuration: string, selectedPrice: number, selectedCurrency: 'EGP' | 'USD') => void;
   removeItem: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
@@ -29,16 +30,23 @@ function migrateCartItems(raw: unknown[]): CartItem[] {
     ...item,
     selectedDuration: item.selectedDuration ?? item.duration ?? '',
     selectedPrice: item.selectedPrice ?? item.salePrice ?? item.price ?? 0,
+    selectedCurrency: item.selectedCurrency === 'USD' ? 'USD' : 'EGP',
   }));
 }
 
 /** Resolve the correct current price for a cart item against a live product. */
-function resolveCurrentPrice(liveProduct: Product, selectedDuration: string): number {
+function resolveCurrentPrice(liveProduct: Product, selectedDuration: string, currency: 'EGP' | 'USD'): number {
   if (liveProduct.pricingOptions && liveProduct.pricingOptions.length > 0) {
     const match = liveProduct.pricingOptions.find(opt => opt.duration === selectedDuration);
     if (match) {
+      if (currency === 'USD' && (match.salePriceUsd ?? match.priceUsd) != null) {
+        return match.salePriceUsd ?? match.priceUsd!;
+      }
       return match.salePrice != null ? match.salePrice : match.price;
     }
+  }
+  if (currency === 'USD' && (liveProduct.salePriceUsd ?? liveProduct.priceUsd) != null) {
+    return liveProduct.salePriceUsd ?? liveProduct.priceUsd!;
   }
   return liveProduct.salePrice != null ? liveProduct.salePrice : liveProduct.price;
 }
@@ -112,7 +120,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       for (const item of itemsRef.current) {
         const live = liveMap.get(item.id);
         if (!live) continue;
-        const correctedPrice = resolveCurrentPrice(live, item.selectedDuration);
+        const correctedPrice = resolveCurrentPrice(live, item.selectedDuration, item.selectedCurrency);
         if (correctedPrice !== item.selectedPrice) changedCount++;
         patchMap.set(item.id, { correctedPrice, live });
       }
@@ -159,17 +167,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     revalidateCart();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const addItem = (product: Product, selectedDuration: string, selectedPrice: number) => {
+  const addItem = (product: Product, selectedDuration: string, selectedPrice: number, selectedCurrency: 'EGP' | 'USD') => {
     setItems((current) => {
+      if (current.length && current[0].selectedCurrency !== selectedCurrency) {
+        return current;
+      }
       const existing = current.find(item => item.id === product.id);
       if (existing) {
         return current.map(item =>
           item.id === product.id
-            ? { ...item, quantity: item.quantity + 1, selectedDuration, selectedPrice }
+            ? { ...item, quantity: item.quantity + 1, selectedDuration, selectedPrice, selectedCurrency }
             : item
         );
       }
-      return [...current, { ...product, quantity: 1, selectedDuration, selectedPrice }];
+      return [...current, { ...product, quantity: 1, selectedDuration, selectedPrice, selectedCurrency }];
     });
   };
 

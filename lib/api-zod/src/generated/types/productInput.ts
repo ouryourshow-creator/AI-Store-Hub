@@ -17,6 +17,10 @@ export interface ProductInput {
   price: number;
   /** @minimum 0 */
   salePrice?: number;
+  /** @minimum 0 */
+  priceUsd?: number;
+  /** @minimum 0 */
+  salePriceUsd?: number;
   pricingOptions?: PricingOption[];
   /** @minLength 1 */
   duration: string;

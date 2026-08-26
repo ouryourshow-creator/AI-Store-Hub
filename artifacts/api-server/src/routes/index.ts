@@ -5,6 +5,7 @@ import adminRouter from "./admin";
 import storageRouter from "./storage";
 import promoCodesRouter from "./promoCodes";
 import categoriesRouter from "./categories";
+import ordersRouter from "./orders";
 
 const router: IRouter = Router();
 
@@ -14,5 +15,6 @@ router.use(adminRouter);
 router.use(storageRouter);
 router.use(promoCodesRouter);
 router.use(categoriesRouter);
+router.use(ordersRouter);
 
 export default router;

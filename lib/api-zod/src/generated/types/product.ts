@@ -20,6 +20,10 @@ export interface Product {
   /** @nullable */
   salePrice?: number | null;
   /** @nullable */
+  priceUsd?: number | null;
+  /** @nullable */
+  salePriceUsd?: number | null;
+  /** @nullable */
   pricingOptions?: PricingOption[] | null;
   duration: string;
   /** @nullable */

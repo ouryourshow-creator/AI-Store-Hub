@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'wouter';
 import { useGetProduct, getGetProductQueryKey } from '@workspace/api-client-react';
 import { useCart } from '../contexts/CartContext';
+import { useCurrency } from '../contexts/CurrencyContext';
 import { useLang } from '../contexts/LanguageContext';
 import Layout from '../components/Layout';
 import { ArrowRight, ArrowLeft, ShieldCheck, Zap, Clock, MessageCircle, CheckCircle2, Tag, Info, TrendingUp } from 'lucide-react';
@@ -21,6 +22,7 @@ export default function ProductPage() {
   const id = Number(params.id);
   const { t, dir, lang } = useLang();
   const { addItem } = useCart();
+  const { currency } = useCurrency();
   const { data: product, isLoading, isError } = useGetProduct(id, {
     query: { enabled: !isNaN(id), queryKey: getGetProductQueryKey(id) },
   });
@@ -57,10 +59,12 @@ export default function ProductPage() {
     ? product.pricingOptions
     : [{ duration: product.duration, price: product.price, salePrice: product.salePrice }];
   const selectedOption = pricingOptions[selectedOptionIdx] ?? pricingOptions[0];
+  const selectedUsdPrice = selectedOption.salePriceUsd ?? selectedOption.priceUsd;
+  const selectedCurrency = currency === 'USD' && selectedUsdPrice != null ? 'USD' : 'EGP';
+  const selectedPrice = selectedCurrency === 'USD' ? selectedUsdPrice! : selectedOption.salePrice ?? selectedOption.price;
 
   const handleAddToCart = () => {
-    const effectivePrice = selectedOption.salePrice ?? selectedOption.price;
-    addItem(product, selectedOption.duration, effectivePrice);
+    addItem(product, selectedOption.duration, selectedPrice, selectedCurrency);
     toast.success(t('addToCart'), { description: product.name, duration: 2000 });
   };
 
@@ -212,10 +216,21 @@ export default function ProductPage() {
                   <span className="text-xs text-muted-foreground uppercase tracking-widest font-medium block mb-1">
                     {t('price')}
                   </span>
-                  {selectedOption.salePrice != null ? (
+                  {selectedCurrency === 'USD' ? (
                     <div className="flex items-baseline gap-3">
                       <span className="text-4xl font-display font-bold text-foreground">
-                        EGP {selectedOption.salePrice}
+                        USD {selectedPrice}
+                      </span>
+                      {selectedOption.salePriceUsd != null && selectedOption.priceUsd != null && (
+                        <span className="text-lg text-muted-foreground line-through">
+                          USD {selectedOption.priceUsd}
+                        </span>
+                      )}
+                    </div>
+                  ) : selectedOption.salePrice != null ? (
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-4xl font-display font-bold text-foreground">
+                        EGP {selectedPrice}
                       </span>
                       <span className="text-lg text-muted-foreground line-through">
                         EGP {selectedOption.price}
@@ -223,7 +238,7 @@ export default function ProductPage() {
                     </div>
                   ) : (
                     <span className="text-4xl font-display font-bold text-foreground">
-                      EGP {selectedOption.price}
+                      EGP {selectedPrice}
                     </span>
                   )}
                 </div>
