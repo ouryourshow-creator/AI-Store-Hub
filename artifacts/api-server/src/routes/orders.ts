@@ -335,6 +335,9 @@ router.post("/orders", async (req, res): Promise<void> => {
     }
 
     const [order] = await tx.insert(ordersTable).values({
+      // Generated here (not as a column DEFAULT) — see the comment on
+      // orderNumber in lib/db/src/schema/orders.ts for why.
+      orderNumber: sql`nextval('order_reference_seq')::text`,
       customerId,
       customerName: data.customerName.trim(),
       customerEmail: data.customerEmail.trim().toLowerCase(),
