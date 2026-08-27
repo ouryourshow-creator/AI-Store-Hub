@@ -1,1 +1,0 @@
-{"version":3,"file":"promoCode.d.ts","sourceRoot":"","sources":["../../../src/generated/types/promoCode.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AAEH,MAAM,WAAW,SAAS;IACxB,EAAE,EAAE,MAAM,CAAC;IACX,IAAI,EAAE,MAAM,CAAC;IACb;;;SAGK;IACL,UAAU,EAAE,MAAM,CAAC;IACnB,gBAAgB;IAChB,oBAAoB,CAAC,EAAE,MAAM,EAAE,GAAG,IAAI,CAAC;IACvC,MAAM,EAAE,OAAO,CAAC;IAChB,SAAS,EAAE,MAAM,CAAC;CACnB"}
