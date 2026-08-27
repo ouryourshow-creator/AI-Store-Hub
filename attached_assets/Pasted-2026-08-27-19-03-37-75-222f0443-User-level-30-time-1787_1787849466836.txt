@@ -1,0 +1,495 @@
+2026-08-27 19:03:37.75
+222f0443
+User
+{"level":30,"time":1787846617749,"pid":21,"hostname":"localhost","req":{"id":39,"method":"GET","url":"/api/storage/public-objects/uploads/4790016f-720c-403c-a0f9-fc9368919e44"},"res":{"statusCode":200},"responseTime":303,"msg":"request completed"}
+
+
+2026-08-27 19:03:37.75
+222f0443
+User
+{"level":30,"time":1787846617732,"pid":21,"hostname":"localhost","req":{"id":37,"method":"GET","url":"/api/storage/public-objects/uploads/cab3e07b-e4f1-4d63-92c0-37b77e885da5"},"res":{"statusCode":200},"responseTime":297,"msg":"request completed"}
+
+2026-08-27 19:03:37.78
+222f0443
+User
+{"level":30,"time":1787846617766,"pid":21,"hostname":"localhost","req":{"id":43,"method":"GET","url":"/api/storage/public-objects/uploads/7e92f296-401e-403a-8260-837fe83baf11"},"res":{"statusCode":200},"responseTime":293,"msg":"request completed"}
+
+2026-08-27 19:03:37.80
+222f0443
+User
+{"level":30,"time":1787846617792,"pid":21,"hostname":"localhost","req":{"id":46,"method":"GET","url":"/api/storage/public-objects/uploads/a2fa0dcc-b0bd-48de-8d59-f4a12b28d6a7"},"res":{"statusCode":200},"responseTime":292,"msg":"request completed"}
+
+2026-08-27 19:03:37.80
+222f0443
+User
+{"level":30,"time":1787846617795,"pid":21,"hostname":"localhost","req":{"id":45,"method":"GET","url":"/api/storage/public-objects/uploads/b091e1c0-b7a9-48d2-a514-071dc372e4dd"},"res":{"statusCode":200},"responseTime":305,"msg":"request completed"}
+
+2026-08-27 19:03:37.80
+222f0443
+User
+{"level":30,"time":1787846617787,"pid":21,"hostname":"localhost","req":{"id":42,"method":"GET","url":"/api/storage/public-objects/uploads/06cb0ddc-084d-4705-b1fc-bb07fa498325"},"res":{"statusCode":200},"responseTime":321,"msg":"request completed"}
+
+2026-08-27 19:12:05.87
+222f0443
+User
+{"level":30,"time":1787847125873,"pid":21,"hostname":"localhost","req":{"id":56,"method":"GET","url":"/api/__clerk/npm/@clerk/clerk-js@6/dist/clerk.browser.js"},"res":{"statusCode":307},"responseTime":88,"msg":"request completed"}
+
+2026-08-27 19:12:06.42
+222f0443
+User
+{"level":30,"time":1787847126424,"pid":21,"hostname":"localhost","req":{"id":59,"method":"GET","url":"/api/__clerk/npm/@clerk/clerk-js@6.30.1/dist/clerk.browser.js"},"res":{"statusCode":200},"responseTime":60,"msg":"request completed"}
+
+2026-08-27 19:12:06.63
+222f0443
+User
+{"level":30,"time":1787847126634,"pid":21,"hostname":"localhost","req":{"id":57,"method":"GET","url":"/api/categories"},"res":{"statusCode":200},"responseTime":774,"msg":"request completed"}
+
+2026-08-27 19:12:06.67
+222f0443
+User
+{"level":30,"time":1787847126670,"pid":21,"hostname":"localhost","req":{"id":58,"method":"GET","url":"/api/products"},"res":{"statusCode":200},"responseTime":808,"msg":"request completed"}
+
+2026-08-27 19:12:06.99
+222f0443
+User
+{"level":30,"time":1787847126995,"pid":21,"hostname":"localhost","req":{"id":60,"method":"GET","url":"/api/products"},"res":{"statusCode":304},"responseTime":57,"msg":"request completed"}
+
+2026-08-27 19:12:07.26
+222f0443
+User
+{"level":30,"time":1787847127263,"pid":21,"hostname":"localhost","req":{"id":63,"method":"GET","url":"/api/storage/public-objects/uploads/0af94a12-dbf0-4bbc-9f71-8d067301ee1b"},"res":{"statusCode":200},"responseTime":229,"msg":"request completed"}
+
+2026-08-27 19:12:07.29
+222f0443
+User
+{"level":30,"time":1787847127281,"pid":21,"hostname":"localhost","req":{"id":67,"method":"GET","url":"/api/storage/public-objects/uploads/27d56dca-8a54-419d-ab01-c21e918efbbd"},"res":{"statusCode":200},"responseTime":220,"msg":"request completed"}
+
+2026-08-27 19:12:07.29
+222f0443
+User
+{"level":30,"time":1787847127298,"pid":21,"hostname":"localhost","req":{"id":62,"method":"GET","url":"/api/storage/public-objects/uploads/ccb0313d-2e61-4b96-86f5-d843214fa312"},"res":{"statusCode":200},"responseTime":265,"msg":"request completed"}
+
+2026-08-27 19:12:07.34
+222f0443
+User
+{"level":30,"time":1787847127337,"pid":21,"hostname":"localhost","req":{"id":83,"method":"GET","url":"/api/__clerk/npm/@clerk/ui@1.30.8/dist/ui.browser.js"},"res":{"statusCode":200},"responseTime":90,"msg":"request completed"}
+
+2026-08-27 19:12:07.34
+222f0443
+User
+{"level":30,"time":1787847127333,"pid":21,"hostname":"localhost","req":{"id":65,"method":"GET","url":"/api/storage/public-objects/uploads/700c7119-a76b-4876-8a12-b59bcdc52843"},"res":{"statusCode":200},"responseTime":290,"msg":"request completed"}
+
+2026-08-27 19:12:07.34
+222f0443
+User
+{"level":30,"time":1787847127328,"pid":21,"hostname":"localhost","req":{"id":68,"method":"GET","url":"/api/storage/public-objects/uploads/317d94ad-a967-4333-8d84-ec6bb4398ff6"},"res":{"statusCode":200},"responseTime":260,"msg":"request completed"}
+
+2026-08-27 19:12:07.34
+222f0443
+User
+{"level":30,"time":1787847127323,"pid":21,"hostname":"localhost","req":{"id":71,"method":"GET","url":"/api/storage/public-objects/uploads/a74fab4d-c697-44de-a626-c4b559ca077f"},"res":{"statusCode":200},"responseTime":234,"msg":"request completed"}
+
+2026-08-27 19:12:07.34
+222f0443
+User
+{"level":30,"time":1787847127313,"pid":21,"hostname":"localhost","req":{"id":64,"method":"GET","url":"/api/storage/public-objects/uploads/f3aa0776-00b4-48ed-9269-e86761be3068"},"res":{"statusCode":200},"responseTime":271,"msg":"request completed"}
+
+2026-08-27 19:12:07.36
+222f0443
+User
+{"level":30,"time":1787847127360,"pid":21,"hostname":"localhost","req":{"id":73,"method":"GET","url":"/api/storage/public-objects/uploads/56beda29-bbd8-4ff5-bdc8-4abe76d51be2"},"res":{"statusCode":200},"responseTime":248,"msg":"request completed"}
+
+2026-08-27 19:12:07.36
+222f0443
+User
+{"level":30,"time":1787847127365,"pid":21,"hostname":"localhost","req":{"id":70,"method":"GET","url":"/api/storage/public-objects/uploads/9b066b9f-21ca-4cb7-89b9-b13548deac6f"},"res":{"statusCode":200},"responseTime":282,"msg":"request completed"}
+
+2026-08-27 19:12:07.38
+222f0443
+User
+{"level":30,"time":1787847127379,"pid":21,"hostname":"localhost","req":{"id":74,"method":"GET","url":"/api/storage/public-objects/uploads/b091e1c0-b7a9-48d2-a514-071dc372e4dd"},"res":{"statusCode":200},"responseTime":256,"msg":"request completed"}
+
+2026-08-27 19:12:07.38
+222f0443
+User
+{"level":30,"time":1787847127374,"pid":21,"hostname":"localhost","req":{"id":69,"method":"GET","url":"/api/storage/public-objects/uploads/4790016f-720c-403c-a0f9-fc9368919e44"},"res":{"statusCode":200},"responseTime":298,"msg":"request completed"}
+
+2026-08-27 19:12:07.38
+222f0443
+User
+{"level":30,"time":1787847127372,"pid":21,"hostname":"localhost","req":{"id":66,"method":"GET","url":"/api/storage/public-objects/uploads/1e1e8ad0-3b58-4091-a672-a827e3bf3029"},"res":{"statusCode":200},"responseTime":323,"msg":"request completed"}
+
+2026-08-27 19:12:07.39
+222f0443
+User
+{"level":30,"time":1787847127390,"pid":21,"hostname":"localhost","req":{"id":72,"method":"GET","url":"/api/storage/public-objects/uploads/7e92f296-401e-403a-8260-837fe83baf11"},"res":{"statusCode":200},"responseTime":294,"msg":"request completed"}
+
+2026-08-27 19:12:07.40
+222f0443
+User
+{"level":30,"time":1787847127404,"pid":21,"hostname":"localhost","req":{"id":75,"method":"GET","url":"/api/storage/public-objects/uploads/f3863432-9132-4972-85b1-7cd872d6ccee"},"res":{"statusCode":200},"responseTime":273,"msg":"request completed"}
+
+2026-08-27 19:30:22.62
+222f0443
+User
+{"level":30,"time":1787848222628,"pid":21,"hostname":"localhost","req":{"id":93,"method":"GET","url":"/api/__clerk/npm/@clerk/clerk-js@6/dist/clerk.browser.js"},"res":{"statusCode":307},"responseTime":80,"msg":"request completed"}
+
+2026-08-27 19:30:23.07
+222f0443
+User
+{"level":30,"time":1787848223076,"pid":21,"hostname":"localhost","req":{"id":95,"method":"GET","url":"/api/__clerk/npm/@clerk/clerk-js@6.30.1/dist/clerk.browser.js"},"res":{"statusCode":200},"responseTime":82,"msg":"request completed"}
+
+2026-08-27 19:30:23.49
+222f0443
+User
+{"level":30,"time":1787848223499,"pid":21,"hostname":"localhost","req":{"id":96,"method":"GET","url":"/api/__clerk/npm/@clerk/ui@1/dist/ui.browser.js"},"res":{"statusCode":307},"responseTime":32,"msg":"request completed"}
+
+2026-08-27 19:30:23.51
+222f0443
+User
+{"level":30,"time":1787848223511,"pid":21,"hostname":"localhost","req":{"id":94,"method":"GET","url":"/api/products/28"},"res":{"statusCode":200},"responseTime":894,"msg":"request completed"}
+
+2026-08-27 19:30:23.79
+222f0443
+User
+{"level":30,"time":1787848223797,"pid":21,"hostname":"localhost","req":{"id":97,"method":"GET","url":"/api/__clerk/npm/@clerk/ui@1.30.8/dist/ui.browser.js"},"res":{"statusCode":200},"responseTime":43,"msg":"request completed"}
+
+2026-08-27 19:30:23.99
+222f0443
+User
+{"level":30,"time":1787848223995,"pid":21,"hostname":"localhost","req":{"id":98,"method":"GET","url":"/api/storage/public-objects/uploads/56beda29-bbd8-4ff5-bdc8-4abe76d51be2"},"res":{"statusCode":200},"responseTime":193,"msg":"request completed"}
+
+2026-08-27 19:30:24.34
+222f0443
+User
+{"level":30,"time":1787848224340,"pid":21,"hostname":"localhost","req":{"id":99,"method":"GET","url":"/api/__clerk/v1/client"},"res":{"statusCode":400},"responseTime":242,"msg":"request completed"}
+
+2026-08-27 19:30:24.35
+222f0443
+User
+{"level":30,"time":1787848224349,"pid":21,"hostname":"localhost","req":{"id":100,"method":"GET","url":"/api/__clerk/v1/environment"},"res":{"statusCode":400},"responseTime":143,"msg":"request completed"}
+
+2026-08-27 19:30:26.04
+222f0443
+User
+{"level":30,"time":1787848226041,"pid":21,"hostname":"localhost","req":{"id":101,"method":"GET","url":"/api/products"},"res":{"statusCode":200},"responseTime":72,"msg":"request completed"}
+
+2026-08-27 19:30:26.64
+222f0443
+User
+{"level":30,"time":1787848226649,"pid":21,"hostname":"localhost","req":{"id":103,"method":"GET","url":"/api/storage/public-objects/uploads/334ca8d1-c5de-4989-8dc5-b54caa1b6787"},"res":{"statusCode":200},"responseTime":193,"msg":"request completed"}
+
+2026-08-27 19:30:26.66
+222f0443
+User
+{"level":30,"time":1787848226664,"pid":21,"hostname":"localhost","req":{"id":108,"method":"GET","url":"/api/storage/public-objects/uploads/f3aa0776-00b4-48ed-9269-e86761be3068"},"res":{"statusCode":200},"responseTime":188,"msg":"request completed"}
+
+2026-08-27 19:30:26.66
+222f0443
+User
+{"level":30,"time":1787848226666,"pid":21,"hostname":"localhost","req":{"id":106,"method":"GET","url":"/api/storage/public-objects/uploads/30510c58-7e37-4505-b9fa-6dbe4b515234"},"res":{"statusCode":200},"responseTime":199,"msg":"request completed"}
+
+2026-08-27 19:30:26.69
+222f0443
+User
+{"level":30,"time":1787848226683,"pid":21,"hostname":"localhost","req":{"id":105,"method":"GET","url":"/api/storage/public-objects/uploads/22cec198-08d2-46a4-a48a-8163f5ec80db"},"res":{"statusCode":200},"responseTime":220,"msg":"request completed"}
+
+2026-08-27 19:30:26.70
+222f0443
+User
+{"level":30,"time":1787848226706,"pid":21,"hostname":"localhost","req":{"id":118,"method":"GET","url":"/api/storage/public-objects/uploads/7e92f296-401e-403a-8260-837fe83baf11"},"res":{"statusCode":200},"responseTime":179,"msg":"request completed"}
+
+2026-08-27 19:30:26.70
+222f0443
+User
+{"level":30,"time":1787848226703,"pid":21,"hostname":"localhost","req":{"id":113,"method":"GET","url":"/api/storage/public-objects/uploads/c5475ef3-ed54-4b70-bbcb-3132be639cb7"},"res":{"statusCode":200},"responseTime":201,"msg":"request completed"}
+
+2026-08-27 19:30:26.70
+222f0443
+User
+{"level":30,"time":1787848226695,"pid":21,"hostname":"localhost","req":{"id":114,"method":"GET","url":"/api/storage/public-objects/uploads/a74fab4d-c697-44de-a626-c4b559ca077f"},"res":{"statusCode":200},"responseTime":188,"msg":"request completed"}
+
+2026-08-27 19:30:26.70
+222f0443
+User
+{"level":30,"time":1787848226708,"pid":21,"hostname":"localhost","req":{"id":111,"method":"GET","url":"/api/storage/public-objects/uploads/57769d9e-e60b-417d-8a25-243229224bc0"},"res":{"statusCode":200},"responseTime":217,"msg":"request completed"}
+
+2026-08-27 19:30:26.72
+222f0443
+User
+{"level":30,"time":1787848226713,"pid":21,"hostname":"localhost","req":{"id":109,"method":"GET","url":"/api/storage/public-objects/uploads/f3863432-9132-4972-85b1-7cd872d6ccee"},"res":{"statusCode":200},"responseTime":233,"msg":"request completed"}
+
+2026-08-27 19:30:26.73
+222f0443
+User
+{"level":30,"time":1787848226730,"pid":21,"hostname":"localhost","req":{"id":104,"method":"GET","url":"/api/storage/public-objects/uploads/700c7119-a76b-4876-8a12-b59bcdc52843"},"res":{"statusCode":200},"responseTime":271,"msg":"request completed"}
+
+2026-08-27 19:30:26.73
+222f0443
+User
+{"level":30,"time":1787848226725,"pid":21,"hostname":"localhost","req":{"id":112,"method":"GET","url":"/api/storage/public-objects/uploads/06cb0ddc-084d-4705-b1fc-bb07fa498325"},"res":{"statusCode":200},"responseTime":230,"msg":"request completed"}
+
+2026-08-27 19:30:26.73
+222f0443
+User
+{"level":30,"time":1787848226728,"pid":21,"hostname":"localhost","req":{"id":117,"method":"GET","url":"/api/storage/public-objects/uploads/0af94a12-dbf0-4bbc-9f71-8d067301ee1b"},"res":{"statusCode":200},"responseTime":206,"msg":"request completed"}
+
+2026-08-27 19:30:26.74
+222f0443
+User
+{"level":30,"time":1787848226742,"pid":21,"hostname":"localhost","req":{"id":116,"method":"GET","url":"/api/storage/public-objects/uploads/9b066b9f-21ca-4cb7-89b9-b13548deac6f"},"res":{"statusCode":200},"responseTime":226,"msg":"request completed"}
+
+2026-08-27 19:30:26.74
+222f0443
+User
+{"level":30,"time":1787848226736,"pid":21,"hostname":"localhost","req":{"id":121,"method":"GET","url":"/api/storage/public-objects/uploads/b091e1c0-b7a9-48d2-a514-071dc372e4dd"},"res":{"statusCode":200},"responseTime":184,"msg":"request completed"}
+
+2026-08-27 19:30:26.74
+222f0443
+User
+{"level":30,"time":1787848226745,"pid":21,"hostname":"localhost","req":{"id":119,"method":"GET","url":"/api/storage/public-objects/uploads/9bcffdbd-45e1-4657-bc90-ac9abdab176f"},"res":{"statusCode":200},"responseTime":211,"msg":"request completed"}
+
+2026-08-27 19:30:26.74
+222f0443
+User
+{"level":30,"time":1787848226738,"pid":21,"hostname":"localhost","req":{"id":115,"method":"GET","url":"/api/storage/public-objects/uploads/317d94ad-a967-4333-8d84-ec6bb4398ff6"},"res":{"statusCode":200},"responseTime":227,"msg":"request completed"}
+
+2026-08-27 19:30:26.74
+222f0443
+User
+{"level":30,"time":1787848226747,"pid":21,"hostname":"localhost","req":{"id":120,"method":"GET","url":"/api/storage/public-objects/uploads/cab3e07b-e4f1-4d63-92c0-37b77e885da5"},"res":{"statusCode":200},"responseTime":205,"msg":"request completed"}
+
+2026-08-27 19:30:26.76
+222f0443
+User
+{"level":30,"time":1787848226765,"pid":21,"hostname":"localhost","req":{"id":122,"method":"GET","url":"/api/storage/public-objects/uploads/a2fa0dcc-b0bd-48de-8d59-f4a12b28d6a7"},"res":{"statusCode":200},"responseTime":207,"msg":"request completed"}
+
+2026-08-27 19:30:26.78
+222f0443
+User
+{"level":30,"time":1787848226789,"pid":21,"hostname":"localhost","req":{"id":124,"method":"GET","url":"/api/storage/public-objects/uploads/ccb0313d-2e61-4b96-86f5-d843214fa312"},"res":{"statusCode":200},"responseTime":207,"msg":"request completed"}
+
+2026-08-27 19:40:30.15
+222f0443
+User
+{"level":30,"time":1787848830151,"pid":21,"hostname":"localhost","req":{"id":126,"method":"GET","url":"/api/__clerk/npm/@clerk/clerk-js@6/dist/clerk.browser.js"},"res":{"statusCode":307},"responseTime":88,"msg":"request completed"}
+
+2026-08-27 19:40:30.40
+222f0443
+User
+{"level":30,"time":1787848830402,"pid":21,"hostname":"localhost","req":{"id":129,"method":"GET","url":"/api/__clerk/npm/@clerk/clerk-js@6.30.1/dist/clerk.browser.js"},"res":{"statusCode":200},"responseTime":56,"msg":"request completed"}
+
+2026-08-27 19:40:30.84
+222f0443
+User
+{"level":30,"time":1787848830845,"pid":21,"hostname":"localhost","req":{"id":130,"method":"GET","url":"/api/__clerk/npm/@clerk/ui@1/dist/ui.browser.js"},"res":{"statusCode":307},"responseTime":35,"msg":"request completed"}
+
+2026-08-27 19:40:31.09
+222f0443
+User
+{"level":30,"time":1787848831091,"pid":21,"hostname":"localhost","req":{"id":127,"method":"GET","url":"/api/categories"},"res":{"statusCode":200},"responseTime":989,"msg":"request completed"}
+
+2026-08-27 19:40:31.09
+222f0443
+User
+{"level":30,"time":1787848831092,"pid":21,"hostname":"localhost","req":{"id":131,"method":"GET","url":"/api/__clerk/npm/@clerk/ui@1.30.8/dist/ui.browser.js"},"res":{"statusCode":200},"responseTime":51,"msg":"request completed"}
+
+2026-08-27 19:40:31.15
+222f0443
+User
+{"level":30,"time":1787848831149,"pid":21,"hostname":"localhost","req":{"id":128,"method":"GET","url":"/api/products"},"res":{"statusCode":200},"responseTime":1044,"msg":"request completed"}
+
+2026-08-27 19:40:31.72
+222f0443
+User
+{"level":30,"time":1787848831726,"pid":21,"hostname":"localhost","req":{"id":155,"method":"GET","url":"/api/__clerk/v1/client"},"res":{"statusCode":400},"responseTime":217,"msg":"request completed"}
+
+2026-08-27 19:40:31.87
+222f0443
+User
+{"level":30,"time":1787848831878,"pid":21,"hostname":"localhost","req":{"id":141,"method":"GET","url":"/api/storage/public-objects/uploads/06cb0ddc-084d-4705-b1fc-bb07fa498325"},"res":{"statusCode":200},"responseTime":475,"msg":"request completed"}
+
+2026-08-27 19:40:31.96
+222f0443
+User
+{"level":30,"time":1787848831909,"pid":21,"hostname":"localhost","req":{"id":135,"method":"GET","url":"/api/storage/public-objects/uploads/0af94a12-dbf0-4bbc-9f71-8d067301ee1b"},"res":{"statusCode":200},"responseTime":525,"msg":"request completed"}
+
+2026-08-27 19:40:31.96
+222f0443
+User
+{"level":30,"time":1787848831962,"pid":21,"hostname":"localhost","req":{"id":145,"method":"GET","url":"/api/storage/public-objects/uploads/57769d9e-e60b-417d-8a25-243229224bc0"},"res":{"statusCode":200},"responseTime":540,"msg":"request completed"}
+
+2026-08-27 19:40:31.96
+222f0443
+User
+{"level":30,"time":1787848831887,"pid":21,"hostname":"localhost","req":{"id":143,"method":"GET","url":"/api/storage/public-objects/uploads/334ca8d1-c5de-4989-8dc5-b54caa1b6787"},"res":{"statusCode":200},"responseTime":476,"msg":"request completed"}
+
+2026-08-27 19:40:31.96
+222f0443
+User
+{"level":30,"time":1787848831922,"pid":21,"hostname":"localhost","req":{"id":139,"method":"GET","url":"/api/storage/public-objects/uploads/7e92f296-401e-403a-8260-837fe83baf11"},"res":{"statusCode":200},"responseTime":524,"msg":"request completed"}
+
+2026-08-27 19:40:31.96
+222f0443
+User
+{"level":30,"time":1787848831936,"pid":21,"hostname":"localhost","req":{"id":156,"method":"GET","url":"/api/storage/public-objects/uploads/f3863432-9132-4972-85b1-7cd872d6ccee"},"res":{"statusCode":200},"responseTime":426,"msg":"request completed"}
+
+2026-08-27 19:40:31.96
+222f0443
+User
+{"level":30,"time":1787848831955,"pid":21,"hostname":"localhost","req":{"id":142,"method":"GET","url":"/api/storage/public-objects/uploads/317d94ad-a967-4333-8d84-ec6bb4398ff6"},"res":{"statusCode":200},"responseTime":546,"msg":"request completed"}
+
+2026-08-27 19:40:31.96
+222f0443
+User
+{"level":30,"time":1787848831903,"pid":21,"hostname":"localhost","req":{"id":132,"method":"GET","url":"/api/storage/public-objects/uploads/ccb0313d-2e61-4b96-86f5-d843214fa312"},"res":{"statusCode":200},"responseTime":533,"msg":"request completed"}
+
+2026-08-27 19:40:31.96
+222f0443
+User
+{"level":30,"time":1787848831892,"pid":21,"hostname":"localhost","req":{"id":154,"method":"GET","url":"/api/storage/public-objects/uploads/87762906-cbaa-438c-be6c-721bc4e563a6"},"res":{"statusCode":200},"responseTime":399,"msg":"request completed"}
+
+2026-08-27 19:40:31.96
+222f0443
+User
+{"level":30,"time":1787848831945,"pid":21,"hostname":"localhost","req":{"id":134,"method":"GET","url":"/api/storage/public-objects/uploads/1e1e8ad0-3b58-4091-a672-a827e3bf3029"},"res":{"statusCode":200},"responseTime":566,"msg":"request completed"}
+
+2026-08-27 19:40:31.96
+222f0443
+User
+{"level":30,"time":1787848831958,"pid":21,"hostname":"localhost","req":{"id":133,"method":"GET","url":"/api/storage/public-objects/uploads/700c7119-a76b-4876-8a12-b59bcdc52843"},"res":{"statusCode":200},"responseTime":583,"msg":"request completed"}
+
+2026-08-27 19:40:32.03
+222f0443
+User
+{"level":30,"time":1787848831966,"pid":21,"hostname":"localhost","req":{"id":140,"method":"GET","url":"/api/storage/public-objects/uploads/b091e1c0-b7a9-48d2-a514-071dc372e4dd"},"res":{"statusCode":200},"responseTime":565,"msg":"request completed"}
+
+2026-08-27 19:40:32.03
+222f0443
+User
+{"level":30,"time":1787848831970,"pid":21,"hostname":"localhost","req":{"id":138,"method":"GET","url":"/api/storage/public-objects/uploads/a74fab4d-c697-44de-a626-c4b559ca077f"},"res":{"statusCode":200},"responseTime":573,"msg":"request completed"}
+
+2026-08-27 19:41:42.44
+222f0443
+User
+{"level":30,"time":1787848902445,"pid":21,"hostname":"localhost","req":{"id":158,"method":"GET","url":"/api/__clerk/npm/@clerk/clerk-js@6/dist/clerk.browser.js"},"res":{"statusCode":307},"responseTime":33,"msg":"request completed"}
+
+2026-08-27 19:41:42.63
+222f0443
+User
+{"level":30,"time":1787848902634,"pid":21,"hostname":"localhost","req":{"id":159,"method":"GET","url":"/api/products/3"},"res":{"statusCode":200},"responseTime":218,"msg":"request completed"}
+
+2026-08-27 19:41:42.72
+222f0443
+User
+{"level":30,"time":1787848902723,"pid":21,"hostname":"localhost","req":{"id":160,"method":"GET","url":"/api/__clerk/npm/@clerk/clerk-js@6.30.1/dist/clerk.browser.js"},"res":{"statusCode":200},"responseTime":68,"msg":"request completed"}
+
+2026-08-27 19:41:43.18
+222f0443
+User
+{"level":30,"time":1787848903181,"pid":21,"hostname":"localhost","req":{"id":161,"method":"GET","url":"/api/__clerk/npm/@clerk/ui@1/dist/ui.browser.js"},"res":{"statusCode":307},"responseTime":28,"msg":"request completed"}
+
+2026-08-27 19:41:43.49
+222f0443
+User
+{"level":30,"time":1787848903495,"pid":21,"hostname":"localhost","req":{"id":162,"method":"GET","url":"/api/__clerk/npm/@clerk/ui@1.30.8/dist/ui.browser.js"},"res":{"statusCode":200},"responseTime":35,"msg":"request completed"}
+
+2026-08-27 19:41:44.05
+222f0443
+User
+{"level":30,"time":1787848904054,"pid":21,"hostname":"localhost","req":{"id":163,"method":"GET","url":"/api/__clerk/v1/environment"},"res":{"statusCode":400},"responseTime":183,"msg":"request completed"}
+
+2026-08-27 19:41:44.09
+222f0443
+User
+{"level":30,"time":1787848904096,"pid":21,"hostname":"localhost","req":{"id":164,"method":"GET","url":"/api/__clerk/v1/client"},"res":{"statusCode":400},"responseTime":183,"msg":"request completed"}
+
+2026-08-27 19:41:44.21
+222f0443
+User
+{"level":30,"time":1787848904212,"pid":21,"hostname":"localhost","req":{"id":165,"method":"GET","url":"/api/products"},"res":{"statusCode":304},"responseTime":61,"msg":"request completed"}
+
+2026-08-27 19:41:44.35
+222f0443
+User
+{"level":30,"time":1787848904359,"pid":21,"hostname":"localhost","req":{"id":166,"method":"GET","url":"/api/categories"},"res":{"statusCode":304},"responseTime":206,"msg":"request completed"}
+
+2026-08-27 19:46:23.98
+222f0443
+User
+{"level":30,"time":1787849183985,"pid":21,"hostname":"localhost","req":{"id":168,"method":"GET","url":"/api/categories"},"res":{"statusCode":304},"responseTime":817,"msg":"request completed"}
+
+2026-08-27 19:46:24.06
+222f0443
+User
+{"level":30,"time":1787849184068,"pid":21,"hostname":"localhost","req":{"id":167,"method":"GET","url":"/api/products"},"res":{"statusCode":304},"responseTime":906,"msg":"request completed"}
+
+2026-08-27 19:47:04.75
+222f0443
+User
+{"level":30,"time":1787849224754,"pid":21,"hostname":"localhost","req":{"id":169,"method":"GET","url":"/api/__clerk/npm/@clerk/clerk-js@6/dist/clerk.browser.js"},"res":{"statusCode":307},"responseTime":38,"msg":"request completed"}
+
+2026-08-27 19:47:04.98
+222f0443
+User
+{"level":30,"time":1787849224981,"pid":21,"hostname":"localhost","req":{"id":170,"method":"GET","url":"/api/categories"},"res":{"statusCode":304},"responseTime":216,"msg":"request completed"}
+
+2026-08-27 19:47:04.99
+222f0443
+User
+{"level":30,"time":1787849224995,"pid":21,"hostname":"localhost","req":{"id":171,"method":"GET","url":"/api/products"},"res":{"statusCode":304},"responseTime":227,"msg":"request completed"}
+
+2026-08-27 19:47:05.05
+222f0443
+User
+{"level":30,"time":1787849225056,"pid":21,"hostname":"localhost","req":{"id":172,"method":"GET","url":"/api/__clerk/npm/@clerk/clerk-js@6.30.1/dist/clerk.browser.js"},"res":{"statusCode":200},"responseTime":61,"msg":"request completed"}
+
+2026-08-27 19:47:05.43
+222f0443
+User
+{"level":30,"time":1787849225429,"pid":21,"hostname":"localhost","req":{"id":173,"method":"GET","url":"/api/storage/public-objects/uploads/1e1e8ad0-3b58-4091-a672-a827e3bf3029"},"res":{"statusCode":200},"responseTime":192,"msg":"request completed"}
+
+2026-08-27 19:47:05.43
+222f0443
+User
+{"level":30,"time":1787849225434,"pid":21,"hostname":"localhost","req":{"id":174,"method":"GET","url":"/api/storage/public-objects/uploads/317d94ad-a967-4333-8d84-ec6bb4398ff6"},"res":{"statusCode":200},"responseTime":193,"msg":"request completed"}
+
+2026-08-27 19:47:05.44
+222f0443
+User
+{"level":30,"time":1787849225447,"pid":21,"hostname":"localhost","req":{"id":178,"method":"GET","url":"/api/storage/public-objects/uploads/ccb0313d-2e61-4b96-86f5-d843214fa312"},"res":{"statusCode":200},"responseTime":182,"msg":"request completed"}
+
+2026-08-27 19:47:05.45
+222f0443
+User
+{"level":30,"time":1787849225452,"pid":21,"hostname":"localhost","req":{"id":176,"method":"GET","url":"/api/storage/public-objects/uploads/57769d9e-e60b-417d-8a25-243229224bc0"},"res":{"statusCode":200},"responseTime":200,"msg":"request completed"}
+
+2026-08-27 19:47:05.47
+222f0443
+User
+{"level":30,"time":1787849225470,"pid":21,"hostname":"localhost","req":{"id":177,"method":"GET","url":"/api/storage/public-objects/uploads/87762906-cbaa-438c-be6c-721bc4e563a6"},"res":{"statusCode":200},"responseTime":213,"msg":"request completed"}
+
+2026-08-27 19:47:05.47
+222f0443
+User
+{"level":30,"time":1787849225472,"pid":21,"hostname":"localhost","req":{"id":175,"method":"GET","url":"/api/storage/public-objects/uploads/4790016f-720c-403c-a0f9-fc9368919e44"},"res":{"statusCode":200},"responseTime":229,"msg":"request completed"}
+
+2026-08-27 19:47:05.58
+222f0443
+User
+{"level":30,"time":1787849225586,"pid":21,"hostname":"localhost","req":{"id":179,"method":"GET","url":"/api/__clerk/npm/@clerk/ui@1/dist/ui.browser.js"},"res":{"statusCode":307},"responseTime":35,"msg":"request completed"}
+
+2026-08-27 19:47:05.87
+222f0443
+User
+{"level":30,"time":1787849225869,"pid":21,"hostname":"localhost","req":{"id":180,"method":"GET","url":"/api/__clerk/npm/@clerk/ui@1.30.8/dist/ui.browser.js"},"res":{"statusCode":200},"responseTime":39,"msg":"request completed"}
+
+2026-08-27 19:47:06.48
+222f0443
+User
+{"level":30,"time":1787849226485,"pid":21,"hostname":"localhost","req":{"id":181,"method":"GET","url":"/api/__clerk/v1/client"},"res":{"statusCode":400},"responseTime":230,"msg":"request completed"}
+
+2026-08-27 19:47:06.50
+222f0443
+User
+{"level":30,"time":1787849226505,"pid":21,"hostname":"localhost","req":{"id":182,"method":"GET","url":"/api/__clerk/v1/environment"},"res":{"statusCode":400},"responseTime":245,"msg":"request completed"}
