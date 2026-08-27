@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useListProducts, useListCategories, type Product } from '@workspace/api-client-react';
 import Layout from '../components/Layout';
 import ProductCard from '../components/ProductCard';
-import { Search, CheckCircle2, Zap, ShieldCheck, Clock, Shield, Star, Facebook, TrendingUp, ShoppingBag } from 'lucide-react';
+import { Search, CheckCircle2, Zap, ShieldCheck, Clock, Shield, Star, Facebook, TrendingUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useLang } from '../contexts/LanguageContext';
 import { Link } from 'wouter';
@@ -387,16 +387,6 @@ export default function Home() {
                 <span>{badge.label}</span>
               </div>
             ))}
-            {totalSold > 0 && (
-              <div className="flex items-center gap-2 font-semibold text-sm text-primary">
-                <ShoppingBag className="w-5 h-5 flex-shrink-0" />
-                <span>
-                  {lang === 'ar'
-                    ? `${totalSold.toLocaleString('ar-EG')}+ اشتراك تم بيعه`
-                    : `${totalSold.toLocaleString()}+ subscriptions sold`}
-                </span>
-              </div>
-            )}
           </div>
         </div>
       </div>
