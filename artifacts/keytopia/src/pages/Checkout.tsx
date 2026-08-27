@@ -9,7 +9,7 @@ import { SignIn, useAuth } from '@clerk/react';
 import { useQueryClient } from '@tanstack/react-query';
 import { getGetMyCashbackQueryKey, useCreateOrder, useGetMyCashback } from '@workspace/api-client-react';
 import { useLocation } from 'wouter';
-import { useCart } from '../contexts/CartContext';
+import { useCart, CartItem } from '../contexts/CartContext';
 import Layout from '../components/Layout';
 import { useLang } from '../contexts/LanguageContext';
 
@@ -31,6 +31,19 @@ const PAYMENT_INFO = {
   bank: { accountNumber: '004-253829-001', iban: 'EG860025000400000004253829001', bank: 'HSBC Egypt' },
   binance: { userId: '798379678' },
 };
+
+// Binance Pay only settles in USD. When a product has no admin-set USD price yet,
+// approximate its USD value from the EGP price using this fallback rate so the
+// option still works before every product has a USD price configured.
+const FALLBACK_EGP_PER_USD = 52;
+
+/** USD unit price for a cart item: prefer the admin-set USD price (by duration, then product-level), else approximate via the fallback rate. */
+function getItemUsdUnitPrice(item: CartItem): number {
+  const option = item.pricingOptions?.find((opt) => opt.duration === item.selectedDuration);
+  const usd = option ? (option.salePriceUsd ?? option.priceUsd) : (item.salePriceUsd ?? item.priceUsd);
+  if (usd != null) return usd;
+  return item.selectedCurrency === 'USD' ? item.selectedPrice : item.selectedPrice / FALLBACK_EGP_PER_USD;
+}
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -81,6 +94,14 @@ export default function Checkout() {
   const availableCashback = cashbackAccount?.balances.find((balance) => balance.currency === cartCurrency)?.available ?? 0;
   const finalTotal = Math.max(0, beforeCashbackTotal - appliedCashback);
   const cashbackToEarn = Math.round(finalTotal * 5) / 100;
+
+  // Binance Pay always settles in USD. For an EGP cart, approximate the USD-equivalent
+  // of the final (discounted) total by applying the same discount ratio to the USD unit total.
+  const usdCartTotal = items.reduce((sum, item) => sum + getItemUsdUnitPrice(item) * item.quantity, 0);
+  const discountRatio = cartTotal > 0 ? finalTotal / cartTotal : 0;
+  const binanceUsdTotal = cartCurrency === 'USD'
+    ? finalTotal
+    : Math.round(usdCartTotal * discountRatio * 100) / 100;
 
   const handleApplyPromo = async () => {
     const code = promoInput.trim().toUpperCase();
@@ -179,11 +200,14 @@ export default function Checkout() {
       const cashbackLine = appliedCashback > 0
         ? `\n${isRtl ? 'الكاش باك المستخدم' : 'Cashback redeemed'}: -${cartCurrency} ${appliedCashback.toFixed(2)}`
         : '';
+      const binanceLine = paymentMethod === 'binance' && cartCurrency === 'EGP'
+        ? `\n${isRtl ? 'المبلغ المحوّل عبر Binance' : 'Amount transferred via Binance'}: USD ${binanceUsdTotal}`
+        : '';
       const method = methodLabel[paymentMethod] ?? paymentMethod;
       const receiptLine = 'هذا هو الإيصال';
       const msg = isRtl
-        ? `مرحباً، أرسل لكم إيصال الدفع لطلبي من كيتوبيا.\n\nرقم الحجز: ${order.orderNumber}\nالاسم: ${name}\nالبريد: ${email}\nالهاتف: ${phone}\n\nالطلب:\n${orderLines}${promoLine}${cashbackLine}\n\nالإجمالي: ${order.currency} ${order.total}\nطريقة الدفع: ${method}\n\n[أرجو إرفاق إيصال الدفع]\n\n${receiptLine}`
-        : `Hello, I am sending payment proof for my Keytopia order.\n\nBooking number: ${order.orderNumber}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nOrder:\n${orderLines}${promoLine}${cashbackLine}\n\nTotal: ${order.currency} ${order.total}\nPayment method: ${method}\n\n[Please attach payment proof]\n\n${receiptLine}`;
+        ? `مرحباً، أرسل لكم إيصال الدفع لطلبي من كيتوبيا.\n\nرقم الحجز: ${order.orderNumber}\nالاسم: ${name}\nالبريد: ${email}\nالهاتف: ${phone}\n\nالطلب:\n${orderLines}${promoLine}${cashbackLine}\n\nالإجمالي: ${order.currency} ${order.total}\nطريقة الدفع: ${method}${binanceLine}\n\n[أرجو إرفاق إيصال الدفع]\n\n${receiptLine}`
+        : `Hello, I am sending payment proof for my Keytopia order.\n\nBooking number: ${order.orderNumber}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nOrder:\n${orderLines}${promoLine}${cashbackLine}\n\nTotal: ${order.currency} ${order.total}\nPayment method: ${method}${binanceLine}\n\n[Please attach payment proof]\n\n${receiptLine}`;
       const proofUrl = `${WA_LINK}?text=${encodeURIComponent(msg)}`;
       if (proofWindow) proofWindow.location.replace(proofUrl);
       else window.location.assign(proofUrl);
@@ -513,20 +537,18 @@ export default function Checkout() {
                               : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />}
                     </button>
 
-                    {/* Binance Pay is denominated in USD. */}
-                    {cartCurrency === 'USD' && (
-                      <button type="button" onClick={() => handlePaymentSelect('binance')}
-                        className="flex items-center gap-4 w-full bg-white border-2 border-transparent hover:border-primary rounded-[16px] p-4 text-start transition-all hover:shadow-md group">
-                        <div className="w-10 h-10 rounded-[10px] bg-[#FFF7D6] flex items-center justify-center flex-shrink-0">
-                          <span className="text-[#B8860B] font-bold text-xs">BN</span>
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-semibold text-sm text-foreground">Binance Pay</p>
-                          <p className="text-xs text-muted-foreground">{isRtl ? 'حوّل إجمالي الطلب بالدولار باستخدام معرّف Binance' : 'Transfer the USD order total using the Binance user ID'}</p>
-                        </div>
-                        {isRtl ? <ChevronLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary" /> : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary" />}
-                      </button>
-                    )}
+                    {/* Binance Pay always settles in USD; for EGP carts we quote the USD equivalent. */}
+                    <button type="button" onClick={() => handlePaymentSelect('binance')}
+                      className="flex items-center gap-4 w-full bg-white border-2 border-transparent hover:border-primary rounded-[16px] p-4 text-start transition-all hover:shadow-md group">
+                      <div className="w-10 h-10 rounded-[10px] bg-[#FFF7D6] flex items-center justify-center flex-shrink-0">
+                        <span className="text-[#B8860B] font-bold text-xs">BN</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-semibold text-sm text-foreground">Binance Pay</p>
+                        <p className="text-xs text-muted-foreground">{isRtl ? 'حوّل ما يعادل إجمالي طلبك بالدولار باستخدام معرّف Binance' : 'Transfer the USD equivalent of your order using the Binance user ID'}</p>
+                      </div>
+                      {isRtl ? <ChevronLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary" /> : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary" />}
+                    </button>
 
                     {/* Other */}
                     <button type="button" onClick={() => handlePaymentSelect('other')}
@@ -618,7 +640,10 @@ export default function Checkout() {
                     {paymentMethod === 'binance' && (
                       <div className="rounded-[16px] border border-[#F3BA2F]/40 bg-[#FFF7D6]/70 p-4">
                         <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8A6500]">Binance Pay</p>
-                        <p className="mb-2 text-sm text-muted-foreground">{isRtl ? `حوّل USD ${finalTotal} إلى معرّف مستخدم Binance التالي:` : `Transfer USD ${finalTotal} to this Binance user ID:`}</p>
+                        <p className="mb-2 text-sm text-muted-foreground">{isRtl ? `حوّل USD ${binanceUsdTotal} إلى معرّف مستخدم Binance التالي:` : `Transfer USD ${binanceUsdTotal} to this Binance user ID:`}</p>
+                        {cartCurrency === 'EGP' && (
+                          <p className="mb-2 text-xs text-muted-foreground">{isRtl ? `(ما يعادل ${cartCurrency} ${finalTotal} بسعر تحويل تقريبي)` : `(approximate USD equivalent of ${cartCurrency} ${finalTotal})`}</p>
+                        )}
                         <div className="flex items-center gap-3 rounded-[10px] border border-[#F3BA2F]/40 bg-white px-4 py-3">
                           <span className="flex-1 font-mono text-lg font-bold tracking-widest" dir="ltr">{PAYMENT_INFO.binance.userId}</span>
                           <CopyButton text={PAYMENT_INFO.binance.userId} />
