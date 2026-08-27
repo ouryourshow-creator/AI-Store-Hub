@@ -1,8 +1,8 @@
-import { useUser, SignIn } from '@clerk/react';
+import { useUser, useClerk, SignIn } from '@clerk/react';
 import { getGetMyCashbackQueryKey, getListMyOrdersQueryKey, useGetMyCashback, useListMyOrders } from '@workspace/api-client-react';
-import { Link } from 'wouter';
+import { Link, useLocation } from 'wouter';
 import { format } from 'date-fns';
-import { Package, ArrowRight, ArrowLeft, Clock, CheckCircle2, XCircle, FileText, Wallet, ChevronDown, User, Mail, Phone } from 'lucide-react';
+import { Package, ArrowRight, ArrowLeft, Clock, CheckCircle2, XCircle, FileText, Wallet, ChevronDown, User, Mail, Phone, LogOut } from 'lucide-react';
 import { useLang } from '../contexts/LanguageContext';
 import Layout from '../components/Layout';
 import { useEffect, useState } from 'react';
@@ -29,6 +29,8 @@ const StatusBadge = ({ status, dir }: { status: string; dir: 'rtl' | 'ltr' }) =>
 
 export default function Orders() {
   const { isSignedIn, isLoaded, user } = useUser();
+  const { signOut } = useClerk();
+  const [, setLocation] = useLocation();
   const { dir, t } = useLang();
   const [referral, setReferral] = useState<{ referralCode: string; referralCount: number } | null>(null);
   const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
@@ -135,6 +137,14 @@ export default function Orders() {
                 <span className="truncate text-foreground">{profilePhone}</span>
               </div>
             </div>
+            <button
+              type="button"
+              onClick={() => signOut(() => setLocation('/'))}
+              className="mt-5 w-full flex items-center justify-center gap-2 rounded-xl border border-black/[0.06] py-2.5 text-sm font-semibold text-muted-foreground hover:bg-muted/40 hover:text-foreground transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              {dir === 'rtl' ? 'تسجيل الخروج' : 'Sign out'}
+            </button>
           </div>
         </aside>
 

@@ -1,6 +1,6 @@
 import { Link } from 'wouter';
-import { ShoppingBag, LogIn } from 'lucide-react';
-import { useUser, UserButton } from '@clerk/react';
+import { ShoppingBag, LogIn, User } from 'lucide-react';
+import { useUser } from '@clerk/react';
 import { useCart } from '../contexts/CartContext';
 import { useLang } from '../contexts/LanguageContext';
 import { useState } from 'react';
@@ -70,10 +70,16 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               )}
             </button>
 
-            {/* Sign in / Profile */}
+            {/* Sign in / My Profile */}
             {isLoaded && (
               isSignedIn ? (
-                <UserButton />
+                <Link
+                  href="/orders"
+                  className="h-9 px-4 rounded-full bg-primary hover:bg-primary/90 text-white text-sm font-semibold flex items-center gap-1.5 transition-all"
+                >
+                  <User className="w-4 h-4" strokeWidth={2} />
+                  {dir === 'rtl' ? 'ملفي الشخصي' : 'My Profile'}
+                </Link>
               ) : (
                 <Link
                   href="/sign-in"
