@@ -12,14 +12,37 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { cartCount } = useCart();
   const { t, toggleLang, dir } = useLang();
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const navigation = dir === 'rtl'
+    ? [
+        { label: 'الرئيسية', href: '/' },
+        { label: 'الأقسام', href: '/#products' },
+        { label: 'من نحن', href: '/#about' },
+        { label: 'الشروط والأحكام', href: '/policy' },
+        { label: 'الاسترداد والخصوصية', href: '/policy' },
+      ]
+    : [
+        { label: 'Home', href: '/' },
+        { label: 'Categories', href: '/#products' },
+        { label: 'About us', href: '/#about' },
+        { label: 'Terms & conditions', href: '/policy' },
+        { label: 'Refunds & privacy', href: '/policy' },
+      ];
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-background" dir={dir}>
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-black/[0.03]">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 h-20 flex items-center justify-between gap-5">
           <Link href="/" className="flex items-center gap-3 select-none">
             <img src={logoImg} alt="Keytopia" className="h-[6.75rem] w-auto object-contain" />
           </Link>
+
+          <nav aria-label={dir === 'rtl' ? 'التنقل الرئيسي' : 'Main navigation'} className="hidden lg:flex items-center justify-center gap-6 xl:gap-9 text-sm font-semibold text-muted-foreground">
+            {navigation.map((item) => (
+              <a key={item.label} href={item.href} className="whitespace-nowrap hover:text-primary transition-colors">
+                {item.label}
+              </a>
+            ))}
+          </nav>
 
           <div className="flex items-center gap-3">
             {/* Language Toggle */}
@@ -46,6 +69,13 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </button>
           </div>
         </div>
+        <nav aria-label={dir === 'rtl' ? 'التنقل الرئيسي للهاتف' : 'Mobile navigation'} className="lg:hidden flex gap-5 overflow-x-auto no-scrollbar px-4 pb-3 text-sm font-semibold text-muted-foreground">
+          {navigation.map((item) => (
+            <a key={item.label} href={item.href} className="whitespace-nowrap hover:text-primary transition-colors">
+              {item.label}
+            </a>
+          ))}
+        </nav>
       </header>
 
       <main className="flex-1 flex flex-col">

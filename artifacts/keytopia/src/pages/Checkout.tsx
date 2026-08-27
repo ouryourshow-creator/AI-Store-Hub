@@ -13,7 +13,7 @@ import { useCart } from '../contexts/CartContext';
 import Layout from '../components/Layout';
 import { useLang } from '../contexts/LanguageContext';
 
-type PaymentMethod = 'instapay' | 'vodafone' | 'bank' | 'other' | null;
+type PaymentMethod = 'instapay' | 'vodafone' | 'bank' | 'binance' | 'other' | null;
 
 interface PromoState {
   status: 'idle' | 'loading' | 'valid' | 'invalid';
@@ -21,13 +21,15 @@ interface PromoState {
   percentage: number;
 }
 
-const WA_NUMBER = '+201229327902';
-const WA_LINK = `https://wa.me/${encodeURIComponent(WA_NUMBER)}`;
+// wa.me requires an international number containing digits only.
+const WA_NUMBER = '201229327902';
+const WA_LINK = `https://wa.me/${WA_NUMBER}`;
 
 const PAYMENT_INFO = {
   instapay: { link: 'https://ipn.eg/S/batsilitohsbc/instapay/7Gr2jR' },
   vodafone: { number: '01016712243' },
   bank: { accountNumber: '004-253829-001', iban: 'EG860025000400000004253829001', bank: 'HSBC Egypt' },
+  binance: { userId: '798379678' },
 };
 
 function CopyButton({ text }: { text: string }) {
@@ -137,10 +139,18 @@ export default function Checkout() {
 
   const handleSendProof = async () => {
     if (!paymentMethod || createOrder.isPending) return;
+    // Open during the click. Opening after the async order request is blocked by browsers.
+    const proofWindow = window.open('', '_blank');
+    if (proofWindow) {
+      proofWindow.document.title = isRtl ? 'جار تجهيز الطلب...' : 'Preparing your order...';
+      proofWindow.document.body.textContent = isRtl ? 'جار فتح واتساب...' : 'Opening WhatsApp...';
+      proofWindow.opener = null;
+    }
     const methodLabel: Record<string, string> = {
       instapay: 'Instapay',
       vodafone: isRtl ? 'فودافون كاش' : 'Vodafone Cash',
       bank: isRtl ? 'تحويل بنكي (HSBC)' : 'Bank Transfer (HSBC)',
+      binance: 'Binance Pay',
       other: isRtl ? 'طريقة بديلة' : 'Alternative method',
     };
     try {
@@ -170,11 +180,14 @@ export default function Checkout() {
       const msg = isRtl
         ? `مرحباً، أرسل لكم إيصال الدفع لطلبي من كيتوبيا.\n\nرقم الحجز: ${order.orderNumber}\nالاسم: ${name}\nالبريد: ${email}\nالهاتف: ${phone}\n\nالطلب:\n${orderLines}${promoLine}\n\nالإجمالي: ${order.currency} ${order.total}\nطريقة الدفع: ${method}\n\n[أرجو إرفاق إيصال الدفع]`
         : `Hello, I am sending payment proof for my Keytopia order.\n\nBooking number: ${order.orderNumber}\nName: ${name}\nEmail: ${email}\nPhone: ${phone}\n\nOrder:\n${orderLines}${promoLine}\n\nTotal: ${order.currency} ${order.total}\nPayment method: ${method}\n\n[Please attach payment proof]`;
-      window.open(`${WA_LINK}?text=${encodeURIComponent(msg)}`, '_blank');
+      const proofUrl = `${WA_LINK}?text=${encodeURIComponent(msg)}`;
+      if (proofWindow) proofWindow.location.replace(proofUrl);
+      else window.location.assign(proofUrl);
       queryClient.invalidateQueries({ queryKey: getGetMyCashbackQueryKey() });
       clearCart();
       setLocation('/orders');
     } catch {
+      proofWindow?.close();
       // The generated mutation retains its error state for the checkout button message.
     }
   };
@@ -484,6 +497,21 @@ export default function Checkout() {
                               : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />}
                     </button>
 
+                    {/* Binance Pay is denominated in USD. */}
+                    {cartCurrency === 'USD' && (
+                      <button type="button" onClick={() => handlePaymentSelect('binance')}
+                        className="flex items-center gap-4 w-full bg-white border-2 border-transparent hover:border-primary rounded-[16px] p-4 text-start transition-all hover:shadow-md group">
+                        <div className="w-10 h-10 rounded-[10px] bg-[#FFF7D6] flex items-center justify-center flex-shrink-0">
+                          <span className="text-[#B8860B] font-bold text-xs">BN</span>
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-semibold text-sm text-foreground">Binance Pay</p>
+                          <p className="text-xs text-muted-foreground">{isRtl ? 'حوّل إجمالي الطلب بالدولار باستخدام معرّف Binance' : 'Transfer the USD order total using the Binance user ID'}</p>
+                        </div>
+                        {isRtl ? <ChevronLeft className="w-4 h-4 text-muted-foreground group-hover:text-primary" /> : <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary" />}
+                      </button>
+                    )}
+
                     {/* Other */}
                     <button type="button" onClick={() => handlePaymentSelect('other')}
                       className="flex items-center gap-4 w-full bg-white border-2 border-transparent hover:border-primary rounded-[16px] p-4 text-start transition-all hover:shadow-md group">
@@ -571,6 +599,18 @@ export default function Checkout() {
                       </div>
                     )}
 
+                    {paymentMethod === 'binance' && (
+                      <div className="rounded-[16px] border border-[#F3BA2F]/40 bg-[#FFF7D6]/70 p-4">
+                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[#8A6500]">Binance Pay</p>
+                        <p className="mb-2 text-sm text-muted-foreground">{isRtl ? `حوّل USD ${finalTotal} إلى معرّف مستخدم Binance التالي:` : `Transfer USD ${finalTotal} to this Binance user ID:`}</p>
+                        <div className="flex items-center gap-3 rounded-[10px] border border-[#F3BA2F]/40 bg-white px-4 py-3">
+                          <span className="flex-1 font-mono text-lg font-bold tracking-widest" dir="ltr">{PAYMENT_INFO.binance.userId}</span>
+                          <CopyButton text={PAYMENT_INFO.binance.userId} />
+                        </div>
+                        <p className="mt-2 text-xs font-medium text-[#8A6500]">{isRtl ? 'تحقق من المعرّف والمبلغ قبل تأكيد التحويل.' : 'Verify the ID and amount before confirming the transfer.'}</p>
+                      </div>
+                    )}
+
                     {/* Order total reminder */}
                     <div className="flex justify-between items-center bg-muted/50 rounded-[14px] px-4 py-3">
                       <span className="text-sm text-muted-foreground">{t('total')}</span>
@@ -587,6 +627,11 @@ export default function Checkout() {
                         {t('sendProofViaWhatsApp')}
                         <ExternalLink className="w-4 h-4" />
                       </button>
+                      {createOrder.isError && (
+                        <p role="alert" className="mt-2 text-xs font-medium text-destructive">
+                          {isRtl ? 'تعذر إنشاء الطلب. تحقق من بياناتك وحاول مرة أخرى.' : 'The order could not be created. Check your details and try again.'}
+                        </p>
+                      )}
                     </div>
 
                     <button type="button" onClick={() => setStep(2)}

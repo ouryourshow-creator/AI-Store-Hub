@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Router, type IRouter, type Request } from "express";
 import { rateLimit } from "express-rate-limit";
 import { getAuth } from "@clerk/express";
-import { and, desc, eq, gte, ilike, inArray, lt, or, sql } from "drizzle-orm";
+import { and, desc, eq, gte, ilike, inArray, lt, ne, or, sql } from "drizzle-orm";
 import {
   analyticsVisitsTable,
   cashbackTransactionsTable,
@@ -461,11 +461,11 @@ router.patch("/admin/orders/:id/status", requireAdmin, async (req, res): Promise
         ))
         .for("update");
       for (const earnedCredit of earnedCredits) {
-        await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`${earnedCredit.customerId}:${current.currency}:cashback`}))`);
+        await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`${earnedCredit.customerId}:${earnedCredit.currency}:cashback`}))`);
         const ledger = await tx.select().from(cashbackTransactionsTable)
           .where(and(
             eq(cashbackTransactionsTable.customerId, earnedCredit.customerId),
-            eq(cashbackTransactionsTable.currency, current.currency),
+            eq(cashbackTransactionsTable.currency, earnedCredit.currency),
             or(
               and(
                 eq(cashbackTransactionsTable.type, "credit"),
@@ -518,20 +518,27 @@ router.patch("/admin/orders/:id/status", requireAdmin, async (req, res): Promise
         set: { status: "pending", amount: String(Math.round(Number(order.total) * 5) / 100), currency: order.currency, source: "purchase", approvedAt: null },
       });
       if (order.referralCode) {
+        await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`referral:first-paid:${order.customerId}`}))`);
         const [referrer] = await tx.select().from(customerProfilesTable)
           .where(eq(customerProfilesTable.referralCode, order.referralCode)).limit(1);
-        if (referrer && referrer.customerId !== order.customerId) {
+        const [priorPaidOrder] = await tx.select({ id: ordersTable.id }).from(ordersTable)
+          .where(and(
+            eq(ordersTable.customerId, order.customerId),
+            inArray(ordersTable.status, ["confirmed", "fulfilled"]),
+            ne(ordersTable.id, order.id),
+          )).limit(1);
+        if (referrer && referrer.customerId !== order.customerId && !priorPaidOrder) {
           await tx.insert(cashbackTransactionsTable).values({
             customerId: referrer.customerId,
             orderId: order.id,
             type: "credit",
             status: "pending",
-            currency: order.currency,
-            amount: String(Math.round(Number(order.total) * 5) / 100),
+            currency: "EGP",
+            amount: "50",
             source: "referral",
           }).onConflictDoUpdate({
             target: [cashbackTransactionsTable.orderId, cashbackTransactionsTable.type, cashbackTransactionsTable.customerId],
-            set: { status: "pending", amount: String(Math.round(Number(order.total) * 5) / 100), currency: order.currency, source: "referral", approvedAt: null },
+            set: { status: "pending", amount: "50", currency: "EGP", source: "referral", approvedAt: null },
           });
         }
       }
