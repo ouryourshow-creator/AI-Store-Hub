@@ -20700,27 +20700,27 @@ var require_router = __commonJS({
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var methods = METHODS.map((method) => method.toLowerCase());
-    module.exports = Router10;
+    module.exports = Router11;
     module.exports.Route = Route;
-    function Router10(options) {
-      if (!(this instanceof Router10)) {
-        return new Router10(options);
+    function Router11(options) {
+      if (!(this instanceof Router11)) {
+        return new Router11(options);
       }
       const opts = options || {};
-      function router10(req, res, next) {
-        router10.handle(req, res, next);
+      function router11(req, res, next) {
+        router11.handle(req, res, next);
       }
-      Object.setPrototypeOf(router10, this);
-      router10.caseSensitive = opts.caseSensitive;
-      router10.mergeParams = opts.mergeParams;
-      router10.params = {};
-      router10.strict = opts.strict;
-      router10.stack = [];
-      return router10;
+      Object.setPrototypeOf(router11, this);
+      router11.caseSensitive = opts.caseSensitive;
+      router11.mergeParams = opts.mergeParams;
+      router11.params = {};
+      router11.strict = opts.strict;
+      router11.stack = [];
+      return router11;
     }
-    Router10.prototype = function() {
+    Router11.prototype = function() {
     };
-    Router10.prototype.param = function param(name, fn) {
+    Router11.prototype.param = function param(name, fn) {
       if (!name) {
         throw new TypeError("argument name is required");
       }
@@ -20740,7 +20740,7 @@ var require_router = __commonJS({
       params.push(fn);
       return this;
     };
-    Router10.prototype.handle = function handle(req, res, callback) {
+    Router11.prototype.handle = function handle(req, res, callback) {
       if (!callback) {
         throw new TypeError("argument callback is required");
       }
@@ -20867,7 +20867,7 @@ var require_router = __commonJS({
         }
       }
     };
-    Router10.prototype.use = function use(handler) {
+    Router11.prototype.use = function use(handler) {
       let offset = 0;
       let path = "/";
       if (typeof handler !== "function") {
@@ -20900,7 +20900,7 @@ var require_router = __commonJS({
       }
       return this;
     };
-    Router10.prototype.route = function route(path) {
+    Router11.prototype.route = function route(path) {
       const route2 = new Route(path);
       const layer = new Layer(path, {
         sensitive: this.caseSensitive,
@@ -20915,7 +20915,7 @@ var require_router = __commonJS({
       return route2;
     };
     methods.concat("all").forEach(function(method) {
-      Router10.prototype[method] = function(path) {
+      Router11.prototype[method] = function(path) {
         const route = this.route(path);
         route[method].apply(route, slice.call(arguments, 1));
         return this;
@@ -21098,13 +21098,13 @@ var require_application = __commonJS({
     var compileTrust = require_utils3().compileTrust;
     var resolve = __require("node:path").resolve;
     var once = require_once();
-    var Router10 = require_router();
+    var Router11 = require_router();
     var slice = Array.prototype.slice;
     var flatten = Array.prototype.flat;
     var app2 = exports = module.exports = {};
     var trustProxyDefaultSymbol = "@@symbol:trust_proxy_default";
     app2.init = function init() {
-      var router10 = null;
+      var router11 = null;
       this.cache = /* @__PURE__ */ Object.create(null);
       this.engines = /* @__PURE__ */ Object.create(null);
       this.settings = /* @__PURE__ */ Object.create(null);
@@ -21113,13 +21113,13 @@ var require_application = __commonJS({
         configurable: true,
         enumerable: true,
         get: function getrouter() {
-          if (router10 === null) {
-            router10 = new Router10({
+          if (router11 === null) {
+            router11 = new Router11({
               caseSensitive: this.enabled("case sensitive routing"),
               strict: this.enabled("strict routing")
             });
           }
-          return router10;
+          return router11;
         }
       });
     };
@@ -21190,15 +21190,15 @@ var require_application = __commonJS({
       if (fns.length === 0) {
         throw new TypeError("app.use() requires a middleware function");
       }
-      var router10 = this.router;
+      var router11 = this.router;
       fns.forEach(function(fn2) {
         if (!fn2 || !fn2.handle || !fn2.set) {
-          return router10.use(path, fn2);
+          return router11.use(path, fn2);
         }
         debug7(".use app under %s", path);
         fn2.mountpath = path;
         fn2.parent = this;
-        router10.use(path, function mounted_app(req, res, next) {
+        router11.use(path, function mounted_app(req, res, next) {
           var orig = req.app;
           fn2.handle(req, res, function(err) {
             Object.setPrototypeOf(req, orig.request);
@@ -23783,7 +23783,7 @@ var require_express = __commonJS({
     var EventEmitter2 = __require("node:events").EventEmitter;
     var mixin = require_merge_descriptors();
     var proto = require_application();
-    var Router10 = require_router();
+    var Router11 = require_router();
     var req = require_request();
     var res = require_response();
     exports = module.exports = createApplication;
@@ -23805,8 +23805,8 @@ var require_express = __commonJS({
     exports.application = proto;
     exports.request = req;
     exports.response = res;
-    exports.Route = Router10.Route;
-    exports.Router = Router10;
+    exports.Route = Router11.Route;
+    exports.Router = Router11;
     exports.json = bodyParser.json;
     exports.raw = bodyParser.raw;
     exports.static = require_serve_static();
@@ -40724,7 +40724,7 @@ var require_ip_address = __commonJS({
 });
 
 // src/app.ts
-var import_express15 = __toESM(require_express2(), 1);
+var import_express16 = __toESM(require_express2(), 1);
 var import_cors = __toESM(require_lib3(), 1);
 var import_express_session = __toESM(require_express_session(), 1);
 var import_connect_pg_simple = __toESM(require_connect_pg_simple(), 1);
@@ -51315,11 +51315,11 @@ function parsePathRewriteRules(rewriteConfig) {
 var debug4 = Debug.extend("router");
 async function getTarget(req, res, config2) {
   let newTarget;
-  const router10 = config2.router;
-  if (isPlainObject(router10)) {
-    newTarget = getTargetFromProxyTable(req, router10);
-  } else if (typeof router10 === "function") {
-    newTarget = await router10(req, res, config2);
+  const router11 = config2.router;
+  if (isPlainObject(router11)) {
+    newTarget = getTargetFromProxyTable(req, router11);
+  } else if (typeof router11 === "function") {
+    newTarget = await router11(req, res, config2);
   }
   return newTarget;
 }
@@ -51666,7 +51666,7 @@ function clerkProxyMiddleware() {
 }
 
 // src/routes/index.ts
-var import_express14 = __toESM(require_express2(), 1);
+var import_express15 = __toESM(require_express2(), 1);
 
 // src/routes/health.ts
 var import_express = __toESM(require_express2(), 1);
@@ -63433,7 +63433,8 @@ __export(schema_exports, {
   orderReferenceSequence: () => orderReferenceSequence,
   ordersTable: () => ordersTable,
   productsTable: () => productsTable,
-  promoCodesTable: () => promoCodesTable
+  promoCodesTable: () => promoCodesTable,
+  reviewsTable: () => reviewsTable
 });
 
 // ../../node_modules/.pnpm/zod@3.25.76/node_modules/zod/v4/classic/external.js
@@ -74961,6 +74962,21 @@ var customerProfilesTable = pgTable("customer_profiles", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
 });
 
+// ../../lib/db/src/schema/reviews.ts
+var reviewsTable = pgTable(
+  "reviews",
+  {
+    id: serial("id").primaryKey(),
+    reviewerName: text("reviewer_name").notNull(),
+    reviewDate: date("review_date", { mode: "string" }).notNull(),
+    content: text("content").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow()
+  },
+  (table) => ({
+    reviewDateIdx: index("reviews_review_date_idx").on(table.reviewDate)
+  })
+);
+
 // ../../lib/db/src/index.ts
 var { Pool: Pool3 } = esm_default;
 if (!process.env.DATABASE_URL) {
@@ -74979,14 +74995,7 @@ async function isAdminUser(userId) {
   }
   const user = await clerkClient.users.getUser(userId);
   const verifiedEmails = user.emailAddresses.filter((e) => e.verification?.status === "verified").map((e) => e.emailAddress.toLowerCase());
-  const matched = verifiedEmails.some((email3) => adminEmails.includes(email3));
-  console.info({
-    event: "admin_auth_check",
-    configuredAdminCount: adminEmails.length,
-    verifiedEmailCount: verifiedEmails.length,
-    matched
-  });
-  return matched;
+  return verifiedEmails.some((email3) => adminEmails.includes(email3));
 }
 
 // src/middlewares/requireAdmin.ts
@@ -75014,12 +75023,20 @@ async function requireAdmin(req, res, next) {
 
 // src/routes/products.ts
 var router2 = (0, import_express4.Router)();
+function slugifyWithLimit(name, wordLimit) {
+  const words = name.trim().split(/\s+/);
+  const normalized = (wordLimit ? words.slice(0, wordLimit) : words).join(" ").normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+  return normalized.toLowerCase().replace(/[^\p{Letter}\p{Number}]+/gu, "-").replace(/^-+|-+$/g, "") || "product";
+}
 function slugify(name) {
-  const normalized = name.trim().split(/\s+/).slice(0, 6).join(" ").normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
-  return normalized.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "") || "product";
+  return slugifyWithLimit(name, 2);
 }
 function publicSlug(name, id) {
   return `${slugify(name)}-${id.toString(36)}`;
+}
+function legacyPublicSlugs(name, id) {
+  const suffix = id.toString(36);
+  return [slugifyWithLimit(name, 6), slugifyWithLimit(name), "product"].map((slug) => `${slug}-${suffix}`);
 }
 async function uniqueSlug(name, excludeId) {
   const base = slugify(name);
@@ -75037,7 +75054,9 @@ function mapProduct(p, includeSensitiveFields = false) {
   const pricingOptions = p.pricingOptions && p.pricingOptions.length > 0 ? p.pricingOptions : [{ duration: p.duration, price, salePrice, priceUsd: p.priceUsd != null ? Number(p.priceUsd) : null, salePriceUsd: p.salePriceUsd != null ? Number(p.salePriceUsd) : null }];
   return {
     ...safeProduct,
-    slug: p.slug ?? publicSlug(p.name, p.id),
+    // Always expose the canonical two-word public slug. Stored historical
+    // slugs remain accepted by the lookup route for backwards compatibility.
+    slug: publicSlug(p.name, p.id),
     price,
     salePrice,
     priceUsd: p.priceUsd != null ? Number(p.priceUsd) : null,
@@ -75122,7 +75141,9 @@ router2.get("/products/slug/:slug", async (req, res) => {
     return;
   }
   const products = await db.select().from(productsTable).where(eq(productsTable.published, true));
-  const product = products.find((candidate) => publicSlug(candidate.name, candidate.id) === params.data.slug);
+  const product = products.find(
+    (candidate) => publicSlug(candidate.name, candidate.id) === params.data.slug || legacyPublicSlugs(candidate.name, candidate.id).includes(params.data.slug)
+  );
   if (!product) {
     res.status(404).json({ error: "Product not found" });
     return;
@@ -77138,10 +77159,10 @@ router7.patch("/admin/orders/:id/status", requireAdmin, async (req, res) => {
           eq(cashbackTransactionsTable.status, "available")
         )).for("update");
         for (const earnedCredit of earnedCredits) {
-          await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`${earnedCredit.customerId}:${current.currency}:cashback`}))`);
+          await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`${earnedCredit.customerId}:${earnedCredit.currency}:cashback`}))`);
           const ledger = await tx.select().from(cashbackTransactionsTable).where(and(
             eq(cashbackTransactionsTable.customerId, earnedCredit.customerId),
-            eq(cashbackTransactionsTable.currency, current.currency),
+            eq(cashbackTransactionsTable.currency, earnedCredit.currency),
             or(
               and(
                 eq(cashbackTransactionsTable.type, "credit"),
@@ -77183,19 +77204,25 @@ router7.patch("/admin/orders/:id/status", requireAdmin, async (req, res) => {
           set: { status: "pending", amount: String(Math.round(Number(order.total) * 5) / 100), currency: order.currency, source: "purchase", approvedAt: null }
         });
         if (order.referralCode) {
+          await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`referral:first-paid:${order.customerId}`}))`);
           const [referrer] = await tx.select().from(customerProfilesTable).where(eq(customerProfilesTable.referralCode, order.referralCode)).limit(1);
-          if (referrer && referrer.customerId !== order.customerId) {
+          const [priorPaidOrder] = await tx.select({ id: ordersTable.id }).from(ordersTable).where(and(
+            eq(ordersTable.customerId, order.customerId),
+            inArray(ordersTable.status, ["confirmed", "fulfilled"]),
+            ne(ordersTable.id, order.id)
+          )).limit(1);
+          if (referrer && referrer.customerId !== order.customerId && !priorPaidOrder) {
             await tx.insert(cashbackTransactionsTable).values({
               customerId: referrer.customerId,
               orderId: order.id,
               type: "credit",
               status: "pending",
-              currency: order.currency,
-              amount: String(Math.round(Number(order.total) * 5) / 100),
+              currency: "EGP",
+              amount: "50",
               source: "referral"
             }).onConflictDoUpdate({
               target: [cashbackTransactionsTable.orderId, cashbackTransactionsTable.type, cashbackTransactionsTable.customerId],
-              set: { status: "pending", amount: String(Math.round(Number(order.total) * 5) / 100), currency: order.currency, source: "referral", approvedAt: null }
+              set: { status: "pending", amount: "50", currency: "EGP", source: "referral", approvedAt: null }
             });
           }
         }
@@ -77560,17 +77587,68 @@ router8.post("/admin/cashback/:id/approve", requireAdmin, async (req, res) => {
 });
 var cashback_default = router8;
 
-// src/routes/index.ts
+// src/routes/reviews.ts
+var import_express14 = __toESM(require_express2(), 1);
 var router9 = (0, import_express14.Router)();
-router9.use(health_default);
-router9.use(products_default);
-router9.use(admin_default);
-router9.use(storage_default);
-router9.use(promoCodes_default);
-router9.use(categories_default);
-router9.use(orders_default);
-router9.use(cashback_default);
-var routes_default = router9;
+function parseReview(body) {
+  if (!body || typeof body !== "object") return null;
+  const input = body;
+  const reviewerName = typeof input.reviewerName === "string" ? input.reviewerName.trim().replace(/\s+/g, " ") : "";
+  const content = typeof input.content === "string" ? input.content.trim() : "";
+  const reviewDate = typeof input.reviewDate === "string" ? input.reviewDate : "";
+  if (reviewerName.split(" ").length !== 2 || reviewerName.length > 100)
+    return null;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(reviewDate) || Number.isNaN(Date.parse(`${reviewDate}T00:00:00Z`)))
+    return null;
+  if (!content || content.length > 2e3) return null;
+  return { reviewerName, reviewDate, content };
+}
+router9.get("/reviews", async (_req, res) => {
+  const reviews = await db.select().from(reviewsTable).orderBy(desc(reviewsTable.reviewDate), desc(reviewsTable.id));
+  res.json(reviews);
+});
+router9.post("/admin/reviews", requireAdmin, async (req, res) => {
+  const review = parseReview(req.body);
+  if (!review) {
+    res.status(400).json({
+      error: "A two-part reviewer name, valid date, and review content are required"
+    });
+    return;
+  }
+  const [created] = await db.insert(reviewsTable).values(review).returning();
+  res.status(201).json(created);
+});
+router9.delete(
+  "/admin/reviews/:id",
+  requireAdmin,
+  async (req, res) => {
+    const id = Number(req.params.id);
+    if (!Number.isSafeInteger(id) || id <= 0) {
+      res.status(400).json({ error: "Invalid id" });
+      return;
+    }
+    const [deleted] = await db.delete(reviewsTable).where(eq(reviewsTable.id, id)).returning({ id: reviewsTable.id });
+    if (!deleted) {
+      res.status(404).json({ error: "Review not found" });
+      return;
+    }
+    res.sendStatus(204);
+  }
+);
+var reviews_default = router9;
+
+// src/routes/index.ts
+var router10 = (0, import_express15.Router)();
+router10.use(health_default);
+router10.use(products_default);
+router10.use(admin_default);
+router10.use(storage_default);
+router10.use(promoCodes_default);
+router10.use(categories_default);
+router10.use(orders_default);
+router10.use(cashback_default);
+router10.use(reviews_default);
+var routes_default = router10;
 
 // src/lib/logger.ts
 var import_pino = __toESM(require_pino(), 1);
@@ -77592,7 +77670,7 @@ var logger2 = (0, import_pino.default)({
 
 // src/app.ts
 var PgSession2 = (0, import_connect_pg_simple.default)(import_express_session.default);
-var app = (0, import_express15.default)();
+var app = (0, import_express16.default)();
 app.set("trust proxy", 1);
 app.use(
   (0, import_pino_http.default)({
@@ -77668,8 +77746,8 @@ app.use(
     }
   })
 );
-app.use(import_express15.default.json({ limit: "256kb" }));
-app.use(import_express15.default.urlencoded({ extended: true, limit: "256kb" }));
+app.use(import_express16.default.json({ limit: "256kb" }));
+app.use(import_express16.default.urlencoded({ extended: true, limit: "256kb" }));
 app.use(
   clerkMiddleware((req) => ({
     publishableKey: publishableKeyFromHost(
