@@ -246,7 +246,19 @@ export default function Checkout() {
         >
             {/* Header */}
             <div className="relative flex items-center justify-between px-6 pt-6 pb-4">
-              <h1 className="text-xl font-display font-bold">{t('completeOrder')}</h1>
+              <div className="flex items-center gap-2">
+                {step > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => setStep((current) => Math.max(1, current - 1))}
+                    aria-label={isRtl ? 'الرجوع للخطوة السابقة' : 'Go back to the previous step'}
+                    className="p-2 -ms-2 rounded-full hover:bg-muted transition-colors text-muted-foreground"
+                  >
+                    {isRtl ? <ChevronRight className="w-5 h-5" /> : <ChevronLeft className="w-5 h-5" />}
+                  </button>
+                )}
+                <h1 className="text-xl font-display font-bold">{t('completeOrder')}</h1>
+              </div>
               <button onClick={handleClose} aria-label={isRtl ? 'إغلاق صفحة الدفع' : 'Close checkout'} className="p-2 rounded-full hover:bg-muted transition-colors text-muted-foreground">
                 <X className="w-5 h-5" />
               </button>
