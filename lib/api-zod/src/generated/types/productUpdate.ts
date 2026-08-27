@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { PricingOption } from './pricingOption';
+import type { ProductUpdateAvailability } from './productUpdateAvailability';
+import type { ProductUpdateBadgesItem } from './productUpdateBadgesItem';
 
 export interface ProductUpdate {
   /** @minLength 1 */
@@ -35,7 +37,7 @@ export interface ProductUpdate {
   warrantyDuration?: string;
   customerInfoRequired?: string[];
   afterPurchaseInstructions?: string;
-  availability?: 'in_stock' | 'low_stock' | 'out_of_stock' | 'coming_soon';
-  badges?: Array<'best_seller' | 'new' | 'flash_sale' | 'limited_stock' | 'popular' | 'best_value'>;
+  availability?: ProductUpdateAvailability;
+  badges?: ProductUpdateBadgesItem[];
   published?: boolean;
 }

@@ -26,6 +26,7 @@ export interface OrderInput {
   paymentMethod?: string | null;
   /** @minimum 0 */
   cashbackAmount?: number;
+  /** @maxLength 32 */
   referralCode?: string;
   /**
      * @minItems 1

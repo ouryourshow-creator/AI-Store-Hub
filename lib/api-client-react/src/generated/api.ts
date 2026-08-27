@@ -20,12 +20,16 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AdjustUserCashbackInput,
   AdminCashbackTransaction,
   AdminDashboard,
   Category,
   CategoryInput,
+  EgpUsdRate,
+  EgpUsdRateInput,
   GetAdminSalesAnalyticsParams,
   GetAdminVisitsAnalyticsParams,
+  GetMyReferral200,
   HealthStatus,
   ListAdminOrdersParams,
   MyCashback,
@@ -820,6 +824,155 @@ export const useSetProductPublished = <TError = ErrorType<void>,
         TContext
       > => {
       return useMutation(getSetProductPublishedMutationOptions(options));
+    }
+
+export const getGetEgpUsdRateUrl = () => {
+
+
+
+
+  return `/api/settings/egp-usd-rate`
+}
+
+/**
+ * Public. Used by checkout to approximate the USD amount for Binance Pay when a product has no admin-set USD price.
+ * @summary Get the current EGP-to-USD fallback exchange rate
+ */
+export const getEgpUsdRate = async ( options?: Parameters<typeof customFetch>[1]): Promise<EgpUsdRate> => {
+
+  return customFetch<EgpUsdRate>(getGetEgpUsdRateUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetEgpUsdRateQueryKey = () => {
+    return [
+    `/api/settings/egp-usd-rate`
+    ] as const;
+    }
+
+
+export const getGetEgpUsdRateQueryOptions = <TData = Awaited<ReturnType<typeof getEgpUsdRate>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEgpUsdRate>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetEgpUsdRateQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getEgpUsdRate>>> = ({ signal }) => getEgpUsdRate({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getEgpUsdRate>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetEgpUsdRateQueryResult = NonNullable<Awaited<ReturnType<typeof getEgpUsdRate>>>
+export type GetEgpUsdRateQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the current EGP-to-USD fallback exchange rate
+ */
+
+export function useGetEgpUsdRate<TData = Awaited<ReturnType<typeof getEgpUsdRate>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getEgpUsdRate>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetEgpUsdRateQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getSetEgpUsdRateUrl = () => {
+
+
+
+
+  return `/api/admin/settings/egp-usd-rate`
+}
+
+/**
+ * @summary Update the EGP-to-USD fallback exchange rate (admin only)
+ */
+export const setEgpUsdRate = async (egpUsdRateInput: EgpUsdRateInput, options?: Parameters<typeof customFetch>[1]): Promise<EgpUsdRate> => {
+
+  return customFetch<EgpUsdRate>(getSetEgpUsdRateUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(egpUsdRateInput)
+  }
+);}
+
+
+
+
+
+export const getSetEgpUsdRateMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setEgpUsdRate>>, TError,{data: BodyType<EgpUsdRateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setEgpUsdRate>>, TError,{data: BodyType<EgpUsdRateInput>}, TContext> => {
+
+const mutationKey = ['setEgpUsdRate'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setEgpUsdRate>>, {data: BodyType<EgpUsdRateInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  setEgpUsdRate(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetEgpUsdRateMutationResult = NonNullable<Awaited<ReturnType<typeof setEgpUsdRate>>>
+    export type SetEgpUsdRateMutationBody = BodyType<EgpUsdRateInput>
+    export type SetEgpUsdRateMutationError = ErrorType<void>
+
+    /**
+ * @summary Update the EGP-to-USD fallback exchange rate (admin only)
+ */
+export const useSetEgpUsdRate = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setEgpUsdRate>>, TError,{data: BodyType<EgpUsdRateInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof setEgpUsdRate>>,
+        TError,
+        {data: BodyType<EgpUsdRateInput>},
+        TContext
+      > => {
+      return useMutation(getSetEgpUsdRateMutationOptions(options));
     }
 
 export const getListCategoriesUrl = () => {
@@ -1633,6 +1786,232 @@ export function useListPendingCashback<TData = Awaited<ReturnType<typeof listPen
 
 
 
+export const getGetMyReferralUrl = () => {
+
+
+
+
+  return `/api/referral/me`
+}
+
+/**
+ * @summary Get the signed-in customer's referral code and successful referral count
+ */
+export const getMyReferral = async ( options?: Parameters<typeof customFetch>[1]): Promise<GetMyReferral200> => {
+
+  return customFetch<GetMyReferral200>(getGetMyReferralUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetMyReferralQueryKey = () => {
+    return [
+    `/api/referral/me`
+    ] as const;
+    }
+
+
+export const getGetMyReferralQueryOptions = <TData = Awaited<ReturnType<typeof getMyReferral>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyReferral>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetMyReferralQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMyReferral>>> = ({ signal }) => getMyReferral({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getMyReferral>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetMyReferralQueryResult = NonNullable<Awaited<ReturnType<typeof getMyReferral>>>
+export type GetMyReferralQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get the signed-in customer's referral code and successful referral count
+ */
+
+export function useGetMyReferral<TData = Awaited<ReturnType<typeof getMyReferral>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMyReferral>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetMyReferralQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getListAdminUsersUrl = () => {
+
+
+
+
+  return `/api/admin/users`
+}
+
+/**
+ * @summary List customers and cashback balances
+ */
+export const listAdminUsers = async ( options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getListAdminUsersUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListAdminUsersQueryKey = () => {
+    return [
+    `/api/admin/users`
+    ] as const;
+    }
+
+
+export const getListAdminUsersQueryOptions = <TData = Awaited<ReturnType<typeof listAdminUsers>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListAdminUsersQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listAdminUsers>>> = ({ signal }) => listAdminUsers({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListAdminUsersQueryResult = NonNullable<Awaited<ReturnType<typeof listAdminUsers>>>
+export type ListAdminUsersQueryError = ErrorType<void>
+
+
+/**
+ * @summary List customers and cashback balances
+ */
+
+export function useListAdminUsers<TData = Awaited<ReturnType<typeof listAdminUsers>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listAdminUsers>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListAdminUsersQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getAdjustUserCashbackUrl = (customerId: string,) => {
+
+
+
+
+  return `/api/admin/users/${customerId}/cashback`
+}
+
+/**
+ * @summary Add or deduct cashback for a customer
+ */
+export const adjustUserCashback = async (customerId: string,
+    adjustUserCashbackInput: AdjustUserCashbackInput, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getAdjustUserCashbackUrl(customerId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(adjustUserCashbackInput)
+  }
+);}
+
+
+
+
+
+export const getAdjustUserCashbackMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adjustUserCashback>>, TError,{customerId: string;data: BodyType<AdjustUserCashbackInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof adjustUserCashback>>, TError,{customerId: string;data: BodyType<AdjustUserCashbackInput>}, TContext> => {
+
+const mutationKey = ['adjustUserCashback'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof adjustUserCashback>>, {customerId: string;data: BodyType<AdjustUserCashbackInput>}> = (props) => {
+          const {customerId,data} = props ?? {};
+
+          return  adjustUserCashback(customerId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AdjustUserCashbackMutationResult = NonNullable<Awaited<ReturnType<typeof adjustUserCashback>>>
+    export type AdjustUserCashbackMutationBody = BodyType<AdjustUserCashbackInput>
+    export type AdjustUserCashbackMutationError = ErrorType<void>
+
+    /**
+ * @summary Add or deduct cashback for a customer
+ */
+export const useAdjustUserCashback = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof adjustUserCashback>>, TError,{customerId: string;data: BodyType<AdjustUserCashbackInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof adjustUserCashback>>,
+        TError,
+        {customerId: string;data: BodyType<AdjustUserCashbackInput>},
+        TContext
+      > => {
+      return useMutation(getAdjustUserCashbackMutationOptions(options));
+    }
+
 export const getApproveCashbackUrl = (id: number,) => {
 
 
@@ -2317,3 +2696,10 @@ export function useGetStorageObject<TData = Awaited<ReturnType<typeof getStorage
 
   return withQueryKey(query, queryOptions.queryKey);
 }
+
+
+
+
+
+
+

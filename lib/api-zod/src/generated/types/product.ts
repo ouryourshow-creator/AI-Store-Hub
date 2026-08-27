@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { PricingOption } from './pricingOption';
+import type { ProductAvailability } from './productAvailability';
+import type { ProductBadgesItem } from './productBadgesItem';
 
 export interface Product {
   id: number;
@@ -51,7 +53,7 @@ export interface Product {
   afterPurchaseInstructions?: string | null;
   soldCount?: number;
   published?: boolean;
-  availability: 'in_stock' | 'low_stock' | 'out_of_stock' | 'coming_soon';
-  badges: Array<'best_seller' | 'new' | 'flash_sale' | 'limited_stock' | 'popular' | 'best_value'>;
+  availability: ProductAvailability;
+  badges: ProductBadgesItem[];
   createdAt: string;
 }

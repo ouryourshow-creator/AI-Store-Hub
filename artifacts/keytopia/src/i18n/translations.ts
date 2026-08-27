@@ -120,6 +120,17 @@ export const translations = {
     noCategories: 'لا توجد فئات بعد.',
     allCategories: 'الكل',
 
+    // Settings
+    settings: 'الإعدادات',
+    settingsSub: 'إدارة القيم القابلة للتعديل في المتجر.',
+    egpUsdRateTitle: 'سعر تحويل الجنيه إلى الدولار',
+    egpUsdRateDesc: 'يُستخدم لتحويل أسعار المنتجات بالجنيه إلى ما يعادلها بالدولار عند الدفع عبر Binance Pay، للمنتجات التي لا يوجد لها سعر دولار محدد من الإدارة.',
+    egpUsdRateLabel: 'جنيه لكل 1 دولار',
+    egpUsdRateSaved: 'تم تحديث سعر التحويل',
+    egpUsdRateSaveFailed: 'فشل تحديث سعر التحويل',
+    egpUsdRateInvalid: 'أدخل رقماً أكبر من صفر',
+    saveChanges: 'حفظ التغييرات',
+
     // Admin
     adminAccess: 'لوحة الإدارة',
     adminAccessSub: 'أدخل الرمز السري للوصول إلى إدارة المنتجات.',
@@ -299,6 +310,17 @@ export const translations = {
     categoryName: 'Category Name',
     noCategories: 'No categories yet.',
     allCategories: 'All',
+
+    // Settings
+    settings: 'Settings',
+    settingsSub: 'Manage editable store-wide values.',
+    egpUsdRateTitle: 'EGP → USD Exchange Rate',
+    egpUsdRateDesc: 'Used to approximate the USD equivalent of EGP product prices for Binance Pay checkout, for products without an admin-set USD price.',
+    egpUsdRateLabel: 'EGP per 1 USD',
+    egpUsdRateSaved: 'Exchange rate updated',
+    egpUsdRateSaveFailed: 'Failed to update exchange rate',
+    egpUsdRateInvalid: 'Enter a number greater than zero',
+    saveChanges: 'Save Changes',
 
     // Admin
     adminAccess: 'Admin Access',

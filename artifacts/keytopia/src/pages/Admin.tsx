@@ -19,8 +19,9 @@ import AdminOrders from '../components/AdminOrders';
 import AdminCashback from '../components/AdminCashback';
 import AdminUsers from '../components/AdminUsers';
 import AdminReviews from '../components/AdminReviews';
+import AdminSettings from '../components/AdminSettings';
 
-type Tab = 'dashboard' | 'visits' | 'sales' | 'orders' | 'users' | 'cashback' | 'products' | 'reviews' | 'promo' | 'categories';
+type Tab = 'dashboard' | 'visits' | 'sales' | 'orders' | 'users' | 'cashback' | 'products' | 'reviews' | 'promo' | 'categories' | 'settings';
 
 export default function Admin() {
   const { isLoaded, isSignedIn } = useUser();
@@ -237,17 +238,17 @@ export default function Admin() {
       <main className="flex-1 max-w-6xl w-full mx-auto px-6 py-12">
         {/* Tab bar */}
         <div className="flex gap-2 mb-8 border-b border-black/[0.06] pb-0 overflow-x-auto">
-          {(['dashboard', 'visits', 'sales', 'orders', 'users', 'cashback', 'products', 'reviews', 'categories', 'promo'] as Tab[]).map(tab => (
+          {(['dashboard', 'visits', 'sales', 'orders', 'users', 'cashback', 'products', 'reviews', 'categories', 'promo', 'settings'] as Tab[]).map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2.5 text-sm font-semibold rounded-t-[10px] transition-all border-b-2 -mb-px ${
+              className={`px-5 py-2.5 text-sm font-semibold rounded-t-[10px] transition-all border-b-2 -mb-px whitespace-nowrap ${
                 activeTab === tab
                   ? 'border-primary text-primary bg-white'
                   : 'border-transparent text-muted-foreground hover:text-foreground'
               }`}
             >
-              {tab === 'dashboard' ? (dir === 'rtl' ? 'نظرة عامة' : 'Overview') : tab === 'visits' ? (dir === 'rtl' ? 'الزيارات' : 'Visits') : tab === 'sales' ? (dir === 'rtl' ? 'المبيعات' : 'Sales') : tab === 'orders' ? (dir === 'rtl' ? 'الطلبات' : 'Orders') : tab === 'users' ? (dir === 'rtl' ? 'المستخدمون' : 'Users') : tab === 'cashback' ? <span className="inline-flex items-center gap-1.5"><Gift className="w-4 h-4" />{t('cashback')}</span> : tab === 'products' ? t('products') : tab === 'reviews' ? (dir === 'rtl' ? 'التقييمات' : 'Reviews') : tab === 'categories' ? t('categories') : t('promoCodes')}
+              {tab === 'dashboard' ? (dir === 'rtl' ? 'نظرة عامة' : 'Overview') : tab === 'visits' ? (dir === 'rtl' ? 'الزيارات' : 'Visits') : tab === 'sales' ? (dir === 'rtl' ? 'المبيعات' : 'Sales') : tab === 'orders' ? (dir === 'rtl' ? 'الطلبات' : 'Orders') : tab === 'users' ? (dir === 'rtl' ? 'المستخدمون' : 'Users') : tab === 'cashback' ? <span className="inline-flex items-center gap-1.5"><Gift className="w-4 h-4" />{t('cashback')}</span> : tab === 'products' ? t('products') : tab === 'reviews' ? (dir === 'rtl' ? 'التقييمات' : 'Reviews') : tab === 'categories' ? t('categories') : tab === 'settings' ? t('settings') : t('promoCodes')}
             </button>
           ))}
         </div>
@@ -266,6 +267,8 @@ export default function Admin() {
         {activeTab === 'cashback' && <AdminCashback />}
 
         {activeTab === 'reviews' && <AdminReviews />}
+
+        {activeTab === 'settings' && <AdminSettings />}
 
         {activeTab === 'products' && (
           <>

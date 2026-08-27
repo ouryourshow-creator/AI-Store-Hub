@@ -47,6 +47,26 @@ assuming the schema itself is wrong. Restoring the config (dialect,
 fix and is the correct way to re-enable the normal push flow, rather than
 applying schema changes by hand.
 
+## `push`'s diff planner can misjudge an existing unique constraint as new
+
+Even when a named unique constraint already exists in the dev database with
+the exact same name, columns, and column order as the schema declares,
+`drizzle-kit push`/`push-force` can still decide it needs to *add* that
+constraint and stop on the same interactive truncate-table prompt described
+below — with no way to confirm non-interactively, since `--force` does not
+suppress this particular prompt category.
+
+**Why this matters:** this means `push`/`push-force` can be permanently
+blocked for a table that looks correctly migrated, for reasons unrelated to
+whatever schema change you're actually trying to apply.
+
+**How to apply:** don't spend time trying to make the general `push`/
+`push-force` flow succeed end-to-end across the whole schema if a table
+unrelated to your change is hitting this. Apply your own table's change with
+scoped, idempotent DDL (e.g. `CREATE TABLE IF NOT EXISTS ...` matching the
+Drizzle schema exactly) instead, and leave the pre-existing unrelated drift
+for whoever owns that table to investigate.
+
 ## `drizzle-kit push` conflates unrelated schema drift
 
 `drizzle-kit push`/`push-force` diffs the *entire* schema against the dev

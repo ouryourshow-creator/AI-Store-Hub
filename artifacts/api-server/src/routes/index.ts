@@ -8,6 +8,7 @@ import categoriesRouter from "./categories";
 import ordersRouter from "./orders";
 import cashbackRouter from "./cashback";
 import reviewsRouter from "./reviews";
+import settingsRouter from "./settings";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(categoriesRouter);
 router.use(ordersRouter);
 router.use(cashbackRouter);
 router.use(reviewsRouter);
+router.use(settingsRouter);
 
 export default router;

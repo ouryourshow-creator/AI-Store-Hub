@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './adjustUserCashbackInput';
+export * from './adjustUserCashbackInputCurrency';
+export * from './adjustUserCashbackInputOperation';
 export * from './adminCashbackTransaction';
 export * from './adminDashboard';
 export * from './adminDashboardCountriesItem';
@@ -24,8 +27,11 @@ export * from './cashbackTransactionType';
 export * from './category';
 export * from './categoryInput';
 export * from './dashboardTrend';
+export * from './egpUsdRate';
+export * from './egpUsdRateInput';
 export * from './getAdminSalesAnalyticsParams';
 export * from './getAdminVisitsAnalyticsParams';
+export * from './getMyReferral200';
 export * from './healthStatus';
 export * from './listAdminOrdersParams';
 export * from './myCashback';
@@ -38,8 +44,14 @@ export * from './orderStatusUpdate';
 export * from './orderStatusUpdateStatus';
 export * from './pricingOption';
 export * from './product';
+export * from './productAvailability';
+export * from './productBadgesItem';
 export * from './productInput';
+export * from './productInputAvailability';
+export * from './productInputBadgesItem';
 export * from './productUpdate';
+export * from './productUpdateAvailability';
+export * from './productUpdateBadgesItem';
 export * from './promoCode';
 export * from './promoCodeInput';
 export * from './promoValidationResult';

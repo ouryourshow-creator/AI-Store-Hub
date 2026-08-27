@@ -7,11 +7,11 @@ import {
 import { useRef, useState } from 'react';
 import { SignIn, useAuth } from '@clerk/react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getGetMyCashbackQueryKey, useCreateOrder, useGetMyCashback } from '@workspace/api-client-react';
 import { useLocation } from 'wouter';
 import { useCart, CartItem } from '../contexts/CartContext';
 import Layout from '../components/Layout';
 import { useLang } from '../contexts/LanguageContext';
+import { getGetMyCashbackQueryKey, useCreateOrder, useGetMyCashback, useGetEgpUsdRate } from '@workspace/api-client-react';
 
 type PaymentMethod = 'instapay' | 'vodafone' | 'bank' | 'binance' | 'other' | null;
 
@@ -33,16 +33,16 @@ const PAYMENT_INFO = {
 };
 
 // Binance Pay only settles in USD. When a product has no admin-set USD price yet,
-// approximate its USD value from the EGP price using this fallback rate so the
-// option still works before every product has a USD price configured.
-const FALLBACK_EGP_PER_USD = 52;
+// approximate its USD value from the EGP price using an admin-editable fallback
+// rate (see the Settings tab in the admin panel) so the option still works before
+// every product has a USD price configured.
 
 /** USD unit price for a cart item: prefer the admin-set USD price (by duration, then product-level), else approximate via the fallback rate. */
-function getItemUsdUnitPrice(item: CartItem): number {
+function getItemUsdUnitPrice(item: CartItem, fallbackEgpPerUsd: number): number {
   const option = item.pricingOptions?.find((opt) => opt.duration === item.selectedDuration);
   const usd = option ? (option.salePriceUsd ?? option.priceUsd) : (item.salePriceUsd ?? item.priceUsd);
   if (usd != null) return usd;
-  return item.selectedCurrency === 'USD' ? item.selectedPrice : item.selectedPrice / FALLBACK_EGP_PER_USD;
+  return item.selectedCurrency === 'USD' ? item.selectedPrice : item.selectedPrice / fallbackEgpPerUsd;
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -88,6 +88,10 @@ export default function Checkout() {
   const { data: cashbackAccount, isLoading: cashbackLoading } = useGetMyCashback({
     query: { enabled: !!isSignedIn, queryKey: getGetMyCashbackQueryKey() },
   });
+  // Admin-editable EGP->USD fallback rate (see the Settings tab in the admin panel).
+  // 52 is only a last-resort default while the rate is still loading.
+  const { data: egpUsdRateData } = useGetEgpUsdRate();
+  const fallbackEgpPerUsd = egpUsdRateData?.rate ?? 52;
 
   const discountAmount = promo.status === 'valid' ? Math.round(cartTotal * promo.percentage / 100) : 0;
   const beforeCashbackTotal = Math.max(0, cartTotal - discountAmount);
@@ -97,7 +101,7 @@ export default function Checkout() {
 
   // Binance Pay always settles in USD. For an EGP cart, approximate the USD-equivalent
   // of the final (discounted) total by applying the same discount ratio to the USD unit total.
-  const usdCartTotal = items.reduce((sum, item) => sum + getItemUsdUnitPrice(item) * item.quantity, 0);
+  const usdCartTotal = items.reduce((sum, item) => sum + getItemUsdUnitPrice(item, fallbackEgpPerUsd) * item.quantity, 0);
   const discountRatio = cartTotal > 0 ? finalTotal / cartTotal : 0;
   const binanceUsdTotal = cartCurrency === 'USD'
     ? finalTotal

@@ -14,6 +14,8 @@ tags:
     description: Product catalog operations
   - name: Storage
     description: Object storage upload and serving endpoints.
+  - name: settings
+    description: Store-wide configuration values editable by admins without a code change.
 paths:
   /healthz:
     get:
@@ -216,6 +218,43 @@ paths:
                 $ref: "#/components/schemas/Product"
         "404":
           description: Product not found
+
+  /settings/egp-usd-rate:
+    get:
+      operationId: getEgpUsdRate
+      tags: [settings]
+      summary: Get the current EGP-to-USD fallback exchange rate
+      description: Public. Used by checkout to approximate the USD amount for Binance Pay when a product has no admin-set USD price.
+      responses:
+        "200":
+          description: Current fallback rate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EgpUsdRate"
+
+  /admin/settings/egp-usd-rate:
+    put:
+      operationId: setEgpUsdRate
+      tags: [settings]
+      summary: Update the EGP-to-USD fallback exchange rate (admin only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EgpUsdRateInput"
+      responses:
+        "200":
+          description: Updated fallback rate
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EgpUsdRate"
+        "400":
+          description: Invalid input
+        "401":
+          description: Admin sign-in required
 
   /categories:
     get:
@@ -455,12 +494,7 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [amount, currency, operation]
-              properties:
-                amount: { type: number, minimum: 0.01 }
-                currency: { type: string, enum: [EGP, USD] }
-                operation: { type: string, enum: [add, deduct] }
+              $ref: "#/components/schemas/AdjustUserCashbackInput"
       responses:
         "201": { description: Cashback adjusted }
         "409": { description: Deduction exceeds available balance }
@@ -848,6 +882,20 @@ components:
           type: string
         approvedAt:
           type: [string, "null"]
+
+    AdjustUserCashbackInput:
+      type: object
+      required: [amount, currency, operation]
+      properties:
+        amount:
+          type: number
+          minimum: 0.01
+        currency:
+          type: string
+          enum: [EGP, USD]
+        operation:
+          type: string
+          enum: [add, deduct]
 
     MyCashback:
       type: object
@@ -1278,6 +1326,25 @@ components:
       properties:
         published:
           type: boolean
+
+    EgpUsdRate:
+      type: object
+      required: [rate, updatedAt]
+      properties:
+        rate:
+          type: number
+          description: Number of EGP per 1 USD used to approximate USD amounts for products without an admin-set USD price.
+          exclusiveMinimum: 0
+        updatedAt:
+          type: string
+
+    EgpUsdRateInput:
+      type: object
+      required: [rate]
+      properties:
+        rate:
+          type: number
+          exclusiveMinimum: 0
 
     Category:
       type: object

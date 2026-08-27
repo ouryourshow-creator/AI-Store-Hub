@@ -11,6 +11,7 @@ import type { CashbackTransactionType } from './cashbackTransactionType';
 
 export interface CashbackTransaction {
   id: number;
+  /** @nullable */
   orderId: number | null;
   orderNumber?: string | number | null;
   type: CashbackTransactionType;

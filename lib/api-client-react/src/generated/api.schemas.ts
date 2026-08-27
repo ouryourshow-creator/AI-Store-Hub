@@ -47,6 +47,7 @@ export interface OrderInput {
   paymentMethod?: string | null;
   /** @minimum 0 */
   cashbackAmount?: number;
+  /** @maxLength 32 */
   referralCode?: string;
   /**
      * @minItems 1
@@ -145,6 +146,7 @@ export const CashbackTransactionCurrency = {
 
 export interface CashbackTransaction {
   id: number;
+  /** @nullable */
   orderId: number | null;
   orderNumber?: string | number | null;
   type: CashbackTransactionType;
@@ -154,6 +156,29 @@ export interface CashbackTransaction {
   createdAt: string;
   /** @nullable */
   approvedAt: string | null;
+}
+
+export type AdjustUserCashbackInputCurrency = typeof AdjustUserCashbackInputCurrency[keyof typeof AdjustUserCashbackInputCurrency];
+
+
+export const AdjustUserCashbackInputCurrency = {
+  EGP: 'EGP',
+  USD: 'USD',
+} as const;
+
+export type AdjustUserCashbackInputOperation = typeof AdjustUserCashbackInputOperation[keyof typeof AdjustUserCashbackInputOperation];
+
+
+export const AdjustUserCashbackInputOperation = {
+  add: 'add',
+  deduct: 'deduct',
+} as const;
+
+export interface AdjustUserCashbackInput {
+  /** @minimum 0.01 */
+  amount: number;
+  currency: AdjustUserCashbackInputCurrency;
+  operation: AdjustUserCashbackInputOperation;
 }
 
 export interface MyCashback {
@@ -269,6 +294,28 @@ export interface PricingOption {
   salePriceUsd?: number | null;
 }
 
+export type ProductAvailability = typeof ProductAvailability[keyof typeof ProductAvailability];
+
+
+export const ProductAvailability = {
+  in_stock: 'in_stock',
+  low_stock: 'low_stock',
+  out_of_stock: 'out_of_stock',
+  coming_soon: 'coming_soon',
+} as const;
+
+export type ProductBadgesItem = typeof ProductBadgesItem[keyof typeof ProductBadgesItem];
+
+
+export const ProductBadgesItem = {
+  best_seller: 'best_seller',
+  new: 'new',
+  flash_sale: 'flash_sale',
+  limited_stock: 'limited_stock',
+  popular: 'popular',
+  best_value: 'best_value',
+} as const;
+
 export interface Product {
   id: number;
   name: string;
@@ -313,10 +360,32 @@ export interface Product {
   afterPurchaseInstructions?: string | null;
   soldCount?: number;
   published?: boolean;
-  availability: 'in_stock' | 'low_stock' | 'out_of_stock' | 'coming_soon';
-  badges: Array<'best_seller' | 'new' | 'flash_sale' | 'limited_stock' | 'popular' | 'best_value'>;
+  availability: ProductAvailability;
+  badges: ProductBadgesItem[];
   createdAt: string;
 }
+
+export type ProductInputAvailability = typeof ProductInputAvailability[keyof typeof ProductInputAvailability];
+
+
+export const ProductInputAvailability = {
+  in_stock: 'in_stock',
+  low_stock: 'low_stock',
+  out_of_stock: 'out_of_stock',
+  coming_soon: 'coming_soon',
+} as const;
+
+export type ProductInputBadgesItem = typeof ProductInputBadgesItem[keyof typeof ProductInputBadgesItem];
+
+
+export const ProductInputBadgesItem = {
+  best_seller: 'best_seller',
+  new: 'new',
+  flash_sale: 'flash_sale',
+  limited_stock: 'limited_stock',
+  popular: 'popular',
+  best_value: 'best_value',
+} as const;
 
 export interface ProductInput {
   /** @minLength 1 */
@@ -346,8 +415,8 @@ export interface ProductInput {
   warrantyDuration?: string;
   customerInfoRequired?: string[];
   afterPurchaseInstructions?: string;
-  availability?: 'in_stock' | 'low_stock' | 'out_of_stock' | 'coming_soon';
-  badges?: Array<'best_seller' | 'new' | 'flash_sale' | 'limited_stock' | 'popular' | 'best_value'>;
+  availability?: ProductInputAvailability;
+  badges?: ProductInputBadgesItem[];
 }
 
 export interface UploadUrlRequest {
@@ -363,6 +432,28 @@ export interface UploadUrlResponse {
   uploadURL: string;
   objectPath: string;
 }
+
+export type ProductUpdateAvailability = typeof ProductUpdateAvailability[keyof typeof ProductUpdateAvailability];
+
+
+export const ProductUpdateAvailability = {
+  in_stock: 'in_stock',
+  low_stock: 'low_stock',
+  out_of_stock: 'out_of_stock',
+  coming_soon: 'coming_soon',
+} as const;
+
+export type ProductUpdateBadgesItem = typeof ProductUpdateBadgesItem[keyof typeof ProductUpdateBadgesItem];
+
+
+export const ProductUpdateBadgesItem = {
+  best_seller: 'best_seller',
+  new: 'new',
+  flash_sale: 'flash_sale',
+  limited_stock: 'limited_stock',
+  popular: 'popular',
+  best_value: 'best_value',
+} as const;
 
 export interface ProductUpdate {
   /** @minLength 1 */
@@ -392,13 +483,27 @@ export interface ProductUpdate {
   warrantyDuration?: string;
   customerInfoRequired?: string[];
   afterPurchaseInstructions?: string;
-  availability?: 'in_stock' | 'low_stock' | 'out_of_stock' | 'coming_soon';
-  badges?: Array<'best_seller' | 'new' | 'flash_sale' | 'limited_stock' | 'popular' | 'best_value'>;
+  availability?: ProductUpdateAvailability;
+  badges?: ProductUpdateBadgesItem[];
   published?: boolean;
 }
 
 export interface SetProductPublished {
   published: boolean;
+}
+
+export interface EgpUsdRate {
+  /**
+     * Number of EGP per 1 USD used to approximate USD amounts for products without an admin-set USD price.
+     * @exclusiveMinimum 0
+     */
+  rate: number;
+  updatedAt: string;
+}
+
+export interface EgpUsdRateInput {
+  /** @exclusiveMinimum 0 */
+  rate: number;
 }
 
 export interface Category {
@@ -467,6 +572,11 @@ export type AnalyticsStartDateParameter = string;
 
 export type AnalyticsEndDateParameter = string;
 
+export type GetMyReferral200 = {
+  referralCode: string;
+  referralCount: number;
+};
+
 export type ListAdminOrdersParams = {
 search?: string;
 status?: string;
@@ -483,3 +593,4 @@ preset?: AnalyticsPresetParameter;
 startDate?: AnalyticsStartDateParameter;
 endDate?: AnalyticsEndDateParameter;
 };
+

@@ -275,9 +275,9 @@ export const UpdateProductBody = zod.object({
   "warrantyDuration": zod.string().optional(),
   "customerInfoRequired": zod.array(zod.string()).optional(),
   "afterPurchaseInstructions": zod.string().optional(),
-  "published": zod.boolean().optional(),
   "availability": zod.enum(['in_stock', 'low_stock', 'out_of_stock', 'coming_soon']).optional(),
-  "badges": zod.array(zod.enum(['best_seller', 'new', 'flash_sale', 'limited_stock', 'popular', 'best_value'])).optional()
+  "badges": zod.array(zod.enum(['best_seller', 'new', 'flash_sale', 'limited_stock', 'popular', 'best_value'])).optional(),
+  "published": zod.boolean().optional()
 })
 
 export const updateProductResponsePricingOptionsItemPriceMin = 0;
@@ -551,6 +551,41 @@ export const SetProductPublishedResponse = zod.object({
 
 
 /**
+ * Public. Used by checkout to approximate the USD amount for Binance Pay when a product has no admin-set USD price.
+ * @summary Get the current EGP-to-USD fallback exchange rate
+ */
+export const getEgpUsdRateResponseRateExclusiveMin = 0;
+
+
+
+export const GetEgpUsdRateResponse = zod.object({
+  "rate": zod.number().gt(getEgpUsdRateResponseRateExclusiveMin).describe('Number of EGP per 1 USD used to approximate USD amounts for products without an admin-set USD price.'),
+  "updatedAt": zod.string()
+})
+
+
+/**
+ * @summary Update the EGP-to-USD fallback exchange rate (admin only)
+ */
+export const setEgpUsdRateBodyRateExclusiveMin = 0;
+
+
+
+export const SetEgpUsdRateBody = zod.object({
+  "rate": zod.number().gt(setEgpUsdRateBodyRateExclusiveMin)
+})
+
+export const setEgpUsdRateResponseRateExclusiveMin = 0;
+
+
+
+export const SetEgpUsdRateResponse = zod.object({
+  "rate": zod.number().gt(setEgpUsdRateResponseRateExclusiveMin).describe('Number of EGP per 1 USD used to approximate USD amounts for products without an admin-set USD price.'),
+  "updatedAt": zod.string()
+})
+
+
+/**
  * @summary List all categories
  */
 export const ListCategoriesResponseItem = zod.object({
@@ -670,6 +705,8 @@ export const createOrderBodyIdempotencyKeyMax = 100;
 
 export const createOrderBodyCashbackAmountMin = 0;
 
+export const createOrderBodyReferralCodeMax = 32;
+
 export const createOrderBodyItemsItemQuantityMax = 10;
 
 export const createOrderBodyItemsItemPriceMin = 0;
@@ -687,7 +724,7 @@ export const CreateOrderBody = zod.object({
   "promoCode": zod.string().nullish(),
   "paymentMethod": zod.string().nullish(),
   "cashbackAmount": zod.number().min(createOrderBodyCashbackAmountMin).optional(),
-  "referralCode": zod.string().max(32).optional(),
+  "referralCode": zod.string().max(createOrderBodyReferralCodeMax).optional(),
   "items": zod.array(zod.object({
   "productId": zod.number(),
   "duration": zod.string(),
@@ -797,6 +834,41 @@ export const ListPendingCashbackResponseItem = zod.object({
   "customerEmail": zod.string()
 }))
 export const ListPendingCashbackResponse = zod.array(ListPendingCashbackResponseItem)
+
+
+/**
+ * @summary Get the signed-in customer's referral code and successful referral count
+ */
+export const GetMyReferralResponse = zod.object({
+  "referralCode": zod.string(),
+  "referralCount": zod.number()
+})
+
+
+/**
+ * @summary List customers and cashback balances
+ */
+export const ListAdminUsersResponse = zod.unknown()
+
+
+/**
+ * @summary Add or deduct cashback for a customer
+ */
+export const AdjustUserCashbackParams = zod.object({
+  "customerId": zod.coerce.string()
+})
+
+export const adjustUserCashbackBodyAmountMin = 0.01;
+
+
+
+export const AdjustUserCashbackBody = zod.object({
+  "amount": zod.number().min(adjustUserCashbackBodyAmountMin),
+  "currency": zod.enum(['EGP', 'USD']),
+  "operation": zod.enum(['add', 'deduct'])
+})
+
+export const AdjustUserCashbackResponse = zod.void()
 
 
 /**
@@ -1033,3 +1105,5 @@ export const GetStorageObjectParams = zod.object({
 })
 
 export const GetStorageObjectResponse = zod.unknown()
+
+
