@@ -3,3 +3,4 @@ export * from "./promoCodes";
 export * from "./categories";
 export * from "./orders";
 export * from "./cashback";
+export * from "./reviews";

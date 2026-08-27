@@ -2,8 +2,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus, Minus, Trash2, RefreshCw } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useLang } from '../contexts/LanguageContext';
-import { useState, useEffect } from 'react';
-import CheckoutModal from './CheckoutModal';
+import { useEffect } from 'react';
+import { useLocation } from 'wouter';
 
 interface CartDrawerProps {
   isOpen: boolean;
@@ -22,7 +22,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
     clearPriceChangedCount,
   } = useCart();
   const { t, dir } = useLang();
-  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [, setLocation] = useLocation();
 
   // In RTL, drawer slides from left; in LTR from right
   const slideX = dir === 'rtl' ? '-100%' : '100%';
@@ -164,7 +164,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                   </div>
 
                   <button
-                    onClick={() => setIsCheckoutOpen(true)}
+                    onClick={() => {
+                      onClose();
+                      setLocation('/checkout');
+                    }}
                     disabled={isRevalidating}
                     className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-semibold py-4 px-4 rounded-[20px] transition-all active:scale-[0.98] shadow-sm flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed disabled:active:scale-100"
                   >
@@ -184,10 +187,6 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         )}
       </AnimatePresence>
 
-      <CheckoutModal
-        isOpen={isCheckoutOpen}
-        onClose={() => setIsCheckoutOpen(false)}
-      />
     </>
   );
 }

@@ -50,6 +50,13 @@ const REVIEWS = [
   },
 ];
 
+interface ManagedReview {
+  id: number;
+  reviewerName: string;
+  reviewDate: string;
+  content: string;
+}
+
 const MARQUEE_CARD_WIDTH = 200;
 const MARQUEE_GAP = 16;
 const MARQUEE_SPEED_PX_PER_SECOND = 32;
@@ -226,6 +233,16 @@ export default function Home() {
   const { data: products, isLoading } = useListProducts();
   const { data: categories } = useListCategories();
   const { t, lang } = useLang();
+  const [managedReviews, setManagedReviews] = useState<ManagedReview[]>([]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch('/api/reviews', { signal: controller.signal })
+      .then(response => response.ok ? response.json() : Promise.reject(new Error('Unable to load reviews')))
+      .then((data: ManagedReview[]) => setManagedReviews(data))
+      .catch(error => { if (error.name !== 'AbortError') setManagedReviews([]); });
+    return () => controller.abort();
+  }, []);
 
   const filteredProducts = products?.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -384,6 +401,23 @@ export default function Home() {
         </div>
       </div>
 
+      {/* Store statistics */}
+      <section className="w-full bg-[#07111E] border-b border-white/5 py-10 md:py-14">
+        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-8 text-center">
+          {[
+            { value: '5k+', ar: 'عميل سعيد', en: 'Happy customers' },
+            { value: '8k+', ar: 'عملية شراء ناجحة', en: 'Successful purchases' },
+            { value: '30+', ar: 'خدمة رقمية', en: 'Digital services' },
+            { value: '3+', ar: 'سنين خبرة', en: 'Years of experience' },
+          ].map((stat) => (
+            <div key={stat.en}>
+              <p className="font-display text-4xl md:text-5xl font-bold text-cyan-400 drop-shadow-[0_0_18px_rgba(34,211,238,0.25)]">{stat.value}</p>
+              <p className="mt-3 text-base md:text-xl text-slate-300">{lang === 'ar' ? stat.ar : stat.en}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* ── Product Marquee ── */}
       {products && products.length > 0 && (
         <div className="w-full bg-[#F7F9FC] border-b border-black/[0.04] py-6 overflow-hidden">
@@ -392,7 +426,7 @@ export default function Home() {
       )}
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-6 py-16 w-full flex-1">
+      <div id="products" className="max-w-7xl mx-auto px-6 py-16 w-full flex-1 scroll-mt-32">
         {/* Search */}
         <div className="flex justify-center mb-8">
           <div className="relative w-full max-w-xl">
@@ -475,7 +509,7 @@ export default function Home() {
       </div>
 
       {/* ── Reviews section ── */}
-      <section className="w-full bg-gradient-to-b from-[#F7F9FC] to-white py-20 border-t border-black/[0.04]">
+      <section id="about" className="w-full bg-gradient-to-b from-[#F7F9FC] to-white py-20 border-t border-black/[0.04] scroll-mt-32">
         <div className="max-w-7xl mx-auto px-6">
           {/* Header */}
           <div className="text-center mb-12">
@@ -495,7 +529,14 @@ export default function Home() {
 
           {/* Cards grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {REVIEWS.map((review, i) => (
+            {[...managedReviews.map(review => ({
+              name: review.reviewerName,
+              initials: review.reviewerName.charAt(0).toUpperCase(),
+              date: new Intl.DateTimeFormat('ar-EG', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${review.reviewDate}T00:00:00Z`)),
+              dateEn: new Intl.DateTimeFormat('en', { month: 'long', year: 'numeric', timeZone: 'UTC' }).format(new Date(`${review.reviewDate}T00:00:00Z`)),
+              text: review.content,
+              color: 'from-primary to-secondary',
+            })), ...REVIEWS].map((review, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}

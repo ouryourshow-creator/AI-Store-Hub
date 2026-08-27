@@ -8,14 +8,8 @@ export default function SignInPage() {
       <SignIn
         routing="path"
         path={`${basePath}/sign-in`}
-        forceRedirectUrl={`${basePath}/admin`}
-        signUpUrl={undefined}
-        appearance={{
-          elements: {
-            // Hide the sign-up footer link — admin panel has no public registration
-            footerAction__signUp: 'hidden',
-          },
-        }}
+        forceRedirectUrl={`${basePath}/orders`}
+        signUpForceRedirectUrl={`${basePath}/orders`}
       />
     </div>
   );

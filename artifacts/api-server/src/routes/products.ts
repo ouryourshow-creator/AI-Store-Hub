@@ -17,16 +17,26 @@ import { requireAdmin } from "../middlewares/requireAdmin";
 
 const router: IRouter = Router();
 
-function slugify(name: string): string {
-  const normalized = name.trim().split(/\s+/).slice(0, 6).join(" ").normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
+function slugifyWithLimit(name: string, wordLimit?: number): string {
+  const words = name.trim().split(/\s+/);
+  const normalized = (wordLimit ? words.slice(0, wordLimit) : words).join(" ").normalize("NFKD").replace(/[\u0300-\u036f]/g, "");
   return normalized
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/[^\p{Letter}\p{Number}]+/gu, "-")
     .replace(/^-+|-+$/g, "") || "product";
+}
+
+function slugify(name: string): string {
+  return slugifyWithLimit(name, 2);
 }
 
 function publicSlug(name: string, id: number): string {
   return `${slugify(name)}-${id.toString(36)}`;
+}
+
+function legacyPublicSlugs(name: string, id: number): string[] {
+  const suffix = id.toString(36);
+  return [slugifyWithLimit(name, 6), slugifyWithLimit(name), "product"].map((slug) => `${slug}-${suffix}`);
 }
 
 async function uniqueSlug(name: string, excludeId?: number): Promise<string> {
@@ -53,7 +63,9 @@ function mapProduct(p: typeof productsTable.$inferSelect, includeSensitiveFields
       : [{ duration: p.duration, price, salePrice, priceUsd: p.priceUsd != null ? Number(p.priceUsd) : null, salePriceUsd: p.salePriceUsd != null ? Number(p.salePriceUsd) : null }];
   return {
     ...safeProduct,
-    slug: p.slug ?? publicSlug(p.name, p.id),
+    // Always expose the canonical two-word public slug. Stored historical
+    // slugs remain accepted by the lookup route for backwards compatibility.
+    slug: publicSlug(p.name, p.id),
     price,
     salePrice,
     priceUsd: p.priceUsd != null ? Number(p.priceUsd) : null,
@@ -172,7 +184,9 @@ router.get("/products/slug/:slug", async (req, res): Promise<void> => {
     .select()
     .from(productsTable)
     .where(eq(productsTable.published, true));
-  const product = products.find((candidate) => publicSlug(candidate.name, candidate.id) === params.data.slug);
+  const product = products.find((candidate) =>
+    publicSlug(candidate.name, candidate.id) === params.data.slug || legacyPublicSlugs(candidate.name, candidate.id).includes(params.data.slug),
+  );
   if (!product) {
     res.status(404).json({ error: "Product not found" });
     return;
