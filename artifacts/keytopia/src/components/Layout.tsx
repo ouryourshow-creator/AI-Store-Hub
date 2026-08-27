@@ -1,5 +1,6 @@
 import { Link } from 'wouter';
-import { ShoppingBag } from 'lucide-react';
+import { ShoppingBag, LogIn } from 'lucide-react';
+import { useUser, UserButton } from '@clerk/react';
 import { useCart } from '../contexts/CartContext';
 import { useLang } from '../contexts/LanguageContext';
 import { useState } from 'react';
@@ -11,6 +12,7 @@ const logoImg = `${import.meta.env.BASE_URL}logo.png`;
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { cartCount } = useCart();
   const { t, toggleLang, dir } = useLang();
+  const { isLoaded, isSignedIn } = useUser();
   const [isCartOpen, setIsCartOpen] = useState(false);
   const navigation = dir === 'rtl'
     ? [
@@ -67,6 +69,21 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 </span>
               )}
             </button>
+
+            {/* Sign in / Profile */}
+            {isLoaded && (
+              isSignedIn ? (
+                <UserButton />
+              ) : (
+                <Link
+                  href="/sign-in"
+                  className="h-9 px-4 rounded-full bg-primary hover:bg-primary/90 text-white text-sm font-semibold flex items-center gap-1.5 transition-all"
+                >
+                  <LogIn className="w-4 h-4" strokeWidth={2} />
+                  {dir === 'rtl' ? 'تسجيل الدخول' : 'Sign in'}
+                </Link>
+              )
+            )}
           </div>
         </div>
         <nav aria-label={dir === 'rtl' ? 'التنقل الرئيسي للهاتف' : 'Mobile navigation'} className="lg:hidden flex gap-5 overflow-x-auto no-scrollbar px-4 pb-3 text-sm font-semibold text-muted-foreground">

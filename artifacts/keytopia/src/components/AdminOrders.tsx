@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Fragment } from 'react';
 import { useListAdminOrders, getListAdminOrdersQueryKey, useUpdateOrderStatus } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Search, Package, Clock, ChevronDown } from 'lucide-react';
@@ -13,6 +13,12 @@ export default function AdminOrders() {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('');
+  const [expandedOrders, setExpandedOrders] = useState<Set<number>>(new Set());
+  const toggleOrder = (id: number) => setExpandedOrders((prev) => {
+    const next = new Set(prev);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    return next;
+  });
 
   const { data: orders, isLoading } = useListAdminOrders({}, {
     query: {
@@ -120,12 +126,17 @@ export default function AdminOrders() {
                   </td>
                 </tr>
               ) : (
-                filteredOrders.map(order => {
+  filteredOrders.map(order => {
                   const conf = getStatusLabel(order.status);
+                  const expanded = expandedOrders.has(order.id);
                   return (
-                    <tr key={order.id} className="hover:bg-muted/10 transition-colors group">
+                    <Fragment key={order.id}>
+                    <tr onClick={() => toggleOrder(order.id)} className="hover:bg-muted/10 transition-colors group cursor-pointer">
                       <td className={`px-6 py-4 ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>
-                        <div className="font-display font-bold text-foreground mb-1">{order.orderNumber}</div>
+                        <div className="font-display font-bold text-foreground mb-1 flex items-center gap-2">
+                          <ChevronDown className={`w-3.5 h-3.5 text-muted-foreground shrink-0 transition-transform ${expanded ? 'rotate-180' : ''}`} />
+                          {order.orderNumber}
+                        </div>
                         <div className="text-xs text-muted-foreground flex items-center gap-1.5">
                           <Clock className="w-3 h-3" />
                           {format(new Date(order.createdAt), 'MMM d, yyyy HH:mm')}
@@ -147,7 +158,7 @@ export default function AdminOrders() {
                           {dir === 'rtl' ? conf.ar : conf.en}
                         </span>
                       </td>
-                      <td className={`px-6 py-4 ${dir === 'rtl' ? 'text-left' : 'text-right'}`}>
+                      <td className={`px-6 py-4 ${dir === 'rtl' ? 'text-left' : 'text-right'}`} onClick={(e) => e.stopPropagation()}>
                         <div className={`flex items-center gap-2 ${dir === 'rtl' ? 'justify-end' : 'justify-end'}`}>
                           <div className="relative group/menu">
                             <button className="px-3 py-1.5 bg-muted hover:bg-muted/80 text-foreground font-semibold text-xs rounded-lg transition-colors flex items-center gap-2">
@@ -173,6 +184,47 @@ export default function AdminOrders() {
                         </div>
                       </td>
                     </tr>
+                    {expanded && (
+                      <tr className="bg-muted/10">
+                        <td colSpan={5} className="px-6 py-4">
+                          <div className="space-y-3">
+                            {order.items.map(item => (
+                              <div key={item.id} className="flex items-center gap-4">
+                                <div className="w-12 h-12 rounded-lg bg-muted overflow-hidden flex-shrink-0">
+                                  {item.coverImageUrl ? (
+                                    <img src={item.coverImageUrl} alt={item.productName} className="w-full h-full object-cover" />
+                                  ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-secondary to-primary flex items-center justify-center">
+                                      <span className="text-white/50 font-bold text-sm">{item.productName.charAt(0)}</span>
+                                    </div>
+                                  )}
+                                </div>
+                                <div className={`flex-1 min-w-0 ${dir === 'rtl' ? 'text-right' : 'text-left'}`}>
+                                  <div className="font-semibold text-foreground text-sm truncate">{item.productName}</div>
+                                  <div className="text-xs text-muted-foreground">{item.duration}</div>
+                                </div>
+                                <div className={`shrink-0 ${dir === 'rtl' ? 'text-left' : 'text-right'}`}>
+                                  <div className="font-medium text-foreground text-sm">{order.currency} {item.lineTotal}</div>
+                                  <div className="text-xs text-muted-foreground">{dir === 'rtl' ? 'الكمية:' : 'Qty:'} {item.quantity}</div>
+                                </div>
+                              </div>
+                            ))}
+                            {order.promoCode && (
+                              <div className="text-xs text-muted-foreground pt-2 border-t border-black/[0.05]">
+                                {dir === 'rtl' ? 'كود الخصم:' : 'Promo code:'} <span className="font-semibold text-foreground">{order.promoCode}</span>
+                                {order.discount > 0 && <span> — {dir === 'rtl' ? 'خصم' : 'discount'} {order.currency} {order.discount}</span>}
+                              </div>
+                            )}
+                            {order.paymentMethod && (
+                              <div className="text-xs text-muted-foreground">
+                                {dir === 'rtl' ? 'طريقة الدفع:' : 'Payment method:'} <span className="font-semibold text-foreground">{order.paymentMethod}</span>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   );
                 })
               )}

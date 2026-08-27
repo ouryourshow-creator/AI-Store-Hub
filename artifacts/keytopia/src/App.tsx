@@ -1,4 +1,4 @@
-import { ClerkProvider } from '@clerk/react';
+import { ClerkProvider, useAuth } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -113,11 +113,15 @@ function VisitTracker() {
 
 function ReferralLanding({ params }: { params: { code: string } }) {
   const [, setLocation] = useLocation();
+  const { isLoaded, isSignedIn } = useAuth();
   useEffect(() => {
+    if (!isLoaded) return;
     const code = params.code.trim().toUpperCase();
     if (/^[A-Z0-9_-]{3,32}$/.test(code)) localStorage.setItem('keytopia_referral', code);
-    setLocation('/', { replace: true });
-  }, [params.code, setLocation]);
+    // Referred visitors need an account for the referral to be attributed, so
+    // send signed-out visitors straight to sign-in instead of the homepage.
+    setLocation(isSignedIn ? '/' : '/sign-in', { replace: true });
+  }, [params.code, setLocation, isLoaded, isSignedIn]);
   return null;
 }
 
