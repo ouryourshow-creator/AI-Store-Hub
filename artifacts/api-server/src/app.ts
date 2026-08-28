@@ -1,10 +1,10 @@
 import express, { type Express } from "express";
+import path from "node:path";
 import cors from "cors";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
 import pinoHttp from "pino-http";
 import { clerkMiddleware } from "@clerk/express";
-import { publishableKeyFromHost } from "@clerk/shared/keys";
 import {
   CLERK_PROXY_PATH,
   clerkProxyMiddleware,
@@ -113,16 +113,34 @@ app.use(
 app.use(express.json({ limit: "256kb" }));
 app.use(express.urlencoded({ extended: true, limit: "256kb" }));
 
-// Clerk auth middleware — after body parsers, before routes
+// Clerk auth middleware — after body parsers, before routes. The app uses the
+// owner's external Clerk instance, so use its key directly rather than
+// deriving a Replit custom-domain key from the incoming host.
 app.use(
-  clerkMiddleware((req) => ({
-    publishableKey: publishableKeyFromHost(
-      getClerkProxyHost(req) ?? "",
-      process.env.CLERK_PUBLISHABLE_KEY,
-    ),
-  })),
+  clerkMiddleware({
+    publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+  }),
 );
 
 app.use("/api", router);
+
+// Production publishes one HTTP process, so serve the built SPA from the API
+// server after API routes have had a chance to handle the request.
+if (process.env.NODE_ENV === "production") {
+  const frontendDist = path.resolve(
+    import.meta.dirname,
+    "../../keytopia/dist/public",
+  );
+
+  app.use(express.static(frontendDist));
+  app.use((req, res, next) => {
+    if (req.method !== "GET" || req.path.startsWith("/api")) {
+      next();
+      return;
+    }
+
+    res.sendFile(path.join(frontendDist, "index.html"));
+  });
+}
 
 export default app;

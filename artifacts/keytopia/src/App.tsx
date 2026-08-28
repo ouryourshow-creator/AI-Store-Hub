@@ -1,5 +1,4 @@
 import { ClerkProvider, useAuth } from '@clerk/react';
-import { publishableKeyFromHost } from '@clerk/react/internal';
 import { shadcn } from '@clerk/themes';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
@@ -13,6 +12,7 @@ import Admin from './pages/Admin';
 import ProductPage from './pages/ProductPage';
 import PolicyPage from './pages/PolicyPage';
 import SignInPage from './pages/SignInPage';
+import SignUpPage from './pages/SignUpPage';
 import Orders from './pages/Orders';
 import Checkout from './pages/Checkout';
 import NotFound from './pages/not-found';
@@ -22,15 +22,10 @@ const queryClient = new QueryClient();
 
 const basePath = import.meta.env.BASE_URL?.replace(/\/$/, '') || '';
 
-// REQUIRED — copy verbatim. Resolves the key from window.location.hostname so the
-// same build serves multiple Clerk custom domains.
-const clerkPubKey = publishableKeyFromHost(
-  window.location.hostname,
-  import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
-);
-
-// REQUIRED — copy verbatim. Empty in dev, auto-set in prod.
-const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
+// This app uses the owner's external Clerk instance. External publishable keys
+// already encode their Frontend API host, so they must not be derived from the
+// Replit preview hostname.
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 
 // Clerk passes full paths to routerPush/routerReplace, but wouter's
 // setLocation prepends the base — strip it to avoid doubling.
@@ -131,9 +126,9 @@ function ClerkProviderWithRoutes() {
   return (
     <ClerkProvider
       publishableKey={clerkPubKey}
-      proxyUrl={clerkProxyUrl}
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
+      signUpUrl={`${basePath}/sign-up`}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}
     >
@@ -149,6 +144,7 @@ function ClerkProviderWithRoutes() {
                 <Route path="/policy" component={PolicyPage} />
                 {/* REQUIRED — /*? optional wildcard matches both bare URL and Clerk OAuth sub-paths */}
                 <Route path="/sign-in/*?" component={SignInPage} />
+                <Route path="/sign-up/*?" component={SignUpPage} />
                 <Route path="/orders" component={Orders} />
                 <Route path="/checkout" component={Checkout} />
                 <Route path="/admin" component={Admin} />
